@@ -3,6 +3,11 @@
 @font-face { font-family: "Vazirmatn"; src: url("fonts/Vazirmatn-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
 @font-face { font-family: "Vazirmatn"; src: url("fonts/Vazirmatn-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
 @font-face { font-family: "Vazirmatn"; src: url("fonts/Vazirmatn-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+/* Vazirmatn's vertical metrics suit Persian, which leaves Latin capitals about 0.11em above the middle
+   of a line. These faces keep the line height and centre Latin capitals, for English pages only. */
+@font-face { font-family: "Vazirmatn Latin"; src: url("fonts/Vazirmatn-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; unicode-range: U+0020-024F, U+2000-206F; ascent-override: 114.1%; descent-override: 42.1%; }
+@font-face { font-family: "Vazirmatn Latin"; src: url("fonts/Vazirmatn-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; unicode-range: U+0020-024F, U+2000-206F; ascent-override: 114.1%; descent-override: 42.1%; }
+@font-face { font-family: "Vazirmatn Latin"; src: url("fonts/Vazirmatn-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; unicode-range: U+0020-024F, U+2000-206F; ascent-override: 114.1%; descent-override: 42.1%; }
 
 :root {
   color-scheme: dark;
@@ -30,6 +35,7 @@ body {
   line-height: 1.55;
 }
 :lang(fa) body, body:lang(fa) { line-height: 1.7; }
+:lang(en) body, body:lang(en) { font-family: "Vazirmatn Latin", "Vazirmatn", system-ui, sans-serif; }
 h1, h2, h3, p, ul, dl, dd { margin: 0; padding: 0; }
 ul { list-style: none; }
 img { display: block; }

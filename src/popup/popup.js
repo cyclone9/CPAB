@@ -59,8 +59,7 @@ byId('reload').addEventListener('click', async () => {
   window.close();
 });
 
-byId('open-settings').addEventListener('click', (event) => {
-  event.preventDefault();
+byId('open-settings').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
   window.close();
 });

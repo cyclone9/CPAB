@@ -52,4 +52,4 @@ html, body { inline-size: 340px; }
   cursor: pointer;
 }
 .master-label { font-weight: 500; }
-.settings-link { display: inline-block; padding-block: 0.125rem; }
+.settings-button { inline-size: 100%; margin-block-start: 0.25rem; }
