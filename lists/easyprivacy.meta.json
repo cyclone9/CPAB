@@ -1,0 +1,33 @@
+{
+  "name": "easyprivacy",
+  "group": "trackers",
+  "title": "EasyPrivacy",
+  "homepage": "https://easylist.to/",
+  "attribution": "The EasyList authors (https://easylist.to/)",
+  "licence": {
+    "name": "CC BY-SA 4.0",
+    "spdx": "CC-BY-SA-4.0",
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source": "GPL-3.0-or-later or CC BY-SA 3.0 or later, at our choice. CPAB takes the CC BY-SA side, at version 4.0, for the converted file."
+  },
+  "admission": {
+    "reviewed": "2026-11-04",
+    "result": "admitted",
+    "checks": {
+      "licenceStated": "EasyPrivacy header \"Licence:\" points to https://easylist.to/pages/licence.html, read through the Wayback Machine because the live page sits behind a Cloudflare challenge.",
+      "licenceAccepted": "GPL-3.0-or-later and CC BY-SA 3.0 or later are both on the accepted set.",
+      "notRefused": "No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.",
+      "attribution": "The EasyList authors (https://easylist.to/), shown in settings and THIRD-PARTY-NOTICES.md.",
+      "aggregated": "Not an aggregate: built from the templates in the EasyList repository.",
+      "ownFile": "The converted rules are one file of their own, never merged with another list.",
+      "retrievable": "A stable URL, and the snapshot records the list's own version and commit."
+    }
+  },
+  "sourceUrl": "https://easylist.to/easylist/easyprivacy.txt",
+  "snapshot": {
+    "date": "2026-11-04",
+    "sha256": "b444a0b76467509dfce84a2ab17f5ea7ed9b21cb17dc80f8ff06daacf62efd89",
+    "listVersion": "202611041848",
+    "listCommit": "fea9111c5ca435bc5b8deb1c3daebc966ebd20b5"
+  }
+}

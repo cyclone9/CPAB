@@ -19,6 +19,7 @@
         <a href="#blocking" data-t="sectionBlocking"></a>
         <a href="#protection" data-t="sectionProtection"></a>
         <a href="#paused" data-t="sectionPaused"></a>
+        <a href="#blocked-sites" data-t="sectionBlockedSites"></a>
         <a href="#appearance" data-t="sectionAppearance"></a>
         <a href="#about" data-t="sectionAbout"></a>
       </nav>
@@ -26,7 +27,6 @@
 
     <main class="main">
       <h1 class="title" data-t="settings"></h1>
-      <p class="notice" data-t="previewNotice"></p>
 
       <section id="blocking" class="section">
         <h2 data-t="sectionBlocking"></h2>
@@ -48,7 +48,8 @@
             <span class="row-text">
               <span class="row-title" id="ads-title" data-t="groupAds"></span>
               <span class="row-desc" id="ads-desc" data-t="groupAdsDesc"></span>
-              <span class="row-meta"><span data-t="metaNoRules"></span><span data-t="metaNoDate"></span></span>
+              <span class="row-meta" data-meta="ads"></span>
+              <span class="row-problem small" data-problem="ads" hidden></span>
             </span>
             <input class="switch" type="checkbox" role="switch" data-group="ads" aria-labelledby="ads-title" aria-describedby="ads-desc">
           </label>
@@ -56,7 +57,8 @@
             <span class="row-text">
               <span class="row-title" id="trackers-title" data-t="groupTrackers"></span>
               <span class="row-desc" id="trackers-desc" data-t="groupTrackersDesc"></span>
-              <span class="row-meta"><span data-t="metaNoRules"></span><span data-t="metaNoDate"></span></span>
+              <span class="row-meta" data-meta="trackers"></span>
+              <span class="row-problem small" data-problem="trackers" hidden></span>
             </span>
             <input class="switch" type="checkbox" role="switch" data-group="trackers" aria-labelledby="trackers-title" aria-describedby="trackers-desc">
           </label>
@@ -64,7 +66,8 @@
             <span class="row-text">
               <span class="row-title" id="iran-title" data-t="groupIran"></span>
               <span class="row-desc" id="iran-desc" data-t="groupIranDesc"></span>
-              <span class="row-meta"><span data-t="metaNoRules"></span><span data-t="metaNoDate"></span></span>
+              <span class="row-meta" data-meta="iran"></span>
+              <span class="row-problem small" data-problem="iran" hidden></span>
             </span>
             <input class="switch" type="checkbox" role="switch" data-group="iran" aria-labelledby="iran-title" aria-describedby="iran-desc">
           </label>
@@ -137,6 +140,28 @@
         </div>
       </section>
 
+      <section id="blocked-sites" class="section">
+        <h2 data-t="sectionBlockedSites"></h2>
+        <p class="intro" data-t="blockedSitesIntro"></p>
+
+        <div class="panel">
+          <form id="add-blocked-site" class="add" novalidate>
+            <label class="add-label small" for="blocked-site-input" data-t="pausedAddLabel"></label>
+            <div class="add-controls">
+              <input id="blocked-site-input" class="field" type="text" dir="ltr" inputmode="url" autocomplete="off" spellcheck="false" placeholder="example.com" aria-describedby="blocked-site-error">
+              <button class="button button-primary" type="submit" data-t="pausedAdd"></button>
+            </div>
+            <p id="blocked-site-error" class="error" role="alert" hidden></p>
+          </form>
+
+          <ul id="blocked-site-list" class="paused-list"></ul>
+          <div id="blocked-site-empty" class="empty">
+            <p class="empty-title" data-t="blockedSitesEmptyTitle"></p>
+            <p class="small muted" data-t="blockedSitesEmptyHint"></p>
+          </div>
+        </div>
+      </section>
+
       <section id="appearance" class="section">
         <h2 data-t="sectionAppearance"></h2>
 
@@ -182,6 +207,13 @@
         <div class="panel">
           <dl class="facts">
             <div>
+              <dt data-t="aboutName"></dt>
+              <dd>
+                <p id="name-fa" data-t="productName" hidden></p>
+                <bdi dir="ltr" data-t="fullName"></bdi>
+              </dd>
+            </div>
+            <div>
               <dt data-t="aboutVersion"></dt>
               <dd><bdi dir="ltr" id="version"></bdi></dd>
             </div>
@@ -199,12 +231,20 @@
                 <p class="small"><a href="../assets/fonts/OFL.txt" target="_blank" rel="noopener"><bdi dir="ltr" data-t="aboutFontLicence"></bdi></a></p>
               </dd>
             </div>
+            <div>
+              <dt data-t="aboutLinks"></dt>
+              <dd>
+                <p class="small"><a href="https://cyclone9.dev/cpab" target="_blank" rel="noopener"><bdi dir="ltr">https://cyclone9.dev/cpab</bdi></a></p>
+                <p class="small"><a href="https://cpab.cyclone9.dev/" target="_blank" rel="noopener"><bdi dir="ltr">https://cpab.cyclone9.dev/</bdi></a></p>
+              </dd>
+            </div>
           </dl>
         </div>
 
         <h3 class="subheading" data-t="creditsHeading"></h3>
         <div class="panel">
-          <div class="empty">
+          <ul id="credits" class="credits"></ul>
+          <div id="credits-empty" class="empty" hidden>
             <p class="small muted" data-t="creditsEmpty"></p>
           </div>
         </div>

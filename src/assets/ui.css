@@ -112,27 +112,6 @@ a:hover { color: var(--cpab-color-text); }
 .button-primary:active { background: color-mix(in srgb, var(--cpab-color-accent) 74%, var(--cpab-color-text)); }
 .button-quiet { border-color: transparent; min-block-size: 2rem; padding-inline: 0.625rem; font-size: var(--size-small); }
 
-/* The preview notice: a quiet fact, not an alarm */
-.notice {
-  display: flex;
-  gap: 0.5rem;
-  align-items: baseline;
-  padding-block: 0.5rem;
-  padding-inline: 0.75rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-small);
-  font-size: var(--size-small);
-}
-.notice::before {
-  content: "";
-  flex: none;
-  inline-size: 0.4375rem;
-  block-size: 0.4375rem;
-  border-radius: 50%;
-  background: var(--cpab-color-warning);
-  transform: translateY(-0.0625rem);
-}
-
 .error { color: var(--cpab-color-danger); font-size: var(--size-small); }
 
 @media (prefers-reduced-motion: reduce) {

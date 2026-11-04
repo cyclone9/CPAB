@@ -1,0 +1,635 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733",
+  "--disable-site-isolation-trials"
+ ],
+ "steps": [
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets()",
+   "label": "enabled at install"
+  },
+  {
+   "sw": "chrome.action.getBadgeBackgroundColor({})",
+   "label": "badge background"
+  },
+  {
+   "sw": "chrome.action.getBadgeTextColor({})",
+   "label": "badge text"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "expectBlocked": "trackers-probe"
+  },
+  {
+   "expectBlocked": "iran-probe"
+  },
+  {
+   "expectLoaded": "unrelated-probe"
+  },
+  {
+   "expectBlocked": "exception-block"
+  },
+  {
+   "expectLoaded": "exception-allow"
+  },
+  {
+   "expectBlocked": "exception-wrong-type"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"ads\":false}}}).then(()=>'set')",
+   "label": "ads group off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "ads-probe"
+  },
+  {
+   "expectBlocked": "trackers-probe"
+  },
+  {
+   "expectBlocked": "iran-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"trackers\":false}}}).then(()=>'set')",
+   "label": "trackers group off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "expectLoaded": "trackers-probe"
+  },
+  {
+   "expectBlocked": "iran-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"iran\":false}}}).then(()=>'set')",
+   "label": "iran group off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "expectBlocked": "trackers-probe"
+  },
+  {
+   "expectLoaded": "iran-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"master\":false,\"groups\":{\"ads\":true,\"trackers\":true,\"iran\":true}}}).then(()=>'set')",
+   "label": "master off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets()",
+   "label": "enabled, master off"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "ads-probe"
+  },
+  {
+   "expectLoaded": "trackers-probe"
+  },
+  {
+   "expectLoaded": "iran-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"pausedSites\":[\"fixtures.localhost\"]}}).then(()=>'set')",
+   "label": "page paused through its parent domain"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getDynamicRules()",
+   "label": "dynamic rules"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "ads-probe"
+  },
+  {
+   "expectLoaded": "trackers-probe"
+  },
+  {
+   "expectLoaded": "iran-probe"
+  },
+  {
+   "expectLoaded": "unrelated-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"pausedSites\":[\"someone-else.localhost\"]}}).then(()=>'set')",
+   "label": "a different site paused"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "expectBlocked": "trackers-probe"
+  },
+  {
+   "expectBlocked": "iran-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "back to defaults"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getDynamicRules()",
+   "label": "dynamic rules, none paused"
+  },
+  {
+   "open": "http://adnxs.com/main-frame-ads",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "main-frame-ads"
+  },
+  {
+   "eval": "location.href",
+   "label": "main frame ads ended at"
+  },
+  {
+   "eval": "document.title",
+   "label": "main frame title"
+  },
+  {
+   "open": "http://hotjar.com/main-frame-trackers",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "main-frame-trackers"
+  },
+  {
+   "eval": "location.href",
+   "label": "main frame trackers ended at"
+  },
+  {
+   "eval": "document.title",
+   "label": "main frame title"
+  },
+  {
+   "open": "http://tapsell.ir/main-frame-iran",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "main-frame-iran"
+  },
+  {
+   "eval": "location.href",
+   "label": "main frame iran ended at"
+  },
+  {
+   "eval": "document.title",
+   "label": "main frame title"
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "stopWorker": true
+  },
+  {
+   "eval": "chrome.storage.local.set({settings:{groups:{ads:false,trackers:true,iran:true}}}).then(()=>'saved from a page with the worker stopped')",
+   "label": "settings change wakes the worker"
+  },
+  {
+   "wait": 1000
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets()",
+   "label": "enabled after the wake"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "ads-probe"
+  },
+  {
+   "expectBlocked": "trackers-probe"
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "eval": "chrome.storage.local.set({settings:{badge:false}}).then(()=>'badge off')",
+   "label": "badge switch off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.tabs.query({active:true}).then(([t])=>chrome.action.getBadgeText({tabId:t.id}))",
+   "label": "badge text, switch off"
+  },
+  {
+   "eval": "chrome.storage.local.set({settings:{badge:true}}).then(()=>'badge on')",
+   "label": "badge switch on"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.tabs.query({active:true}).then(([t])=>chrome.action.getBadgeText({tabId:t.id}))",
+   "label": "badge text, switch on"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "blocked sites: control, nothing blocked"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "mine-image"
+  },
+  {
+   "expectLoaded": "mine-script"
+  },
+  {
+   "expectLoaded": "mine-fetch"
+  },
+  {
+   "expectLoaded": "mine-frame"
+  },
+  {
+   "open": "http://sub.my-blocked.localhost:8733/mine-control",
+   "settle": 1000
+  },
+  {
+   "expectLoaded": "mine-control"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"]}}).then(()=>'set')",
+   "label": "site blocked"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getDynamicRules()",
+   "label": "dynamic rules, site blocked"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "mine-image"
+  },
+  {
+   "expectBlocked": "mine-script"
+  },
+  {
+   "expectBlocked": "mine-fetch"
+  },
+  {
+   "expectBlocked": "mine-frame"
+  },
+  {
+   "expectLoaded": "lookalike"
+  },
+  {
+   "expectLoaded": "unrelated-probe"
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "open": "http://sub.my-blocked.localhost:8733/mine-main",
+   "settle": 1200
+  },
+  {
+   "expectBlocked": "mine-main"
+  },
+  {
+   "eval": "location.href",
+   "label": "blocked site, opened directly, ended at"
+  },
+  {
+   "open": "http://my-blocked.localhost:8733/mine-root",
+   "settle": 1200
+  },
+  {
+   "expectBlocked": "mine-root"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"],\"master\":false}}).then(()=>'set')",
+   "label": "site blocked, master off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getDynamicRules()",
+   "label": "dynamic rules, master off"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "mine-image"
+  },
+  {
+   "expectLoaded": "mine-script"
+  },
+  {
+   "expectLoaded": "mine-fetch"
+  },
+  {
+   "expectLoaded": "mine-frame"
+  },
+  {
+   "open": "http://sub.my-blocked.localhost:8733/mine-master-off",
+   "settle": 1000
+  },
+  {
+   "expectLoaded": "mine-master-off"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"],\"pausedSites\":[\"someone-else.localhost\"]}}).then(()=>'set')",
+   "label": "site blocked, a different site paused"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "mine-image"
+  },
+  {
+   "expectBlocked": "mine-script"
+  },
+  {
+   "expectBlocked": "mine-fetch"
+  },
+  {
+   "expectBlocked": "mine-frame"
+  },
+  {
+   "open": "http://sub.my-blocked.localhost:8733/mine-main",
+   "settle": 1200
+  },
+  {
+   "expectBlocked": "mine-main"
+  },
+  {
+   "eval": "location.href",
+   "label": "blocked site, opened directly, ended at"
+  },
+  {
+   "open": "http://my-blocked.localhost:8733/mine-root",
+   "settle": 1200
+  },
+  {
+   "expectBlocked": "mine-root"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"],\"pausedSites\":[\"fixtures.localhost\"]}}).then(()=>'set')",
+   "label": "site blocked, the embedding page paused"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "mine-image"
+  },
+  {
+   "expectBlocked": "mine-script"
+  },
+  {
+   "expectBlocked": "mine-fetch"
+  },
+  {
+   "expectBlocked": "mine-frame"
+  },
+  {
+   "expectLoaded": "ads-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"],\"pausedSites\":[\"my-blocked.localhost\"]}}).then(()=>'set')",
+   "label": "the blocked site itself in the paused list"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://sub.my-blocked.localhost:8733/mine-main",
+   "settle": 1200
+  },
+  {
+   "expectBlocked": "mine-main"
+  },
+  {
+   "eval": "location.href",
+   "label": "blocked site, opened directly, ended at"
+  },
+  {
+   "open": "http://my-blocked.localhost:8733/mine-root",
+   "settle": 1200
+  },
+  {
+   "expectBlocked": "mine-root"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"]}}).then(()=>'set')",
+   "label": "worker restart: site blocked"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "stopWorker": true
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "mine-image"
+  },
+  {
+   "expectBlocked": "mine-script"
+  },
+  {
+   "expectBlocked": "mine-fetch"
+  },
+  {
+   "expectBlocked": "mine-frame"
+  },
+  {
+   "open": "http://sub.my-blocked.localhost:8733/mine-main",
+   "settle": 1200
+  },
+  {
+   "expectBlocked": "mine-main"
+  },
+  {
+   "eval": "location.href",
+   "label": "blocked site, opened directly, ended at"
+  },
+  {
+   "open": "http://my-blocked.localhost:8733/mine-root",
+   "settle": 1200
+  },
+  {
+   "expectBlocked": "mine-root"
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "eval": "chrome.declarativeNetRequest.getDynamicRules().then(r=>r.map(x=>[x.id,x.priority,x.action.type,x.condition.requestDomains.join()]))",
+   "label": "dynamic rules after the restart"
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "stopWorker": true
+  },
+  {
+   "eval": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"],\"master\":false}}).then(()=>'set')",
+   "label": "master off with the worker stopped"
+  },
+  {
+   "wait": 1000
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "mine-image"
+  },
+  {
+   "expectLoaded": "mine-script"
+  },
+  {
+   "expectLoaded": "mine-fetch"
+  },
+  {
+   "expectLoaded": "mine-frame"
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "stopWorker": true
+  },
+  {
+   "eval": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"]}}).then(()=>'set')",
+   "label": "master on with the worker stopped"
+  },
+  {
+   "wait": 1000
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "mine-image"
+  },
+  {
+   "expectBlocked": "mine-script"
+  },
+  {
+   "expectBlocked": "mine-fetch"
+  },
+  {
+   "expectBlocked": "mine-frame"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "blocked sites: removed"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "mine-image"
+  },
+  {
+   "expectLoaded": "mine-script"
+  },
+  {
+   "expectLoaded": "mine-fetch"
+  },
+  {
+   "expectLoaded": "mine-frame"
+  }
+ ]
+}

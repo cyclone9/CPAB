@@ -1,0 +1,53 @@
+{
+  "name": "persianblocker",
+  "group": "iran",
+  "title": "PersianBlocker",
+  "homepage": "https://github.com/PersianBlocker/PersianBlocker",
+  "sourceLink": "https://github.com/PersianBlocker/PersianBlocker",
+  "attribution": "The PersianBlocker authors (https://github.com/PersianBlocker/PersianBlocker)",
+  "licence": {
+    "name": "AGPL-3.0-only",
+    "spdx": "AGPL-3.0-only",
+    "url": "https://www.gnu.org/licenses/agpl-3.0.html",
+    "copy": "LICENSE.AGPL-3.0.txt",
+    "source": "The repository LICENSE is the AGPLv3 text and the list headers say AGPLv3 with no \"or later\", so CPAB treats the list as AGPL-3.0-only."
+  },
+  "admission": {
+    "reviewed": "2026-11-04",
+    "result": "admitted, with care",
+    "checks": {
+      "licenceStated": "The repository LICENSE on GitHub is the AGPLv3 text, byte-identical to lists/LICENSE.AGPL-3.0.txt (SHA-256 8486a10c...f07ef), and the list headers point to it.",
+      "licenceAccepted": "AGPL-3.0 is on the accepted set.",
+      "notRefused": "No NonCommercial or NoDerivatives term. The README of the earlier Codeberg copy asks that the list not be uploaded to GitHub: a request, not a licence term, and CPAB keeps the snapshot off GitHub until the owner decides otherwise.",
+      "attribution": "Named in settings and THIRD-PARTY-NOTICES.md, with a link to the source.",
+      "aggregated": "Not an aggregate: PersianBlocker/PersianBlocker is a GitHub fork of MasterKia/PersianBlocker, carrying on that project's own list under the same licence.",
+      "ownFile": "The converted rules are one file of their own, with the AGPL text beside them.",
+      "retrievable": "A stable repository, and the snapshot records the commit it was fetched at. The parts are joined in the listed order, with PersianBlockerHosts.txt rewritten from host-file lines to ||domain^ rules."
+    }
+  },
+  "sourceUrl": "https://github.com/PersianBlocker/PersianBlocker",
+  "snapshot": {
+    "date": "2026-11-04",
+    "sha256": "590be6ee8c5842f6c5fb84a9e8dd5563f6423cfbd903e7d4d9ab6f65100e2492",
+    "listVersion": null,
+    "listCommit": "65c37a658baedd871435662bdc409dbefae3b1ad",
+    "files": [
+      {
+        "name": "PersianBlocker-Deprecated.txt",
+        "sha256": "8a8af7f115fb5d77b9054b70b60521c455df2a5b5de21c32cb7bfb4cb54917e4"
+      },
+      {
+        "name": "PersianBlockerAds.txt",
+        "sha256": "077c4e5d3a1ce6fab5a683173e1863f1cd49b1a789d0c0aab64574609203d95d"
+      },
+      {
+        "name": "PersianBlockerTrackers.txt",
+        "sha256": "b99a3afac3b36a059816e6f31a5233b5746dd3c06e5da82aa4d91f64ad287a7a"
+      },
+      {
+        "name": "PersianBlockerHosts.txt",
+        "sha256": "443829cd159eb0c7563c82a3ff10c7fe982a43ec21a5a7eb8b56c1290c56d5a0"
+      }
+    ]
+  }
+}

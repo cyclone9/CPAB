@@ -15,8 +15,6 @@
   </header>
 
   <main class="body">
-    <p class="notice" data-t="previewNotice"></p>
-
     <section id="site" class="site" hidden>
       <div>
         <p class="eyebrow" data-t="thisSite"></p>
@@ -25,8 +23,11 @@
       </div>
 
       <div class="count">
-        <span class="small" data-t="blockedLabel"></span>
-        <span class="small muted" data-t="blockedEmpty"></span>
+        <p class="count-line small">
+          <span data-t="blockedLabel"></span>
+          <span id="blocked"></span>
+        </p>
+        <ul id="blocked-groups" class="count-groups" hidden></ul>
       </div>
 
       <button id="pause" class="button" type="button"></button>

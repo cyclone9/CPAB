@@ -1,0 +1,7 @@
+! Title: CPAB own rules
+! Homepage: https://cyclone9.dev/cpab
+! License: GPL-3.0-or-later
+!
+! CPAB's own rules, from the owner's reports and our own research. Write every rule here by hand,
+! never copied from another list, with a comment above it saying where it came from and when:
+! ! 2026-11-04, owner report, example.ir

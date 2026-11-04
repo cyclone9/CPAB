@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { format, resolveLanguage, t } from '../src/i18n/i18n.js';
+import { format, formatDate, formatNumber, resolveLanguage, t } from '../src/i18n/i18n.js';
 import { STRINGS } from '../src/i18n/strings.js';
 
 const ZWNJ = '‌';
@@ -58,14 +58,21 @@ test('t and format fill in text and refuse unknown keys', () => {
   assert.throws(() => t('en', 'nothing'));
 });
 
+test('numbers and dates follow the interface language', () => {
+  assert.equal(formatNumber('en', 45461), '45,461');
+  assert.equal(formatNumber('fa', 189), '۱۸۹');
+  assert.match(formatDate('en', '2026-11-04'), /2026/);
+  assert.match(formatDate('fa', '2026-11-04'), /۱۴۰۵/);
+});
+
 test('the manifest asks only for what this version needs', () => {
   const manifest = readJson('../src/manifest.json');
   assert.equal(manifest.manifest_version, 3);
   assert.equal(manifest.minimum_chrome_version, '121');
   assert.equal(manifest.version, readJson('../package.json').version);
-  assert.deepEqual(manifest.permissions, ['storage', 'activeTab']);
+  assert.deepEqual(manifest.permissions, ['storage', 'activeTab', 'declarativeNetRequest']);
   assert.equal(manifest.host_permissions, undefined);
-  assert.equal(manifest.background, undefined);
+  assert.equal(manifest.background.type, 'module');
 });
 
 test('the manifest names come from _locales', () => {
@@ -76,10 +83,13 @@ test('the manifest names come from _locales', () => {
 
 const brandFile = '/home/cyclone/projects/cpbs/cpab/brand.json';
 test('brand text matches CPBS word for word', { skip: !existsSync(brandFile) }, () => {
-  const { text } = JSON.parse(readFileSync(brandFile, 'utf8'));
+  const brand = JSON.parse(readFileSync(brandFile, 'utf8'));
+  const { text } = brand;
+  assert.equal(STRINGS.fa.productName, brand.name_fa);
   for (const language of ['en', 'fa']) {
     assert.equal(STRINGS[language].tagline, text[language].tagline);
     assert.equal(STRINGS[language].motto, text[language].motto);
+    assert.equal(STRINGS[language].fullName, brand.full_name);
     const locale = readJson(`../src/_locales/${language}/messages.json`);
     assert.equal(locale.description_short.message, text[language].description_short);
   }

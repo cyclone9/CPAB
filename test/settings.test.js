@@ -8,6 +8,7 @@ test('the defaults are on, dark, automatic and empty', () => {
     master: true,
     groups: { ads: true, trackers: true, iran: true },
     pausedSites: [],
+    blockedSites: [],
     language: 'auto',
     theme: 'dark',
     badge: true,
@@ -20,6 +21,7 @@ test('valid stored values are kept', () => {
     master: false,
     groups: { ads: false, trackers: true, iran: false },
     pausedSites: ['a.com', 'b.ir'],
+    blockedSites: ['c.com'],
     language: 'fa',
     theme: 'light',
     badge: false,
@@ -32,6 +34,7 @@ test('bad stored values fall back to the defaults', () => {
     master: 'yes',
     groups: { ads: 0, adult: true },
     pausedSites: 'a.com',
+    blockedSites: 'b.com',
     language: 'de',
     theme: 'blue',
     badge: null,
@@ -43,4 +46,9 @@ test('bad stored values fall back to the defaults', () => {
 test('paused sites are cleaned, deduplicated and sorted', () => {
   const { pausedSites } = normalizeSettings({ pausedSites: ['www.b.com', 'b.com', 'not a domain', 7, 'a.com'] });
   assert.deepEqual(pausedSites, ['a.com', 'b.com']);
+});
+
+test('blocked sites are cleaned, deduplicated and sorted like paused sites', () => {
+  const { blockedSites } = normalizeSettings({ blockedSites: ['www.b.com', 'b.com', 'not a domain', 7, 'a.com'] });
+  assert.deepEqual(blockedSites, ['a.com', 'b.com']);
 });

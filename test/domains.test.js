@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { addPausedSite, findPausedEntry, normalizeDomain, siteFromUrl } from '../src/shared/domains.js';
+import { addSite, findOverlap, findSiteEntry, normalizeDomain, siteFromUrl } from '../src/shared/domains.js';
 
 test('normalizeDomain accepts what people type or paste', () => {
   assert.equal(normalizeDomain('example.com'), 'example.com');
@@ -49,22 +49,31 @@ test('siteFromUrl gives null where an extension cannot run', () => {
   assert.equal(siteFromUrl('https://chrome.google.com/other'), 'chrome.google.com');
 });
 
-test('findPausedEntry matches a site and its subdomains, not lookalikes', () => {
+test('findSiteEntry matches a site and its subdomains, not lookalikes', () => {
   const paused = ['example.com'];
-  assert.equal(findPausedEntry('example.com', paused), 'example.com');
-  assert.equal(findPausedEntry('a.b.example.com', paused), 'example.com');
-  assert.equal(findPausedEntry('notexample.com', paused), null);
-  assert.equal(findPausedEntry('example.com.evil.net', paused), null);
+  assert.equal(findSiteEntry('example.com', paused), 'example.com');
+  assert.equal(findSiteEntry('a.b.example.com', paused), 'example.com');
+  assert.equal(findSiteEntry('notexample.com', paused), null);
+  assert.equal(findSiteEntry('example.com.evil.net', paused), null);
 });
 
-test('addPausedSite reports duplicates and domains a parent already covers', () => {
-  assert.deepEqual(addPausedSite(['b.com'], 'a.com'), { status: 'added', pausedSites: ['a.com', 'b.com'] });
-  assert.equal(addPausedSite(['a.com'], 'a.com').status, 'duplicate');
-  const covered = addPausedSite(['a.com'], 'x.a.com');
+test('addSite reports duplicates and domains a parent already covers', () => {
+  assert.deepEqual(addSite(['b.com'], 'a.com'), { status: 'added', sites: ['a.com', 'b.com'] });
+  assert.equal(addSite(['a.com'], 'a.com').status, 'duplicate');
+  const covered = addSite(['a.com'], 'x.a.com');
   assert.equal(covered.status, 'covered');
   assert.equal(covered.parent, 'a.com');
 });
 
-test('addPausedSite drops subdomains the new parent replaces', () => {
-  assert.deepEqual(addPausedSite(['x.a.com', 'b.com'], 'a.com').pausedSites, ['a.com', 'b.com']);
+test('addSite drops subdomains the new parent replaces', () => {
+  assert.deepEqual(addSite(['x.a.com', 'b.com'], 'a.com').sites, ['a.com', 'b.com']);
+});
+
+test('findOverlap sees the same site, a parent and a subdomain, not lookalikes', () => {
+  const sites = ['a.example.com', 'b.org'];
+  assert.equal(findOverlap('a.example.com', sites), 'a.example.com');
+  assert.equal(findOverlap('x.b.org', sites), 'b.org');
+  assert.equal(findOverlap('example.com', sites), 'a.example.com');
+  assert.equal(findOverlap('example.org', sites), null);
+  assert.equal(findOverlap('notb.org', sites), null);
 });

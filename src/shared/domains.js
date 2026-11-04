@@ -53,14 +53,19 @@ export function normalizeDomain(input) {
 }
 
 // The list entry that covers a host: the host itself or one of its parent domains.
-export function findPausedEntry(host, pausedSites) {
-  return pausedSites.find((entry) => host === entry || host.endsWith(`.${entry}`)) ?? null;
+export function findSiteEntry(host, sites) {
+  return sites.find((entry) => host === entry || host.endsWith(`.${entry}`)) ?? null;
 }
 
-export function addPausedSite(pausedSites, domain) {
-  if (pausedSites.includes(domain)) return { status: 'duplicate', pausedSites };
-  const parent = findPausedEntry(domain, pausedSites);
-  if (parent) return { status: 'covered', parent, pausedSites };
-  const kept = pausedSites.filter((entry) => !entry.endsWith(`.${domain}`));
-  return { status: 'added', pausedSites: [...kept, domain].sort() };
+// The list entry that touches a domain either way: the same site, a parent, or a subdomain of it.
+export function findOverlap(domain, sites) {
+  return findSiteEntry(domain, sites) ?? sites.find((entry) => entry.endsWith(`.${domain}`)) ?? null;
+}
+
+export function addSite(sites, domain) {
+  if (sites.includes(domain)) return { status: 'duplicate', sites };
+  const parent = findSiteEntry(domain, sites);
+  if (parent) return { status: 'covered', parent, sites };
+  const kept = sites.filter((entry) => !entry.endsWith(`.${domain}`));
+  return { status: 'added', sites: [...kept, domain].sort() };
 }

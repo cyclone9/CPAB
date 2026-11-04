@@ -12,6 +12,17 @@ export function t(language, key) {
   return text;
 }
 
+const LOCALES = { en: 'en', fa: 'fa-IR' };
+
+export function formatNumber(language, value) {
+  return new Intl.NumberFormat(LOCALES[language]).format(value);
+}
+
+// A YYYY-MM-DD date. Persian uses the Solar Hijri calendar, the fa-IR default.
+export function formatDate(language, date) {
+  return new Intl.DateTimeFormat(LOCALES[language], { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`));
+}
+
 export function format(language, key, params = {}) {
   return t(language, key).replace(/\{(\w+)\}/g, (_, name) => params[name]);
 }

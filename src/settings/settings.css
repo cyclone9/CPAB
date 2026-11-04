@@ -76,6 +76,7 @@ label.row:hover { background: var(--wash); }
   font-size: var(--size-tiny);
 }
 .row-meta span + span::before { content: "·"; margin-inline-end: 0.5rem; }
+.row-problem { margin-block-start: 0.25rem; color: var(--cpab-color-warning); overflow-wrap: anywhere; }
 .row-note {
   padding-block: 0.625rem;
   padding-inline: 1.125rem;
@@ -127,6 +128,7 @@ label.row:hover { background: var(--wash); }
 }
 .paused-list li + li { border-block-start: 1px solid var(--line); }
 .paused-list bdi { min-inline-size: 0; overflow-wrap: anywhere; }
+.site-actions { display: flex; flex: none; align-items: center; gap: 0.25rem; }
 
 .empty { padding: 1rem 1.125rem; }
 .add + .paused-list + .empty { border-block-start: 1px solid var(--line); }
@@ -170,6 +172,13 @@ label.row:hover { background: var(--wash); }
 }
 .facts > div + div { border-block-start: 1px solid var(--line); }
 .facts dt { color: var(--cpab-color-muted); font-size: var(--size-small); padding-block-start: 0.0625rem; }
+
+/* Credits */
+.credits li { display: grid; gap: 0.0625rem; padding-block: 0.75rem; padding-inline: 1.125rem; }
+.credits li + li { border-block-start: 1px solid var(--line); }
+.credits p { overflow-wrap: anywhere; }
+.credit-title { font-weight: 500; }
+.credit-links { display: flex; flex-wrap: wrap; gap: 0.125rem 1rem; margin-block-start: 0.25rem; }
 
 @media (max-width: 52rem) {
   .layout { grid-template-columns: minmax(0, 40rem); gap: 1.5rem; padding-block-start: 1.5rem; }

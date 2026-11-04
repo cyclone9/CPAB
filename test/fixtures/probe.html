@@ -1,0 +1,23 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CPAB probe</title>
+</head>
+<body>
+  <p>Requests each address in the query string: ?image=URL&amp;script=URL&amp;fetch=URL&amp;frame=URL</p>
+  <script type="module">
+    const makers = {
+      image: (src) => Object.assign(new Image(), { src }),
+      script: (src) => Object.assign(document.createElement('script'), { src }),
+      frame: (src) => Object.assign(document.createElement('iframe'), { src }),
+    };
+
+    for (const [kind, url] of new URLSearchParams(location.search)) {
+      if (kind === 'fetch') fetch(url).then((response) => response.arrayBuffer()).catch(() => {});
+      else if (makers[kind]) document.body.append(makers[kind](url));
+    }
+  </script>
+</body>
+</html>

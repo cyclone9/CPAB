@@ -1,0 +1,141 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { test } from 'node:test';
+import { LISTS } from '../scripts/lists.config.js';
+import {
+  ALLOW_RULE_ID_BASE,
+  BADGE_COLORS,
+  BLOCKED_RULE_ID,
+  BLOCK_GROUPS,
+  PAUSED_RULE_ID,
+  blockedRules,
+  countBlocked,
+  pausedRules,
+  splitBlocked,
+  wantedRulesets,
+} from '../src/shared/blocking.js';
+import { STRINGS } from '../src/i18n/strings.js';
+import { GROUP_IDS, normalizeSettings } from '../src/shared/settings.js';
+
+const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
+
+test('wanted rulesets follow the master switch and the groups', () => {
+  const declared = ['ads', 'trackers', 'iran'];
+  assert.deepEqual(wantedRulesets(normalizeSettings({}), declared), declared);
+  assert.deepEqual(wantedRulesets(normalizeSettings({ master: false }), declared), []);
+  assert.deepEqual(wantedRulesets(normalizeSettings({ groups: { ads: false } }), declared), ['trackers', 'iran']);
+});
+
+test('a ruleset this build left out is never asked for', () => {
+  assert.deepEqual(wantedRulesets(normalizeSettings({}), ['ads', 'trackers']), ['ads', 'trackers']);
+});
+
+test('paused sites are one allowAllRequests rule above every block and allow rule', () => {
+  assert.deepEqual(pausedRules([]), []);
+  assert.deepEqual(pausedRules(['a.com', 'b.ir']), [{
+    id: PAUSED_RULE_ID,
+    priority: 3,
+    action: { type: 'allowAllRequests' },
+    condition: { requestDomains: ['a.com', 'b.ir'], resourceTypes: ['main_frame', 'sub_frame'] },
+  }]);
+});
+
+test('blocked sites are one rule above the pause rule, on every resource type', () => {
+  const [rule] = blockedRules(normalizeSettings({ blockedSites: ['a.com', 'b.ir'] }));
+  assert.equal(rule.id, BLOCKED_RULE_ID);
+  assert.notEqual(rule.id, PAUSED_RULE_ID);
+  assert.ok(rule.priority > pausedRules(['x.com'])[0].priority);
+  assert.equal(rule.action.type, 'block');
+  assert.deepEqual(rule.condition.requestDomains, ['a.com', 'b.ir']);
+  assert.ok(rule.condition.resourceTypes.includes('main_frame'));
+  assert.equal(rule.condition.resourceTypes.length, 15);
+});
+
+test('blocked sites follow the master switch, and nothing else', () => {
+  assert.deepEqual(blockedRules(normalizeSettings({})), []);
+  assert.deepEqual(blockedRules(normalizeSettings({ master: false, blockedSites: ['a.com'] })), []);
+  assert.equal(blockedRules(normalizeSettings({ blockedSites: ['a.com'], pausedSites: ['b.com'], groups: { ads: false } })).length, 1);
+});
+
+test('a dynamic match counts only for the blocked-sites rule, never the pause rule', () => {
+  const dynamic = (ruleId) => ({ rule: { rulesetId: '_dynamic', ruleId } });
+  assert.equal(countBlocked([dynamic(BLOCKED_RULE_ID), dynamic(BLOCKED_RULE_ID), dynamic(PAUSED_RULE_ID)]), 2);
+  assert.deepEqual(splitBlocked([dynamic(BLOCKED_RULE_ID), dynamic(PAUSED_RULE_ID)]), [{ label: 'groupYourSites', count: 1 }]);
+  assert.deepEqual(splitBlocked([dynamic(PAUSED_RULE_ID)]), []);
+});
+
+test('the count leaves out allow rules and the pause rule', () => {
+  const match = (rulesetId, ruleId) => ({ rule: { rulesetId, ruleId } });
+  assert.equal(countBlocked([
+    match('ads', 1),
+    match('ads', 1),
+    match('trackers', 7),
+    match('ads', ALLOW_RULE_ID_BASE + 1),
+    match('_dynamic', PAUSED_RULE_ID),
+  ]), 3);
+});
+
+test('the split counts each group in order, with allow rules and the pause rule left out', () => {
+  const match = (rulesetId, ruleId) => ({ rule: { rulesetId, ruleId } });
+  const matches = [
+    match('iran', 1),
+    match('ads', 1),
+    match('ads', 2),
+    match('trackers', 7),
+    match('ads', ALLOW_RULE_ID_BASE + 1),
+    match('trackers', ALLOW_RULE_ID_BASE + 2),
+    match('_dynamic', PAUSED_RULE_ID),
+  ];
+  const split = splitBlocked(matches);
+  assert.deepEqual(split, [
+    { label: 'groupAds', count: 2 },
+    { label: 'groupTrackers', count: 1 },
+    { label: 'groupIran', count: 1 },
+  ]);
+  assert.equal(split.reduce((sum, { count }) => sum + count, 0), countBlocked(matches));
+});
+
+test('the split hides groups that blocked nothing', () => {
+  const allowOnly = [{ rule: { rulesetId: 'iran', ruleId: ALLOW_RULE_ID_BASE + 1 } }];
+  assert.deepEqual(splitBlocked([{ rule: { rulesetId: 'trackers', ruleId: 3 } }, ...allowOnly]), [
+    { label: 'groupTrackers', count: 1 },
+  ]);
+  assert.deepEqual(splitBlocked(allowOnly), []);
+  assert.deepEqual(splitBlocked([]), []);
+});
+
+test('a group joins by one entry, and that entry can own several rulesets', () => {
+  const groups = [...BLOCK_GROUPS, { label: 'groupPopups', rulesets: ['popups-one', 'popups-two'] }];
+  const matches = [{ rule: { rulesetId: 'popups-one', ruleId: 1 } }, { rule: { rulesetId: 'popups-two', ruleId: 1 } }];
+  assert.deepEqual(splitBlocked(matches, groups), [{ label: 'groupPopups', count: 2 }]);
+  assert.deepEqual(splitBlocked(matches), []);
+});
+
+test('every ruleset belongs to one group, and every group has its name in both languages', () => {
+  const { rule_resources: resources } = JSON.parse(read('../src/manifest.json')).declarative_net_request;
+  const owned = BLOCK_GROUPS.flatMap(({ rulesets }) => rulesets).filter((id) => id !== '_dynamic');
+  assert.deepEqual([...owned].sort(), resources.map(({ id }) => id).sort());
+  for (const { label } of BLOCK_GROUPS) assert.ok(STRINGS.en[label] && STRINGS.fa[label], label);
+});
+
+test('the badge colours are Ink on Citron from tokens.css', () => {
+  const tokens = read('../src/assets/tokens.css');
+  assert.ok(tokens.includes(`--cpab-ink: ${BADGE_COLORS.text};`));
+  assert.ok(tokens.includes(`--cpab-citron: ${BADGE_COLORS.background};`));
+});
+
+test('the manifest, the list config and the settings agree on the rulesets', () => {
+  const manifest = JSON.parse(read('../src/manifest.json'));
+  const resources = manifest.declarative_net_request.rule_resources;
+  assert.deepEqual(resources.map(({ id }) => id), GROUP_IDS);
+  assert.deepEqual(resources.map(({ path }) => path), LISTS.map(({ rulesFile }) => `rules/${rulesFile}`));
+  assert.ok(resources.every(({ enabled }) => enabled));
+});
+
+test('only the Iran list may be missing, and its record avoids the name git-guard refuses', () => {
+  assert.deepEqual(LISTS.filter(({ required }) => !required).map(({ group }) => group), ['iran']);
+  const record = LISTS.find(({ group }) => group === 'iran');
+  assert.ok(!record.metaFile.toLowerCase().includes(record.name));
+  for (const list of LISTS) assert.equal(Object.keys(list.admission.checks).length, 7);
+});
