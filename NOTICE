@@ -1,0 +1,27 @@
+CPAB - CyClone Power Ad Blocker
+Copyright (C) 2026 CyClone (https://cyclone9.dev)
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License in the LICENSE file for
+more details.
+
+Additional term under GPLv3 section 7(e): this licence grants no rights under
+trademark law to use the names CPAB, CyClone Power Ad Blocker, CyClone or
+تبلیغ‌شکن, or the CPAB logos, to identify any product other than unmodified
+copies of this program.
+
+What this licence does not cover:
+
+- The CPAB logos and icons are copyright CyClone, all rights reserved. They are
+  included only so that unmodified copies of this program can be distributed.
+  A modified version must replace them, and must replace the names in the
+  manifest and the locale files.
+- Filter lists and the rule files built from them keep their own licences. See
+  THIRD-PARTY-NOTICES.md.
+- Vazirmatn keeps the SIL Open Font License 1.1 (OFL.txt beside the fonts).

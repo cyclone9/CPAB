@@ -1,0 +1,15 @@
+{
+  "name": "cpab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CPAB - CyClone Power Ad Blocker",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test"
+  }
+}

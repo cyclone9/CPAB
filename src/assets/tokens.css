@@ -1,0 +1,52 @@
+/* CPAB colour tokens. Source of truth: brand.json. Palette and the dark default approved by the owner on 2026-11-04.
+   Primitives: --cpab-<token>. Semantic aliases: --cpab-color-*, dark theme by default (the brand default, like every
+   approved CP product), light theme under [data-theme="light"] or .cpab-light. Aliases point at primitives only.
+   The accent is for the halves of the symbol and for links, buttons and focus; Citron is never text on Paper,
+   Deep Citron never text on Ink. Status colours never appear in the logo or the wordmark. */
+:root {
+  --cpab-citron: #D4DE3A;
+  --cpab-citron-deep: #66700A;
+  --cpab-ink: #1A1A11;
+  --cpab-slate: #292A20;
+  --cpab-paper: #F8F8F1;
+  --cpab-white: #FFFFFF;
+  --cpab-muted: #666756;
+  --cpab-muted-light: #ABAC9A;
+  /* status: the CyClone family pairs; neutral status uses the muted colours */
+  --cpab-success: #4ADE80;
+  --cpab-success-deep: #157538;
+  --cpab-warning: #FBBF24;
+  --cpab-warning-deep: #7D5C00;
+  --cpab-danger: #F87171;
+  --cpab-danger-deep: #B91C1C;
+
+  /* Dark theme (default) */
+  --cpab-color-bg: var(--cpab-ink);
+  --cpab-color-surface: var(--cpab-slate);
+  --cpab-color-text: var(--cpab-paper);
+  --cpab-color-muted: var(--cpab-muted-light);
+  --cpab-color-accent: var(--cpab-citron);
+  --cpab-color-on-accent: var(--cpab-ink);
+  --cpab-color-logo: var(--cpab-paper);
+  --cpab-color-logo-accent: var(--cpab-citron);
+  --cpab-color-border: var(--cpab-muted-light);
+  --cpab-color-success: var(--cpab-success);
+  --cpab-color-warning: var(--cpab-warning);
+  --cpab-color-danger: var(--cpab-danger);
+}
+
+[data-theme="light"],
+.cpab-light {
+  --cpab-color-bg: var(--cpab-paper);
+  --cpab-color-surface: var(--cpab-white);
+  --cpab-color-text: var(--cpab-ink);
+  --cpab-color-muted: var(--cpab-muted);
+  --cpab-color-accent: var(--cpab-citron-deep);
+  --cpab-color-on-accent: var(--cpab-white);
+  --cpab-color-logo: var(--cpab-ink);
+  --cpab-color-logo-accent: var(--cpab-citron-deep);
+  --cpab-color-border: var(--cpab-muted);
+  --cpab-color-success: var(--cpab-success-deep);
+  --cpab-color-warning: var(--cpab-warning-deep);
+  --cpab-color-danger: var(--cpab-danger-deep);
+}

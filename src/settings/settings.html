@@ -1,0 +1,215 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-t="settingsTitle">CPAB</title>
+  <link rel="icon" href="../icons/icon-32.png">
+  <link rel="stylesheet" href="../assets/tokens.css">
+  <link rel="stylesheet" href="../assets/ui.css">
+  <link rel="stylesheet" href="settings.css">
+  <script type="module" src="settings.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side">
+      <img class="logo" data-logo alt="" width="134" height="29">
+      <nav id="nav" class="nav" data-label-key="navLabel">
+        <a href="#blocking" data-t="sectionBlocking"></a>
+        <a href="#protection" data-t="sectionProtection"></a>
+        <a href="#paused" data-t="sectionPaused"></a>
+        <a href="#appearance" data-t="sectionAppearance"></a>
+        <a href="#about" data-t="sectionAbout"></a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h1 class="title" data-t="settings"></h1>
+      <p class="notice" data-t="previewNotice"></p>
+
+      <section id="blocking" class="section">
+        <h2 data-t="sectionBlocking"></h2>
+        <p class="intro" data-t="blockingIntro"></p>
+
+        <div class="panel">
+          <label class="row row-lead">
+            <span class="row-text">
+              <span class="row-title" id="master-title" data-t="master"></span>
+              <span class="row-desc" id="master-desc" data-t="masterDesc"></span>
+            </span>
+            <input id="master" class="switch" type="checkbox" role="switch" aria-labelledby="master-title" aria-describedby="master-desc">
+          </label>
+          <p id="master-note" class="row-note small" hidden data-t="masterOffNote"></p>
+        </div>
+
+        <div class="panel">
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" id="ads-title" data-t="groupAds"></span>
+              <span class="row-desc" id="ads-desc" data-t="groupAdsDesc"></span>
+              <span class="row-meta"><span data-t="metaNoRules"></span><span data-t="metaNoDate"></span></span>
+            </span>
+            <input class="switch" type="checkbox" role="switch" data-group="ads" aria-labelledby="ads-title" aria-describedby="ads-desc">
+          </label>
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" id="trackers-title" data-t="groupTrackers"></span>
+              <span class="row-desc" id="trackers-desc" data-t="groupTrackersDesc"></span>
+              <span class="row-meta"><span data-t="metaNoRules"></span><span data-t="metaNoDate"></span></span>
+            </span>
+            <input class="switch" type="checkbox" role="switch" data-group="trackers" aria-labelledby="trackers-title" aria-describedby="trackers-desc">
+          </label>
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" id="iran-title" data-t="groupIran"></span>
+              <span class="row-desc" id="iran-desc" data-t="groupIranDesc"></span>
+              <span class="row-meta"><span data-t="metaNoRules"></span><span data-t="metaNoDate"></span></span>
+            </span>
+            <input class="switch" type="checkbox" role="switch" data-group="iran" aria-labelledby="iran-title" aria-describedby="iran-desc">
+          </label>
+          <div class="row is-later">
+            <span class="row-text">
+              <span class="row-title" id="popups-title" data-t="groupPopups"></span>
+              <span class="row-desc" data-t="groupPopupsDesc"></span>
+              <span class="tag" data-t="comingLater"></span>
+            </span>
+            <input class="switch" type="checkbox" role="switch" disabled aria-labelledby="popups-title">
+          </div>
+          <div class="row is-later">
+            <span class="row-text">
+              <span class="row-title" id="widgets-title" data-t="groupWidgets"></span>
+              <span class="row-desc" data-t="groupWidgetsDesc"></span>
+              <span class="tag" data-t="comingLater"></span>
+            </span>
+            <input class="switch" type="checkbox" role="switch" disabled aria-labelledby="widgets-title">
+          </div>
+        </div>
+      </section>
+
+      <section id="protection" class="section">
+        <h2 data-t="sectionProtection"></h2>
+        <p class="intro" data-t="protectionIntro"></p>
+
+        <div class="panel">
+          <div class="row is-later">
+            <span class="row-text">
+              <span class="row-title" id="harmful-title" data-t="harmful"></span>
+              <span class="row-desc" data-t="harmfulDesc"></span>
+              <span class="tag" data-t="comingLater"></span>
+            </span>
+            <input class="switch" type="checkbox" role="switch" disabled aria-labelledby="harmful-title">
+          </div>
+        </div>
+
+        <h3 class="subheading" data-t="adultHeading"></h3>
+        <div class="panel">
+          <div class="row is-later">
+            <span class="row-text">
+              <span class="row-title" id="adult-title" data-t="adult"></span>
+              <span class="row-desc" data-t="adultDesc"></span>
+              <span class="tag" data-t="comingLater"></span>
+            </span>
+            <input class="switch" type="checkbox" role="switch" disabled aria-labelledby="adult-title">
+          </div>
+        </div>
+      </section>
+
+      <section id="paused" class="section">
+        <h2 data-t="sectionPaused"></h2>
+        <p class="intro" data-t="pausedIntro"></p>
+
+        <div class="panel">
+          <form id="add-site" class="add" novalidate>
+            <label class="add-label small" for="site-input" data-t="pausedAddLabel"></label>
+            <div class="add-controls">
+              <input id="site-input" class="field" type="text" dir="ltr" inputmode="url" autocomplete="off" spellcheck="false" placeholder="example.com" aria-describedby="site-error">
+              <button class="button button-primary" type="submit" data-t="pausedAdd"></button>
+            </div>
+            <p id="site-error" class="error" role="alert" hidden></p>
+          </form>
+
+          <ul id="paused-list" class="paused-list"></ul>
+          <div id="paused-empty" class="empty">
+            <p class="empty-title" data-t="pausedEmptyTitle"></p>
+            <p class="small muted" data-t="pausedEmptyHint"></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="appearance" class="section">
+        <h2 data-t="sectionAppearance"></h2>
+
+        <div class="panel">
+          <div class="row row-choice">
+            <span class="row-text">
+              <span class="row-title" id="language-title" data-t="language"></span>
+              <span class="row-desc" data-t="languageHint"></span>
+            </span>
+            <div class="choice" role="radiogroup" aria-labelledby="language-title">
+              <label><input type="radio" name="language" value="auto"><span data-t="languageAuto"></span></label>
+              <label><input type="radio" name="language" value="en"><span lang="en" dir="ltr">English</span></label>
+              <label><input type="radio" name="language" value="fa"><span lang="fa" dir="rtl">فارسی</span></label>
+            </div>
+          </div>
+          <div class="row row-choice">
+            <span class="row-text">
+              <span class="row-title" id="theme-title" data-t="theme"></span>
+            </span>
+            <div class="choice" role="radiogroup" aria-labelledby="theme-title">
+              <label><input type="radio" name="theme" value="dark"><span data-t="themeDark"></span></label>
+              <label><input type="radio" name="theme" value="light"><span data-t="themeLight"></span></label>
+            </div>
+          </div>
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" id="badge-title" data-t="badge"></span>
+              <span class="row-desc" id="badge-desc" data-t="badgeDesc"></span>
+            </span>
+            <input id="badge" class="switch" type="checkbox" role="switch" aria-labelledby="badge-title" aria-describedby="badge-desc">
+          </label>
+        </div>
+      </section>
+
+      <section id="about" class="section">
+        <h2 data-t="sectionAbout"></h2>
+
+        <div class="brand-lines">
+          <p class="tagline" data-t="tagline"></p>
+          <p class="muted" data-t="motto"></p>
+        </div>
+
+        <div class="panel">
+          <dl class="facts">
+            <div>
+              <dt data-t="aboutVersion"></dt>
+              <dd><bdi dir="ltr" id="version"></bdi></dd>
+            </div>
+            <div>
+              <dt data-t="aboutLicence"></dt>
+              <dd>
+                <bdi dir="ltr">GPL-3.0-or-later</bdi>
+                <p class="small muted" data-t="noWarranty"></p>
+              </dd>
+            </div>
+            <div>
+              <dt data-t="aboutFont"></dt>
+              <dd>
+                <bdi dir="ltr">Vazirmatn</bdi>
+                <p class="small"><a href="../assets/fonts/OFL.txt" target="_blank" rel="noopener"><bdi dir="ltr" data-t="aboutFontLicence"></bdi></a></p>
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <h3 class="subheading" data-t="creditsHeading"></h3>
+        <div class="panel">
+          <div class="empty">
+            <p class="small muted" data-t="creditsEmpty"></p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

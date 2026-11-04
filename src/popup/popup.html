@@ -1,0 +1,56 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title data-t="popupTitle">CPAB</title>
+  <link rel="stylesheet" href="../assets/tokens.css">
+  <link rel="stylesheet" href="../assets/ui.css">
+  <link rel="stylesheet" href="popup.css">
+  <script type="module" src="popup.js"></script>
+</head>
+<body>
+  <header class="head">
+    <img class="logo" data-logo alt="" width="102" height="22">
+  </header>
+
+  <main class="body">
+    <p class="notice" data-t="previewNotice"></p>
+
+    <section id="site" class="site" hidden>
+      <div>
+        <p class="eyebrow" data-t="thisSite"></p>
+        <p class="domain"><bdi dir="ltr" id="domain"></bdi></p>
+        <p id="state" class="state small" hidden></p>
+      </div>
+
+      <div class="count">
+        <span class="small" data-t="blockedLabel"></span>
+        <span class="small muted" data-t="blockedEmpty"></span>
+      </div>
+
+      <button id="pause" class="button" type="button"></button>
+
+      <div id="reload-offer" class="offer" hidden>
+        <p class="small" data-t="reloadPrompt"></p>
+        <button id="reload" class="button button-primary" type="button" data-t="reload"></button>
+      </div>
+    </section>
+
+    <section id="restricted" class="restricted" hidden>
+      <h1 class="restricted-title" data-t="restrictedTitle"></h1>
+      <p class="small muted" data-t="restrictedBody"></p>
+    </section>
+
+    <p id="error" class="error" role="alert" hidden data-t="saveError"></p>
+  </main>
+
+  <footer class="foot">
+    <label class="master">
+      <span class="master-label" id="master-label" data-t="master"></span>
+      <input id="master" class="switch" type="checkbox" role="switch" aria-labelledby="master-label">
+    </label>
+    <a id="open-settings" class="settings-link small" href="../settings/settings.html" data-t="settings"></a>
+  </footer>
+</body>
+</html>
