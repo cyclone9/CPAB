@@ -16,7 +16,7 @@ import {
   wantedRulesets,
 } from '../src/shared/blocking.js';
 import { STRINGS } from '../src/i18n/strings.js';
-import { GROUP_IDS, normalizeSettings } from '../src/shared/settings.js';
+import { GROUP_RULESETS, RULESET_IDS, normalizeSettings } from '../src/shared/settings.js';
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 
@@ -25,6 +25,32 @@ test('wanted rulesets follow the master switch and the groups', () => {
   assert.deepEqual(wantedRulesets(normalizeSettings({}), declared), declared);
   assert.deepEqual(wantedRulesets(normalizeSettings({ master: false }), declared), []);
   assert.deepEqual(wantedRulesets(normalizeSettings({ groups: { ads: false } }), declared), ['trackers', 'iran']);
+});
+
+test('a list runs only with its group and its own switch on', () => {
+  const declared = ['ads', 'ads-adguard-base', 'trackers', 'iran'];
+  assert.deepEqual(wantedRulesets(normalizeSettings({}), declared), declared);
+  assert.deepEqual(wantedRulesets(normalizeSettings({ lists: { 'ads-adguard-base': false } }), declared), ['ads', 'trackers', 'iran']);
+  assert.deepEqual(wantedRulesets(normalizeSettings({ lists: { ads: false } }), declared), ['ads-adguard-base', 'trackers', 'iran']);
+  assert.deepEqual(wantedRulesets(normalizeSettings({ lists: { ads: false, 'ads-adguard-base': false } }), declared), ['trackers', 'iran']);
+});
+
+test('a group off stops all its lists, and turning it back on restores each list\'s own choice', () => {
+  const declared = ['ads', 'ads-adguard-base', 'trackers', 'iran'];
+  const choice = { lists: { 'ads-adguard-base': false } };
+  const off = normalizeSettings({ ...choice, groups: { ads: false } });
+  assert.deepEqual(wantedRulesets(off, declared), ['trackers', 'iran']);
+  assert.equal(off.lists.ads, true);
+  assert.equal(off.lists['ads-adguard-base'], false);
+  const on = normalizeSettings({ ...off, groups: { ...off.groups, ads: true } });
+  assert.deepEqual(wantedRulesets(on, declared), ['ads', 'trackers', 'iran']);
+});
+
+test('the master switch stops every list and loses no list\'s choice', () => {
+  const settings = normalizeSettings({ master: false, lists: { ads: false } });
+  assert.deepEqual(wantedRulesets(settings, RULESET_IDS), []);
+  assert.equal(settings.lists.ads, false);
+  assert.equal(settings.lists['ads-adguard-base'], true);
 });
 
 test('a ruleset this build left out is never asked for', () => {
@@ -96,6 +122,15 @@ test('the split counts each group in order, with allow rules and the pause rule 
   assert.equal(split.reduce((sum, { count }) => sum + count, 0), countBlocked(matches));
 });
 
+test('both Ads lists count under Ads', () => {
+  const match = (rulesetId, ruleId) => ({ rule: { rulesetId, ruleId } });
+  assert.deepEqual(splitBlocked([match('ads', 1), match('ads-adguard-base', 1), match('ads-adguard-base', 2), match('trackers', 3)]), [
+    { label: 'groupAds', count: 3 },
+    { label: 'groupTrackers', count: 1 },
+  ]);
+  assert.deepEqual(splitBlocked([match('ads-adguard-base', ALLOW_RULE_ID_BASE + 1)]), []);
+});
+
 test('the split hides groups that blocked nothing', () => {
   const allowOnly = [{ rule: { rulesetId: 'iran', ruleId: ALLOW_RULE_ID_BASE + 1 } }];
   assert.deepEqual(splitBlocked([{ rule: { rulesetId: 'trackers', ruleId: 3 } }, ...allowOnly]), [
@@ -128,9 +163,17 @@ test('the badge colours are Ink on Citron from tokens.css', () => {
 test('the manifest, the list config and the settings agree on the rulesets', () => {
   const manifest = JSON.parse(read('../src/manifest.json'));
   const resources = manifest.declarative_net_request.rule_resources;
-  assert.deepEqual(resources.map(({ id }) => id), GROUP_IDS);
+  assert.deepEqual(resources.map(({ id }) => id), RULESET_IDS);
+  assert.deepEqual(LISTS.map(({ ruleset }) => ruleset), RULESET_IDS);
   assert.deepEqual(resources.map(({ path }) => path), LISTS.map(({ rulesFile }) => `rules/${rulesFile}`));
   assert.ok(resources.every(({ enabled }) => enabled));
+  for (const { group, ruleset } of LISTS) assert.ok(GROUP_RULESETS[group].includes(ruleset), ruleset);
+});
+
+test('every list has its own rule file and its own record', () => {
+  for (const key of ['rulesFile', 'listFile', 'metaFile', 'ruleset']) {
+    assert.equal(new Set(LISTS.map((list) => list[key])).size, LISTS.length, key);
+  }
 });
 
 test('only the Iran list may be missing, and its record avoids the name git-guard refuses', () => {

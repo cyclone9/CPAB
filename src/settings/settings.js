@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import { format, formatDate, formatNumber, t } from '../i18n/i18n.js';
+import { recentChangelog } from '../shared/changelog.js';
 import { addSite, findOverlap, normalizeDomain } from '../shared/domains.js';
-import { applyPage, fillWithDomains } from '../shared/page.js';
+import { applyPage, fillWithDomains, fillWithLatin } from '../shared/page.js';
 import {
+  GROUP_IDS,
   loadRulesetProblems,
   loadSettings,
   normalizeSettings,
@@ -85,27 +87,100 @@ function renderSiteList(sites) {
   sites.empty.hidden = domains.length > 0;
 }
 
-function renderGroups() {
-  for (const list of lists ?? []) {
-    const meta = document.querySelector(`[data-meta="${list.group}"]`);
-    const toggle = document.querySelector(`[data-group="${list.group}"]`);
-    const parts = list.available
-      ? [format(language, 'metaRules', { count: formatNumber(language, list.converted) }),
-        format(language, 'metaSnapshot', { date: formatDate(language, list.snapshotDate) })]
-      : [t(language, 'groupUnavailable')];
-    meta.replaceChildren(...parts.map((text) => Object.assign(document.createElement('span'), { textContent: text })));
-    toggle.disabled = !list.available;
-    if (!list.available) toggle.checked = false;
-    toggle.closest('.row').classList.toggle('is-later', !list.available);
+const listsOf = (group) => (lists ?? []).filter((list) => list.group === group);
 
-    const problem = document.querySelector(`[data-problem="${list.group}"]`);
-    problem.hidden = !problems[list.group];
-    if (problems[list.group]) {
-      fillWithDomains(problem, t(language, 'rulesetRefused'), {
-        count: formatNumber(language, list.converted),
-        reason: problems[list.group],
-      });
-    }
+function fillMeta(element, parts) {
+  element.replaceChildren(...parts.map((text) => Object.assign(document.createElement('span'), { textContent: text })));
+}
+
+function listFacts(list) {
+  if (!list.available) return [t(language, 'groupUnavailable')];
+  return [format(language, 'metaRules', { count: formatNumber(language, list.converted) }),
+    format(language, 'metaSnapshot', { date: formatDate(language, list.snapshotDate) })];
+}
+
+// The group's own line, once it has several lists. It counts what really runs, so a group that is on
+// with every list off doesn't read as working.
+function groupFacts(group, members) {
+  const running = settings.groups[group] ? members.filter((list) => list.available && settings.lists[list.ruleset]) : [];
+  const count = running.reduce((total, list) => total + list.converted, 0);
+  return [
+    format(language, 'metaListsOn', { on: formatNumber(language, running.length), total: formatNumber(language, members.length) }),
+    ...(count ? [format(language, 'metaRules', { count: formatNumber(language, count) })] : []),
+  ];
+}
+
+// On the group's row, not the list's: a refusal has to show while the group is closed.
+function renderProblems(group, members) {
+  const refused = members.filter((list) => problems[list.ruleset]);
+  const problem = document.querySelector(`[data-problem="${group}"]`);
+  problem.hidden = !refused.length;
+  problem.replaceChildren(...refused.map((list) => {
+    const line = document.createElement('span');
+    fillWithDomains(line, t(language, members.length > 1 ? 'rulesetRefusedNamed' : 'rulesetRefused'), {
+      list: list.title,
+      count: formatNumber(language, list.converted),
+      reason: problems[list.ruleset],
+    });
+    return line;
+  }));
+}
+
+function renderGroups() {
+  for (const group of GROUP_IDS) {
+    const members = listsOf(group);
+    if (!members.length) continue;
+    const anyAvailable = members.some((list) => list.available);
+    const toggle = document.querySelector(`[data-group="${group}"]`);
+    fillMeta(document.querySelector(`[data-meta="${group}"]`), members.length > 1 ? groupFacts(group, members) : listFacts(members[0]));
+    toggle.disabled = !anyAvailable;
+    if (!anyAvailable) toggle.checked = false;
+    toggle.closest('.row').classList.toggle('is-later', !anyAvailable);
+    renderProblems(group, members);
+  }
+}
+
+function listRow(list) {
+  const row = Object.assign(document.createElement('label'), { className: 'row row-list' });
+  const text = Object.assign(document.createElement('span'), { className: 'row-text' });
+  const title = Object.assign(document.createElement('bdi'), { className: 'row-title', id: `list-${list.ruleset}-title`, dir: 'ltr', textContent: list.title });
+  const meta = Object.assign(document.createElement('span'), { className: 'row-meta' });
+  meta.dataset.listMeta = list.ruleset;
+  text.append(title, meta);
+
+  const toggle = Object.assign(document.createElement('input'), { className: 'switch', type: 'checkbox' });
+  toggle.setAttribute('role', 'switch');
+  toggle.setAttribute('aria-labelledby', title.id);
+  toggle.dataset.list = list.ruleset;
+  toggle.addEventListener('change', () => save((current) => ({
+    lists: { ...current.lists, [list.ruleset]: toggle.checked },
+  })));
+
+  row.append(text, toggle);
+  return row;
+}
+
+// Built once and only updated after that, so a switch keeps keyboard focus when it is pressed.
+function buildListRows() {
+  for (const panel of document.querySelectorAll('[data-lists]')) {
+    const members = listsOf(panel.dataset.lists);
+    if (members.length < 2) continue;
+    panel.append(...members.map(listRow));
+    document.querySelector(`[data-opens-lists="${panel.dataset.lists}"]`).hidden = false;
+  }
+}
+
+function renderListRows() {
+  for (const list of lists ?? []) {
+    const toggle = document.querySelector(`[data-list="${list.ruleset}"]`);
+    if (!toggle) continue;
+    toggle.checked = list.available && settings.lists[list.ruleset];
+    toggle.disabled = !list.available || !settings.groups[list.group];
+    toggle.closest('.row').classList.toggle('is-later', toggle.disabled);
+    fillMeta(document.querySelector(`[data-list-meta="${list.ruleset}"]`), listFacts(list));
+  }
+  for (const note of document.querySelectorAll('[data-lists-note]')) {
+    note.hidden = settings.groups[note.dataset.listsNote];
   }
 }
 
@@ -149,6 +224,29 @@ function renderCredits() {
   byId('credits-empty').hidden = shown.length > 0;
 }
 
+function renderChangelog() {
+  const running = chrome.runtime.getManifest().version;
+  byId('changelog-list').replaceChildren(...recentChangelog().map(({ version, date, ...changes }) => {
+    const item = document.createElement('li');
+    const heading = Object.assign(document.createElement('h3'), { className: 'changelog-heading' });
+    const number = Object.assign(document.createElement('bdi'), { dir: 'ltr', textContent: version });
+    heading.append(number, Object.assign(document.createElement('span'), { className: 'small muted', textContent: formatDate(language, date) }));
+    if (version === running) {
+      heading.append(Object.assign(document.createElement('span'), { className: 'tag', textContent: t(language, 'changelogCurrent') }));
+    }
+    const lines = changes[language].map((change) => {
+      const line = document.createElement('li');
+      if (language === 'fa') fillWithLatin(line, change);
+      else line.textContent = change;
+      return line;
+    });
+    const list = Object.assign(document.createElement('ul'), { className: 'changelog-lines' });
+    list.append(...lines);
+    item.append(heading, list);
+    return item;
+  }));
+}
+
 function render() {
   language = applyPage(settings);
   nav.setAttribute('aria-label', t(language, nav.dataset.labelKey));
@@ -162,7 +260,9 @@ function render() {
     document.querySelector(`input[name="${name}"][value="${settings[name]}"]`).checked = true;
   }
   renderGroups();
+  renderListRows();
   renderCredits();
+  renderChangelog();
   byId('name-fa').hidden = language !== 'fa';
   for (const sites of SITE_LISTS) {
     renderSiteList(sites);
@@ -186,6 +286,14 @@ for (const toggle of document.querySelectorAll('[data-group]')) {
   toggle.addEventListener('change', () => save((current) => ({
     groups: { ...current.groups, [toggle.dataset.group]: toggle.checked },
   })));
+}
+
+for (const opener of document.querySelectorAll('[data-opens-lists]')) {
+  opener.addEventListener('click', () => {
+    const panel = byId(opener.getAttribute('aria-controls'));
+    panel.hidden = !panel.hidden;
+    opener.setAttribute('aria-expanded', String(!panel.hidden));
+  });
 }
 
 for (const radio of document.querySelectorAll('input[type="radio"]')) {
@@ -237,6 +345,8 @@ const observer = new IntersectionObserver((entries) => {
 for (const id of links.keys()) observer.observe(byId(id));
 
 byId('version').textContent = chrome.runtime.getManifest().version;
+
+buildListRows();
 
 onSettingsChange((next) => {
   settings = next;

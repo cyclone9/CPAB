@@ -35,11 +35,16 @@ function checkSnapshot(list, text) {
   if (text.length < MIN_LIST_BYTES) throw new Error(`${list.title}: only ${text.length} bytes, expected a full list`);
 }
 
+async function latestCommit(commitApi) {
+  const commit = (await download(commitApi, { accept: 'application/vnd.github.sha' })).trim();
+  if (!/^[0-9a-f]{40}$/.test(commit)) throw new Error(`${commitApi}: "${commit}" is not a commit`);
+  return commit;
+}
+
 // Every part comes from one commit, the one recorded, so main can't move between two downloads.
 async function downloadRepository(list) {
   const { commitApi, raw, files } = list.repository;
-  const commit = (await download(commitApi, { accept: 'application/vnd.github.sha' })).trim();
-  if (!/^[0-9a-f]{40}$/.test(commit)) throw new Error(`${commitApi}: "${commit}" is not a commit`);
+  const commit = await latestCommit(commitApi);
   const parts = [];
   for (const { name, format } of files) {
     const text = await download(`${raw}/${commit}/${name}`);
@@ -57,11 +62,11 @@ async function downloadList(list) {
   if (list.repository) return downloadRepository(list);
   const text = await download(list.url);
   checkTitle(list, text, list.url);
-  return { text };
+  return list.commitApi ? { text, commit: await latestCommit(list.commitApi) } : { text };
 }
 
 function record(list, { text, commit, files }, snapshotDate) {
-  const { name, group, listFile, rulesFile, metaFile, required, url, repository, ...details } = list;
+  const { name, group, ruleset, listFile, rulesFile, metaFile, required, url, repository, commitApi, ...details } = list;
   return {
     name,
     group,
@@ -87,7 +92,7 @@ function noticeEntry(meta) {
     `- **Source:** ${meta.sourceUrl}`,
     `- **Licence of the converted file:** ${meta.licence.name}, SPDX \`${meta.licence.spdx}\`, ${meta.licence.url}`,
     `- **Licence of the list:** ${meta.licence.source}`,
-    `- **Snapshot:** ${meta.snapshot.date}${meta.snapshot.listCommit ? `, commit ${meta.snapshot.listCommit}` : ''}`,
+    `- **Snapshot:** ${[meta.snapshot.date, meta.snapshot.listVersion && `version ${meta.snapshot.listVersion}`, meta.snapshot.listCommit && `commit ${meta.snapshot.listCommit}`].filter(Boolean).join(', ')}`,
     '- **Changes:** converted to declarativeNetRequest form by CPAB\'s build',
   ];
   if (meta.snapshot.files) lines.push(`- **Files used:** ${meta.snapshot.files.map(({ name }) => `\`${name}\``).join(', ')}, joined in that order`);

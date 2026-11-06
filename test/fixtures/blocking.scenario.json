@@ -912,6 +912,603 @@
   },
   {
    "expectLoaded": "site-scope-lib"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "lists: back to defaults"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: all four rulesets enabled",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "adguard-only-probe"
+  },
+  {
+   "expectBlocked": "zoomit.ir/ads/adguard-iran-probe"
+  },
+  {
+   "expectBlocked": "easylist-only-probe"
+  },
+  {
+   "expectBlocked": "easyprivacy-only-probe"
+  },
+  {
+   "expectBlocked": "persianblocker-only-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"lists\":{\"ads-adguard-base\":false}}}).then(()=>'set')",
+   "label": "lists: AdGuard Base off, everything else on"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: AdGuard Base off",
+   "equals": [
+    "ads",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "easylist-only-probe"
+  },
+  {
+   "expectBlocked": "easyprivacy-only-probe"
+  },
+  {
+   "expectBlocked": "persianblocker-only-probe"
+  },
+  {
+   "expectLoaded": "adguard-only-probe"
+  },
+  {
+   "expectLoaded": "zoomit.ir/ads/adguard-iran-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"lists\":{\"ads\":false}}}).then(()=>'set')",
+   "label": "lists: EasyList off, AdGuard Base on"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: EasyList off",
+   "equals": [
+    "ads-adguard-base",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "adguard-only-probe"
+  },
+  {
+   "expectBlocked": "zoomit.ir/ads/adguard-iran-probe"
+  },
+  {
+   "expectBlocked": "easyprivacy-only-probe"
+  },
+  {
+   "expectBlocked": "persianblocker-only-probe"
+  },
+  {
+   "expectLoaded": "easylist-only-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"lists\":{\"ads\":false,\"ads-adguard-base\":false}}}).then(()=>'set')",
+   "label": "lists: both Ads lists off, group on"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: both off",
+   "equals": [
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "easyprivacy-only-probe"
+  },
+  {
+   "expectBlocked": "persianblocker-only-probe"
+  },
+  {
+   "expectLoaded": "adguard-only-probe"
+  },
+  {
+   "expectLoaded": "zoomit.ir/ads/adguard-iran-probe"
+  },
+  {
+   "expectLoaded": "easylist-only-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"ads\":false}}}).then(()=>'set')",
+   "label": "lists: group Ads off, both lists on"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: group off",
+   "equals": [
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "easyprivacy-only-probe"
+  },
+  {
+   "expectBlocked": "persianblocker-only-probe"
+  },
+  {
+   "expectLoaded": "adguard-only-probe"
+  },
+  {
+   "expectLoaded": "zoomit.ir/ads/adguard-iran-probe"
+  },
+  {
+   "expectLoaded": "easylist-only-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"pausedSites\":[\"fixtures.localhost\"]}}).then(()=>'set')",
+   "label": "lists: page paused through its parent domain"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "adguard-only-probe"
+  },
+  {
+   "expectLoaded": "zoomit.ir/ads/adguard-iran-probe"
+  },
+  {
+   "expectLoaded": "easylist-only-probe"
+  },
+  {
+   "expectLoaded": "easyprivacy-only-probe"
+  },
+  {
+   "expectLoaded": "persianblocker-only-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"pausedSites\":[\"someone-else.localhost\"]}}).then(()=>'set')",
+   "label": "lists: a different site paused"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "adguard-only-probe"
+  },
+  {
+   "expectBlocked": "zoomit.ir/ads/adguard-iran-probe"
+  },
+  {
+   "expectBlocked": "easylist-only-probe"
+  },
+  {
+   "expectBlocked": "easyprivacy-only-probe"
+  },
+  {
+   "expectBlocked": "persianblocker-only-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"master\":false}}).then(()=>'set')",
+   "label": "lists: master off"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: master off",
+   "equals": []
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "adguard-only-probe"
+  },
+  {
+   "expectLoaded": "zoomit.ir/ads/adguard-iran-probe"
+  },
+  {
+   "expectLoaded": "easylist-only-probe"
+  },
+  {
+   "expectLoaded": "easyprivacy-only-probe"
+  },
+  {
+   "expectLoaded": "persianblocker-only-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"master\":false,\"lists\":{\"ads-adguard-base\":false}}}).then(()=>'set')",
+   "label": "lists: master off, a list choice stored"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"lists\":{\"ads-adguard-base\":false}}}).then(()=>'set')",
+   "label": "lists: master back on"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: master on, the list choice held",
+   "equals": [
+    "ads",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "lists: settings page, defaults"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "viewport": [
+    1180,
+    900
+   ]
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "eval": "document.querySelector('[data-opens-lists=\"ads\"]').getAttribute('aria-expanded')",
+   "label": "group starts closed",
+   "equals": "false"
+  },
+  {
+   "eval": "document.getElementById('ads-lists').hidden",
+   "label": "source lists start hidden",
+   "equals": true
+  },
+  {
+   "click": "[data-opens-lists=\"ads\"]"
+  },
+  {
+   "eval": "document.querySelector('[data-opens-lists=\"ads\"]').getAttribute('aria-expanded')",
+   "label": "group opened",
+   "equals": "true"
+  },
+  {
+   "eval": "[...document.querySelectorAll('#ads-lists .row-title')].map((e)=>e.textContent)",
+   "label": "source lists",
+   "equals": [
+    "EasyList",
+    "AdGuard Base filter"
+   ]
+  },
+  {
+   "eval": "document.querySelectorAll('[data-list]').length",
+   "label": "only Ads has list switches",
+   "equals": 2
+  },
+  {
+   "click": "[data-list=\"ads-adguard-base\"]"
+  },
+  {
+   "eval": "chrome.storage.local.get('settings').then(({settings})=>settings.lists)",
+   "label": "list switch saved",
+   "equals": {
+    "ads": true,
+    "ads-adguard-base": false,
+    "trackers": true,
+    "iran": true
+   }
+  },
+  {
+   "eval": "document.querySelector('[data-meta=\"ads\"]').textContent",
+   "label": "group line counts the lists on"
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: list switch took effect",
+   "equals": [
+    "ads",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "click": "[data-group=\"ads\"]"
+  },
+  {
+   "eval": "chrome.storage.local.get('settings').then(({settings})=>[settings.groups.ads,settings.lists.ads,settings.lists['ads-adguard-base']])",
+   "label": "group off keeps the list choices",
+   "equals": [
+    false,
+    true,
+    false
+   ]
+  },
+  {
+   "eval": "[...document.querySelectorAll('[data-list]')].map((e)=>[e.dataset.list,e.checked,e.disabled])",
+   "label": "list switches held and disabled",
+   "equals": [
+    [
+     "ads",
+     true,
+     true
+    ],
+    [
+     "ads-adguard-base",
+     false,
+     true
+    ]
+   ]
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: group off from the page",
+   "equals": [
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "click": "[data-group=\"ads\"]"
+  },
+  {
+   "eval": "[...document.querySelectorAll('[data-list]')].map((e)=>[e.dataset.list,e.checked,e.disabled])",
+   "label": "group on brings the choices back",
+   "equals": [
+    [
+     "ads",
+     true,
+     false
+    ],
+    [
+     "ads-adguard-base",
+     false,
+     false
+    ]
+   ]
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: group on, the list choice held",
+   "equals": [
+    "ads",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "click": "[data-list=\"ads-adguard-base\"]"
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: list back on from the page",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "stopWorker": true
+  },
+  {
+   "eval": "chrome.storage.local.set({settings:{lists:{'ads-adguard-base':false}}}).then(()=>'saved')",
+   "label": "list off with the worker stopped"
+  },
+  {
+   "wait": 1000
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: a stopped worker wakes and applies a list change",
+   "equals": [
+    "ads",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "eval": "chrome.storage.local.set({settings:{groups:{iran:false},lists:{'ads-adguard-base':false},pausedSites:['paused.example'],blockedSites:['mine.example'],theme:'light',language:'fa',badge:false}}).then(()=>'saved')",
+   "label": "choices before the reload"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/index.html"
+  },
+  {
+   "load": "dist"
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: rulesets after the reload",
+   "equals": [
+    "ads",
+    "trackers"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>settings)",
+   "label": "settings after the reload",
+   "equals": {
+    "groups": {
+     "iran": false
+    },
+    "lists": {
+     "ads-adguard-base": false
+    },
+    "pausedSites": [
+     "paused.example"
+    ],
+    "blockedSites": [
+     "mine.example"
+    ],
+    "theme": "light",
+    "language": "fa",
+    "badge": false
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "easylist-only-probe"
+  },
+  {
+   "expectBlocked": "easyprivacy-only-probe"
+  },
+  {
+   "expectLoaded": "adguard-only-probe"
+  },
+  {
+   "expectLoaded": "zoomit.ir/ads/adguard-iran-probe"
+  },
+  {
+   "expectLoaded": "persianblocker-only-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "lists: reset after the reload"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: all four again",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "sw": "(chrome.declarativeNetRequest.updateEnabledRulesets=()=>Promise.reject(new Error('Internal error while enabling the ruleset')),'stubbed')",
+   "label": "Chrome refuses to enable a ruleset"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{lists:{'ads-adguard-base':false}}}).then(()=>'set')",
+   "label": "list off, refused"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "sw": "chrome.storage.local.get('rulesetProblems').then(({rulesetProblems})=>Object.keys(rulesetProblems))",
+   "label": "refusal to disable recorded",
+   "equals": [
+    "ads-adguard-base"
+   ]
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "eval": "document.getElementById('ads-lists').hidden",
+   "label": "group is closed",
+   "equals": true
+  },
+  {
+   "eval": "document.querySelector('[data-problem=\"ads\"]').hidden",
+   "label": "refusal shows with the group closed",
+   "equals": false
+  },
+  {
+   "eval": "document.querySelector('[data-problem=\"ads\"]').textContent",
+   "label": "refusal text"
+  },
+  {
+   "stopWorker": true
+  },
+  {
+   "eval": "chrome.storage.local.set({settings:{}}).then(()=>'saved')",
+   "label": "defaults with the real API back"
+  },
+  {
+   "wait": 1000
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
+   "label": "lists: all four after the refusal",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "eval": "chrome.storage.local.get('rulesetProblems').then(({rulesetProblems})=>rulesetProblems)",
+   "label": "refusal cleared",
+   "equals": {}
   }
  ]
 }

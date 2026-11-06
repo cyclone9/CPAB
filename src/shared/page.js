@@ -36,3 +36,18 @@ export function fillWithDomains(element, template, params) {
     }
   }
 }
+
+// Sets Persian text and keeps each Latin run in it, such as a list name, left to right.
+export function fillWithLatin(element, text) {
+  element.replaceChildren();
+  for (const [index, part] of text.split(/([A-Za-z0-9](?:[A-Za-z0-9 .-]*[A-Za-z0-9])?)/).entries()) {
+    if (index % 2) {
+      const bdi = document.createElement('bdi');
+      bdi.dir = 'ltr';
+      bdi.textContent = part;
+      element.append(bdi);
+    } else if (part) {
+      element.append(part);
+    }
+  }
+}

@@ -6,11 +6,21 @@ const PROBLEMS_KEY = 'rulesetProblems';
 const LANGUAGES = ['auto', 'en', 'fa'];
 const THEMES = ['dark', 'light'];
 
-export const GROUP_IDS = ['ads', 'trackers', 'iran'];
+// The rulesets behind each group, in display order. Each is one source list with its own switch, and
+// the group's switch sits above them, so turning a group off leaves every list's own choice stored.
+export const GROUP_RULESETS = Object.freeze({
+  ads: Object.freeze(['ads', 'ads-adguard-base']),
+  trackers: Object.freeze(['trackers']),
+  iran: Object.freeze(['iran']),
+});
+
+export const GROUP_IDS = Object.freeze(Object.keys(GROUP_RULESETS));
+export const RULESET_IDS = Object.freeze(Object.values(GROUP_RULESETS).flat());
 
 export const DEFAULTS = Object.freeze({
   master: true,
   groups: Object.freeze({ ads: true, trackers: true, iran: true }),
+  lists: Object.freeze(Object.fromEntries(RULESET_IDS.map((id) => [id, true]))),
   pausedSites: Object.freeze([]),
   blockedSites: Object.freeze([]),
   language: 'auto',
@@ -27,6 +37,7 @@ export function normalizeSettings(stored) {
   return {
     master: flag(value.master, DEFAULTS.master),
     groups: Object.fromEntries(GROUP_IDS.map((id) => [id, flag(value.groups?.[id], DEFAULTS.groups[id])])),
+    lists: Object.fromEntries(RULESET_IDS.map((id) => [id, flag(value.lists?.[id], DEFAULTS.lists[id])])),
     pausedSites: siteList(value.pausedSites),
     blockedSites: siteList(value.blockedSites),
     language: LANGUAGES.includes(value.language) ? value.language : DEFAULTS.language,

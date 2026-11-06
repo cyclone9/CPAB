@@ -30,6 +30,7 @@ export const LISTS = [
   {
     name: 'easylist',
     group: 'ads',
+    ruleset: 'ads',
     listFile: 'easylist.txt',
     metaFile: 'easylist.meta.json',
     rulesFile: 'ads-easylist.json',
@@ -42,8 +43,45 @@ export const LISTS = [
     admission: easylistAdmission('EasyList'),
   },
   {
+    name: 'adguard-base',
+    group: 'ads',
+    ruleset: 'ads-adguard-base',
+    listFile: 'adguard-base.txt',
+    metaFile: 'adguard-base.meta.json',
+    rulesFile: 'ads-adguard-base.json',
+    required: true,
+    title: 'AdGuard Base filter',
+    // AdGuard compiles this file, and the variant leaves out the part of the list that repeats EasyList.
+    // It isn't in the repository, so the commit below is the repository's head when the file was fetched.
+    url: 'https://filters.adtidy.org/extension/ublock/filters/2_without_easylist.txt',
+    commitApi: 'https://api.github.com/repos/AdguardTeam/AdguardFilters/commits/master',
+    homepage: 'https://github.com/AdguardTeam/AdguardFilters',
+    sourceLink: 'https://github.com/AdguardTeam/AdguardFilters',
+    attribution: 'AdGuard (https://github.com/AdguardTeam/AdguardFilters)',
+    licence: {
+      name: 'GPL-3.0-only',
+      spdx: 'GPL-3.0-only',
+      url: 'https://www.gnu.org/licenses/gpl-3.0.html',
+      source: 'The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.',
+    },
+    admission: {
+      reviewed: '2026-11-06',
+      result: 'admitted, with care',
+      checks: {
+        licenceStated: 'The list header "License:" points to https://github.com/AdguardTeam/AdguardFilters/blob/master/LICENSE. That file was read on 2026-11-06: it is the GPLv3 text, byte-identical to CPAB\'s own LICENSE. The README states nothing different.',
+        licenceAccepted: 'GPL-3.0 is on the accepted set, only or later.',
+        notRefused: 'No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.',
+        attribution: 'AdGuard (https://github.com/AdguardTeam/AdguardFilters), shown in settings and THIRD-PARTY-NOTICES.md.',
+        aggregated: 'Treated as AdGuard\'s own list, on limited evidence: the fetched file has no !#include line and the repository README names no third-party inputs. Not verified beyond that: the compiler\'s inputs were not traced, and this variant is known to be free of EasyList only by its name.',
+        ownFile: 'The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.',
+        retrievable: 'A stable URL, a dated snapshot with its SHA-256 and the list\'s own Version line. The recorded commit is the head of AdguardFilters just after the download, so the file was built from that commit or an earlier one; the snapshot in lists/ is the exact copy used.',
+      },
+    },
+  },
+  {
     name: 'easyprivacy',
     group: 'trackers',
+    ruleset: 'trackers',
     listFile: 'easyprivacy.txt',
     metaFile: 'easyprivacy.meta.json',
     rulesFile: 'trackers-easyprivacy.json',
@@ -58,6 +96,7 @@ export const LISTS = [
   {
     name: 'persianblocker',
     group: 'iran',
+    ruleset: 'iran',
     listFile: 'persianblocker.txt',
     metaFile: 'iran.meta.json',
     rulesFile: 'iran-persianblocker.json',

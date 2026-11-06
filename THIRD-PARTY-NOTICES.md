@@ -12,7 +12,18 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Source:** https://easylist.to/easylist/easylist.txt
 - **Licence of the converted file:** CC BY-SA 4.0, SPDX `CC-BY-SA-4.0`, https://creativecommons.org/licenses/by-sa/4.0/
 - **Licence of the list:** GPL-3.0-or-later or CC BY-SA 3.0 or later, at our choice. CPAB takes the CC BY-SA side, at version 4.0, for the converted file.
-- **Snapshot:** 2026-11-04, commit cb2001a7fe53b404dcf96c5d0c412eea38144239
+- **Snapshot:** 2026-11-06, version 202611062116, commit 6eab4df7213ac8271af09706b02998345b610e5a
+- **Changes:** converted to declarativeNetRequest form by CPAB's build
+
+## AdGuard Base filter
+
+- **Title:** AdGuard Base filter
+- **Attribution:** AdGuard (https://github.com/AdguardTeam/AdguardFilters)
+- **Homepage:** https://github.com/AdguardTeam/AdguardFilters
+- **Source:** https://filters.adtidy.org/extension/ublock/filters/2_without_easylist.txt
+- **Licence of the converted file:** GPL-3.0-only, SPDX `GPL-3.0-only`, https://www.gnu.org/licenses/gpl-3.0.html
+- **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.
+- **Snapshot:** 2026-11-06, version 2.5.2.60, commit e7cd2a9280589e0d652cf31d711de71ccb1bb6ac
 - **Changes:** converted to declarativeNetRequest form by CPAB's build
 
 ## EasyPrivacy
@@ -23,7 +34,7 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Source:** https://easylist.to/easylist/easyprivacy.txt
 - **Licence of the converted file:** CC BY-SA 4.0, SPDX `CC-BY-SA-4.0`, https://creativecommons.org/licenses/by-sa/4.0/
 - **Licence of the list:** GPL-3.0-or-later or CC BY-SA 3.0 or later, at our choice. CPAB takes the CC BY-SA side, at version 4.0, for the converted file.
-- **Snapshot:** 2026-11-04, commit fea9111c5ca435bc5b8deb1c3daebc966ebd20b5
+- **Snapshot:** 2026-11-06, version 202611062116, commit 6eab4df7213ac8271af09706b02998345b610e5a
 - **Changes:** converted to declarativeNetRequest form by CPAB's build
 
 ## PersianBlocker
@@ -34,7 +45,7 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Source:** https://github.com/PersianBlocker/PersianBlocker
 - **Licence of the converted file:** AGPL-3.0-only, SPDX `AGPL-3.0-only`, https://www.gnu.org/licenses/agpl-3.0.html
 - **Licence of the list:** The repository LICENSE is the AGPLv3 text and the list headers say AGPLv3 with no "or later", so CPAB treats the list as AGPL-3.0-only.
-- **Snapshot:** 2026-11-04, commit 65c37a658baedd871435662bdc409dbefae3b1ad
+- **Snapshot:** 2026-11-06, commit 65c37a658baedd871435662bdc409dbefae3b1ad
 - **Changes:** converted to declarativeNetRequest form by CPAB's build
 - **Files used:** `PersianBlocker-Deprecated.txt`, `PersianBlockerAds.txt`, `PersianBlockerTrackers.txt`, `PersianBlockerHosts.txt`, joined in that order
 - **Copy in the package:** `rules/LICENSE.AGPL-3.0.txt`, beside the rule file

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // What the service worker asks of Chrome, kept free of chrome.* calls so it can be tested.
+import { GROUP_RULESETS } from './settings.js';
 
 // chrome.action can't read CSS variables, so these repeat Ink and Citron from tokens.css.
 // test/blocking.test.js fails if the two ever differ.
@@ -22,8 +23,11 @@ const DYNAMIC_RULESET = '_dynamic';
 export const ALLOW_RULE_ID_BASE = 1000000;
 
 // Enabled rulesets are worth nothing to a person when the master switch is off, however the groups stand.
+// A ruleset runs only with its group and its own list both on.
 export function wantedRulesets(settings, declared) {
-  return settings.master ? declared.filter((id) => settings.groups[id]) : [];
+  if (!settings.master) return [];
+  const on = Object.entries(GROUP_RULESETS).flatMap(([group, rulesets]) => (settings.groups[group] ? rulesets : []));
+  return declared.filter((id) => on.includes(id) && settings.lists[id]);
 }
 
 export function pausedRules(pausedSites) {
@@ -50,9 +54,9 @@ export function blockedRules(settings) {
 // The popup's split of the count, in display order. A group joins by adding one entry: it lists every
 // ruleset it owns, because each list keeps its own ruleset and one switch can cover several lists.
 export const BLOCK_GROUPS = Object.freeze([
-  Object.freeze({ label: 'groupAds', rulesets: Object.freeze(['ads']) }),
-  Object.freeze({ label: 'groupTrackers', rulesets: Object.freeze(['trackers']) }),
-  Object.freeze({ label: 'groupIran', rulesets: Object.freeze(['iran']) }),
+  Object.freeze({ label: 'groupAds', rulesets: GROUP_RULESETS.ads }),
+  Object.freeze({ label: 'groupTrackers', rulesets: GROUP_RULESETS.trackers }),
+  Object.freeze({ label: 'groupIran', rulesets: GROUP_RULESETS.iran }),
   Object.freeze({ label: 'groupYourSites', rulesets: Object.freeze([DYNAMIC_RULESET]) }),
 ]);
 

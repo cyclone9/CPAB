@@ -22,6 +22,7 @@
         <a href="#blocked-sites" data-t="sectionBlockedSites"></a>
         <a href="#appearance" data-t="sectionAppearance"></a>
         <a href="#about" data-t="sectionAbout"></a>
+        <a href="#changelog" data-t="sectionChangelog"></a>
       </nav>
     </aside>
 
@@ -53,6 +54,12 @@
             </span>
             <input class="switch" type="checkbox" role="switch" data-group="ads" aria-labelledby="ads-title" aria-describedby="ads-desc">
           </label>
+          <button class="lists-toggle" type="button" data-opens-lists="ads" aria-expanded="false" aria-controls="ads-lists" aria-describedby="ads-title" hidden>
+            <span data-t="listsShow"></span>
+          </button>
+          <div id="ads-lists" class="lists" data-lists="ads" hidden>
+            <p class="lists-note small" data-lists-note="ads" hidden data-t="listsGroupOff"></p>
+          </div>
           <label class="row">
             <span class="row-text">
               <span class="row-title" id="trackers-title" data-t="groupTrackers"></span>
@@ -240,6 +247,15 @@
           <div id="credits-empty" class="empty" hidden>
             <p class="small muted" data-t="creditsEmpty"></p>
           </div>
+        </div>
+      </section>
+
+      <section id="changelog" class="section">
+        <h2 data-t="sectionChangelog"></h2>
+        <p class="intro" data-t="changelogIntro"></p>
+
+        <div class="panel">
+          <ol id="changelog-list" class="changelog"></ol>
         </div>
       </section>
     </main>

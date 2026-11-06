@@ -36,8 +36,8 @@ body {
 }
 :lang(fa) body, body:lang(fa) { line-height: 1.7; }
 :lang(en) body, body:lang(en) { font-family: "Vazirmatn Latin", "Vazirmatn", system-ui, sans-serif; }
-h1, h2, h3, p, ul, dl, dd { margin: 0; padding: 0; }
-ul { list-style: none; }
+h1, h2, h3, p, ul, ol, dl, dd { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
 img { display: block; }
 bdi { unicode-bidi: isolate; }
 button, input { font: inherit; color: inherit; }
@@ -84,6 +84,9 @@ a:hover { color: var(--cpab-color-text); }
 .switch:focus-visible { border-radius: 999px; outline-offset: 3px; }
 .switch:disabled { border-style: dashed; cursor: not-allowed; }
 .switch:disabled::before { background: color-mix(in srgb, var(--cpab-color-border) 55%, transparent); }
+/* A choice that's stored but not running: still readable as on, and clearly not live. */
+.switch:checked:disabled { background: color-mix(in srgb, var(--cpab-color-accent) 22%, transparent); border-color: var(--cpab-color-border); }
+.switch:checked:disabled::before { background: var(--cpab-color-border); }
 
 /* Buttons */
 .button {

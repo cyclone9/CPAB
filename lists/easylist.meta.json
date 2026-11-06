@@ -25,9 +25,9 @@
   },
   "sourceUrl": "https://easylist.to/easylist/easylist.txt",
   "snapshot": {
-    "date": "2026-11-04",
-    "sha256": "37ba51dc8cd988d01754f9479e7cb0958339fc0b8df9e24274ce8a9cb2ce3891",
-    "listVersion": "202611041856",
-    "listCommit": "cb2001a7fe53b404dcf96c5d0c412eea38144239"
+    "date": "2026-11-06",
+    "sha256": "e3094e9045b9b1704c45ba7858b4afa9cbf6adc12bed7ac59a9a71ccefb4f94d",
+    "listVersion": "202611062116",
+    "listCommit": "6eab4df7213ac8271af09706b02998345b610e5a"
   }
 }

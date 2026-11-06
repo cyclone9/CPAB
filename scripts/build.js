@@ -20,8 +20,8 @@ function convertInto(rulesDir, list) {
   const source = join(root, 'lists', list.listFile);
   if (!existsSync(source)) {
     if (list.required) throw new Error(`lists/${list.listFile} is missing. Run npm run lists.`);
-    console.log(`${list.title}: no snapshot in lists/, so this build leaves the ${list.group} ruleset out`);
-    return { group: list.group, available: false };
+    console.log(`${list.title}: no snapshot in lists/, so this build leaves the ${list.ruleset} ruleset out`);
+    return { group: list.group, ruleset: list.ruleset, title: list.title, available: false };
   }
 
   const meta = readJson(join(root, 'lists', list.metaFile));
@@ -32,6 +32,7 @@ function convertInto(rulesDir, list) {
 
   return {
     group: list.group,
+    ruleset: list.ruleset,
     available: true,
     title: meta.title,
     attribution: meta.attribution,
@@ -60,7 +61,7 @@ const lists = LISTS.map((list) => convertInto(rulesDir, list));
 writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists }));
 
 // Chrome won't load an extension whose manifest names a rule file that isn't there.
-const built = new Set(lists.filter((list) => list.available).map((list) => list.group));
+const built = new Set(lists.filter((list) => list.available).map((list) => list.ruleset));
 manifest.declarative_net_request.rule_resources = manifest.declarative_net_request.rule_resources
   .filter((ruleset) => built.has(ruleset.id));
 writeFileSync(join(dist, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);

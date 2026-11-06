@@ -25,9 +25,9 @@
   },
   "sourceUrl": "https://easylist.to/easylist/easyprivacy.txt",
   "snapshot": {
-    "date": "2026-11-04",
-    "sha256": "b444a0b76467509dfce84a2ab17f5ea7ed9b21cb17dc80f8ff06daacf62efd89",
-    "listVersion": "202611041848",
-    "listCommit": "fea9111c5ca435bc5b8deb1c3daebc966ebd20b5"
+    "date": "2026-11-06",
+    "sha256": "351c85a3674cbe656e2c128b22b3868265bf48915099e41cd24215e893d4a7fc",
+    "listVersion": "202611062116",
+    "listCommit": "6eab4df7213ac8271af09706b02998345b610e5a"
   }
 }
