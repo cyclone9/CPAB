@@ -9,6 +9,7 @@ import {
   groupByOptions,
   hostsToFilters,
   normalizeRuleDomain,
+  parseDomains,
   parseLine,
   parseOptions,
   patternProblem,
@@ -91,18 +92,137 @@ test('party options map in both forms', () => {
   assert.ok(parseOptions(['third-party', 'first-party']).dropped);
 });
 
-test('a domain= rule is dropped and counted, block or exception', () => {
-  const result = convertList('||a.com^$domain=b.com\n@@||c.com^$script,domain=d.com\n||e.com^$~domain=f.com\n');
+test('domain= becomes initiatorDomains, block or exception', () => {
+  assert.deepEqual(ruleFor('||a.com^$domain=b.com').condition, {
+    requestDomains: ['a.com'],
+    initiatorDomains: ['b.com'],
+    excludedResourceTypes: ['main_frame'],
+  });
+  const allow = ruleFor('@@||paypalobjects.com/*/pageView.js$script,domain=paypal.com');
+  assert.equal(allow.action.type, 'allow');
+  assert.equal(allow.priority, 2);
+  assert.deepEqual(allow.condition, {
+    urlFilter: '||paypalobjects.com/*/pageView.js',
+    initiatorDomains: ['paypal.com'],
+    resourceTypes: ['script'],
+  });
+});
+
+test('~domain becomes excludedInitiatorDomains, alone or under an included domain', () => {
+  assert.deepEqual(ruleFor('-adbar/$domain=~b.com|~c.com').condition.excludedInitiatorDomains, ['b.com', 'c.com']);
+  assert.equal(ruleFor('-adbar/$domain=~b.com').condition.initiatorDomains, undefined);
+  const { condition } = ruleFor('-adbar/$domain=ir|~ifixit.ir|b.com');
+  assert.deepEqual(condition.initiatorDomains, ['b.com', 'ir']);
+  assert.deepEqual(condition.excludedInitiatorDomains, ['ifixit.ir']);
+});
+
+test('domain rules merge only when their domain= lists are the same, in any order', () => {
+  const { rules } = convertList('||a.com^$domain=x.com|y.com\n||b.com^$domain=y.com|x.com\n||c.com^$domain=x.com\n||d.com^\n');
+  assert.equal(rules.length, 3);
+  assert.deepEqual(rules.find((rule) => rule.condition.initiatorDomains?.length === 2).condition.requestDomains, ['a.com', 'b.com']);
+});
+
+test('domain= entries are lowercased and converted to punycode', () => {
+  assert.deepEqual(parseDomains(['B.COM', 'مثال.ایران']).condition.initiatorDomains, ['b.com', 'xn--mgbh0fb.xn--mgba3a4f16a']);
+});
+
+test('a wildcard domain is dropped with its own reason, and never partly kept', () => {
+  const result = convertList('-ad-x/$domain=a.com|google.*\n-ad-y/$domain=~google.*\n@@-ad-z/$domain=g*.com\n');
   assert.deepEqual(result.rules, []);
-  assert.equal(result.dropped['domain='], 2);
+  assert.deepEqual(result.dropped, { 'domain= wildcard': 3 });
   assert.equal(result.droppedExceptions, 1);
+});
+
+test('a domain= entry Chrome could not take drops the whole line', () => {
+  const result = convertList('-ad-x/$domain=~[::1]|~localhost\n-ad-y/$domain=a.com|b_c!.com\n-ad-z/$domain=\n-ad-w/$domain=/a.b/\n');
+  assert.deepEqual(result.rules, []);
+  assert.deepEqual(result.dropped, { 'invalid domain in domain=': 4 });
+});
+
+test('a private address may be excluded and may not be included', () => {
+  assert.deepEqual(ruleFor('/stat-x?$domain=~192.168.0.1').condition.excludedInitiatorDomains, ['192.168.0.1']);
+  assert.deepEqual(convertList('/stat-x?$domain=192.168.0.1\n').dropped, { 'private address': 1 });
+});
+
+test('an exclusion that covers an included domain is dropped, because Chrome lets it win', () => {
+  assert.deepEqual(parseDomains(['~a.com', 'b.a.com']), { dropped: 'domain= excludes its own parent' });
+  assert.deepEqual(parseDomains(['a.com', '~a.com']), { dropped: 'domain= excludes its own parent' });
+  assert.ok(parseDomains(['a.com', '~b.a.com']).condition);
+  assert.ok(parseDomains(['~nota.com', 'a.com']).condition);
+});
+
+test('$popup with domain= keeps its $popup reason, and other out-of-scope options theirs', () => {
+  const result = convertList('@@||a.com^$popup,domain=b.com\n@@$generichide,domain=b.com\n||d.com/x.mp4$rewrite=abp-resource:blank-mp4,domain=b.com\n');
+  assert.deepEqual(result.rules, []);
+  assert.deepEqual(result.dropped, { $popup: 1, 'unknown option: generichide': 1, 'unknown option: rewrite': 1 });
+});
+
+test('a domain= rule can still be too broad: the threshold does not look at the domain', () => {
+  const result = convertList('.gif^$image,3p,domain=a.ir\n*$script,domain=a.ir\n$third-party,xmlhttprequest,domain=a.com\n');
+  assert.deepEqual(result.rules, []);
+  assert.deepEqual(result.dropped, { 'pattern too broad': 3 });
+});
+
+test('a named $document exception allows the whole page, at the same priority as other exceptions', () => {
+  const page = ruleFor('@@||tab.gladly.io/newtab/|$document,subdocument');
+  assert.equal(page.action.type, 'allowAllRequests');
+  assert.equal(page.priority, 2);
+  assert.ok(page.id > ALLOW_RULE_ID_BASE);
+  assert.deepEqual(page.condition, { urlFilter: '||tab.gladly.io/newtab/|', resourceTypes: ['main_frame', 'sub_frame'] });
+  const host = ruleFor('@@||optout.networkadvertising.org^$document');
+  assert.equal(host.action.type, 'allowAllRequests');
+  assert.deepEqual(host.condition, { requestDomains: ['optout.networkadvertising.org'], resourceTypes: ['main_frame', 'sub_frame'] });
+});
+
+test('a bare or broad $document exception is refused', () => {
+  for (const line of [
+    '@@||com^$document', '@@||co.uk^$document', '@@||github.io^$document', '@@||example.com^$document',
+    '@@||example.com/$document', '@@||example.com/*$document', '@@||*.example.com/x$document',
+    '@@/ads/page$document', '@@|https://example.com/x$document', '@@*$document', '@@$document', '@@://a.b.c/x$document',
+  ]) {
+    const result = convertList(line);
+    assert.deepEqual(result.rules, [], line);
+    assert.equal(result.dropped['$document exception too broad'], 1, line);
+    assert.equal(result.droppedExceptions, 1, line);
+  }
+});
+
+test('a $document exception with anything else on it is refused', () => {
+  const result = convertList('@@||a.b.com^$document,script\n@@||a.b.com/x$document,domain=c.com\n@@||a.b.com^$document,third-party\n@@||a.b.com^$document,popup\n');
+  assert.deepEqual(result.rules, []);
+  assert.deepEqual(result.dropped, { '$document with other options': 4 });
+});
+
+test('a block rule with $document stays dropped', () => {
+  assert.deepEqual(convertList('||a.b.com/x$document\n||c.d.com^$doc,removeparam=/^utm_/\n').dropped, { $document: 2 });
+});
+
+test('$badfilter cancels the matching rule of the list, before or after it, and only that rule', () => {
+  const result = convertList([
+    '||a.com/x$image,third-party',
+    '||a.com/x$third-party,image,badfilter',
+    '||b.com^$badfilter',
+    '||b.com^',
+    '||a.com/x$script',
+    '||c.com/nothing$badfilter',
+  ].join('\n'));
+  assert.deepEqual(result.dropped, { 'cancelled by $badfilter': 2, $badfilter: 3 });
+  assert.equal(result.read, 6);
+  assert.equal(result.converted, 1);
+  assert.deepEqual(result.rules.map((rule) => rule.condition.urlFilter), ['||a.com/x']);
+});
+
+test('$badfilter on a block rule leaves the exception of the same text alone', () => {
+  const { rules, dropped } = convertList('||a.com/x\n@@||a.com/x\n||a.com/x$badfilter\n');
+  assert.deepEqual(rules.map((rule) => rule.action.type), ['allow']);
+  assert.deepEqual(dropped, { 'cancelled by $badfilter': 1, $badfilter: 1 });
 });
 
 test('$popup, $document, $all and unknown options are dropped by reason', () => {
   const result = convertList([
     '||a.com^$popup',
     '||b.com^$popup,third-party',
-    '@@||c.com^$document',
+    '||c.com^$document',
     '||d.com^$all',
     '||e.com^$important',
     '||f.com^$csp=script-src',
@@ -211,8 +331,6 @@ test('domain rules still merge beside path rules, and hold the first ids', () =>
 
 test('out-of-scope options drop a path rule by the same reasons as a domain rule', () => {
   const result = convertList([
-    '||a.com/x$domain=b.com',
-    '@@||a.com/y$script,domain=b.com',
     '/ads/x$popup',
     '/ads/y$document',
     '/ads/z$all',
@@ -221,14 +339,12 @@ test('out-of-scope options drop a path rule by the same reasons as a domain rule
   ].join('\n'));
   assert.deepEqual(result.rules, []);
   assert.deepEqual(result.dropped, {
-    'domain=': 2,
     $popup: 1,
     $document: 1,
     $all: 1,
     'unknown option: removeparam': 1,
     'unknown option: generichide': 1,
   });
-  assert.equal(result.droppedExceptions, 1);
 });
 
 test('a pattern Chrome would refuse is dropped by reason', () => {
@@ -287,7 +403,16 @@ test('the real lists add up, take no pattern Chrome refuses, and fit the guarant
     assert.equal(result.read, result.converted + dropped, list.title);
     assert.ok(!Object.keys(result.dropped).some((reason) => reason.includes('||domain^')), list.title);
     assert.equal(new Set(result.rules.map((rule) => rule.id)).size, result.rules.length, list.title);
-    for (const { condition } of result.rules) {
+    for (const { action, priority, condition } of result.rules) {
+      // Pausing a site sits above every list rule, and Harmful and Adult must sit above pausing.
+      assert.equal(priority, action.type === 'block' ? 1 : 2, list.title);
+      for (const domains of [condition.initiatorDomains, condition.excludedInitiatorDomains]) {
+        if (domains) assert.ok(domains.length > 0 && domains.every((domain) => /^[a-z0-9_.-]+$/.test(domain)), list.title);
+      }
+      if (action.type === 'allowAllRequests') {
+        assert.deepEqual(condition.resourceTypes, ['main_frame', 'sub_frame']);
+        continue;
+      }
       if (!condition.urlFilter) continue;
       assert.match(condition.urlFilter, /^[\x00-\x7f]+$/);
       assert.ok(!condition.urlFilter.startsWith('||*'), condition.urlFilter);

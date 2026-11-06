@@ -741,6 +741,140 @@
   },
   {
    "wait": 500
+  },
+  {
+   "open": "http://checkout.paypal.com/probe.html?script=http%3A%2F%2Fpaypalobjects.com%2Fx%2FpageView.js"
+  },
+  {
+   "expectLoaded": "pageView.js"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?script=http%3A%2F%2Fpaypalobjects.com%2Fx%2FpageView.js"
+  },
+  {
+   "expectBlocked": "pageView.js"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?frame=http%3A%2F%2Fcheckout.paypal.com%2Fprobe.html%3Fscript%3Dhttp%253A%252F%252Fpaypalobjects.com%252Fx%252FpageView.js"
+  },
+  {
+   "expectLoaded": "pageView.js"
+  },
+  {
+   "open": "http://checkout.paypal.com/probe.html?frame=http%3A%2F%2Fpage.fixtures.localhost%3A8733%2Fprobe.html%3Fscript%3Dhttp%253A%252F%252Fpaypalobjects.com%252Fx%252FpageView.js"
+  },
+  {
+   "expectBlocked": "pageView.js"
+  },
+  {
+   "open": "http://www.unb.com.bd/probe.html?image=http%3A%2F%2Fdigitaloceanspaces.com%2Fadvertise%2Fscoped-probe.gif"
+  },
+  {
+   "expectBlocked": "scoped-probe"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fdigitaloceanspaces.com%2Fadvertise%2Fscoped-probe.gif"
+  },
+  {
+   "expectLoaded": "scoped-probe"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?frame=http%3A%2F%2Fwww.unb.com.bd%2Fprobe.html%3Fimage%3Dhttp%253A%252F%252Fdigitaloceanspaces.com%252Fadvertise%252Fframe-scoped-probe.gif"
+  },
+  {
+   "expectBlocked": "frame-scoped-probe"
+  },
+  {
+   "open": "http://www.unb.com.bd/probe.html?frame=http%3A%2F%2Fpage.fixtures.localhost%3A8733%2Fprobe.html%3Fimage%3Dhttp%253A%252F%252Fdigitaloceanspaces.com%252Fadvertise%252Fframe-other-probe.gif"
+  },
+  {
+   "expectLoaded": "frame-other-probe"
+  },
+  {
+   "open": "http://www.fifteen.eu/probe.html?image=http%3A%2F%2Fcdn.fixtures.localhost%2Fanalytics.prod.excluded-probe.gif"
+  },
+  {
+   "expectLoaded": "excluded-probe"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fcdn.fixtures.localhost%2Fanalytics.prod.excluded-probe.gif"
+  },
+  {
+   "expectBlocked": "excluded-probe"
+  },
+  {
+   "open": "http://news.example.ir/probe.html?image=http%3A%2F%2Fnews.example.ir%2Ffiles%2Ffa%2Fadv%2Ftld-probe.gif"
+  },
+  {
+   "expectBlocked": "tld-probe"
+  },
+  {
+   "open": "http://news.example.com/probe.html?image=http%3A%2F%2Fnews.example.com%2Ffiles%2Ffa%2Fadv%2Ftld-probe.gif"
+  },
+  {
+   "expectLoaded": "tld-probe"
+  },
+  {
+   "open": "http://shop.ir/probe.html?image=http%3A%2F%2Fshop.ir%2Fwp-content%2Fuploads%2Fexcl-probe.gif"
+  },
+  {
+   "expectBlocked": "excl-probe"
+  },
+  {
+   "open": "http://ifixit.ir/probe.html?image=http%3A%2F%2Fifixit.ir%2Fwp-content%2Fuploads%2Fexcl-probe.gif"
+  },
+  {
+   "expectLoaded": "excl-probe"
+  },
+  {
+   "open": "http://optout.networkadvertising.org/probe.html?image=http%3A%2F%2Fadnxs.com%2Fdoc-ads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Fdoc-trackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fdoc-iran-probe.gif"
+  },
+  {
+   "expectLoaded": "doc-ads-probe"
+  },
+  {
+   "expectLoaded": "doc-trackers-probe"
+  },
+  {
+   "expectLoaded": "doc-iran-probe"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fdoc-ads-probe.gif"
+  },
+  {
+   "expectBlocked": "doc-ads-probe"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fdoc-outer-probe.gif&frame=http%3A%2F%2Foptout.networkadvertising.org%2Fprobe.html%3Fimage%3Dhttp%253A%252F%252Fadnxs.com%252Fdoc-inner-probe.gif"
+  },
+  {
+   "expectBlocked": "doc-outer-probe"
+  },
+  {
+   "expectLoaded": "doc-inner-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"]}}).then(()=>'set')",
+   "label": "whole-page exception: own blocked site on"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://optout.networkadvertising.org/probe.html?image=http%3A%2F%2Fadnxs.com%2Fdoc-ads-probe.gif&image=http%3A%2F%2Fmy-blocked.localhost%2Fdoc-own-probe.gif"
+  },
+  {
+   "expectLoaded": "doc-ads-probe"
+  },
+  {
+   "expectBlocked": "doc-own-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "domain rules: back to defaults"
+  },
+  {
+   "wait": 500
   }
  ]
 }

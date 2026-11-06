@@ -19,6 +19,7 @@
 - The "nothing is blocked yet" notice is gone from the popup and settings.
 - The popup's Settings link is now a button, and Latin text sits centred in buttons and tags.
 - Rules that name a path, such as an ad folder on a shared host, now block too, with their exceptions, and the build report gives an exact reason for every line it drops.
+- Rules and exceptions tied to a site now apply, so fewer sites break, the few pages a list names as whole-page exceptions are left alone, and `$badfilter` cancels a rule within its own list.
 
 ## 0.1.0 - 2026-11-04
 

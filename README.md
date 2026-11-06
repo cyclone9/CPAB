@@ -2,7 +2,7 @@
 
 [English](README.md) | [فارسی](README.fa.md)
 
-Status: private preview of `0.1.2`. It blocks ads and trackers with rules that match parts of an address, so some ads still show and a site may occasionally need pausing.
+Status: private preview of `0.1.3`. It blocks ads and trackers with rules that match parts of an address and rules tied to a named site, so some ads still show and a site may occasionally need pausing.
 
 The page stays, the ads go.
 
@@ -10,7 +10,7 @@ Free ad blocker. No data collected.
 
 ## What this version is
 
-`0.1.2` blocks ads, trackers and Iranian ad networks with rules converted from EasyList, EasyPrivacy and PersianBlocker. Besides whole domains, the rules now match parts of an address, so more ads and trackers are caught. The converter isn't complete yet: exceptions tied to a named site wait for a later step, so some ads still show and now and then a page breaks. If that happens, pause the extension on that site from the toolbar popup.
+`0.1.3` blocks ads, trackers and Iranian ad networks with rules converted from EasyList, EasyPrivacy and PersianBlocker. `0.1.2` matched whole domains and parts of an address; this version also converts rules and exceptions tied to a named site, so fewer pages break. The converter isn't complete yet: popup, hiding and regex rules aren't converted, so some ads still show and now and then a page breaks, for example inside embedded frames. If that happens, pause the extension on that site from the toolbar popup.
 
 The main switch and the switches for each group turn the rules on and off. The toolbar icon and the popup show how many items were blocked on the current page, with a count for each group and a "Your sites" line for sites you blocked yourself. In Settings you can add your own blocked sites, and CPAB blocks them and their subdomains everywhere. Settings shows each list's rule count and date, and About credits the authors of every list. You can also change the language and theme. Your choices are saved in your browser.
 

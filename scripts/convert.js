@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Turns a filter list into declarativeNetRequest rules: ||domain^ rules merged into requestDomains,
-// and path rules as one urlFilter each, with their @@ exceptions. Everything else is counted by
-// reason and dropped. Our own code, no dependencies.
+// and path rules as one urlFilter each, with their @@ exceptions, domain= conditions and $document
+// exceptions. Everything else is counted by reason and dropped. Our own code, no dependencies.
 import { domainToASCII } from 'node:url';
 import { ALLOW_RULE_ID_BASE } from '../src/shared/blocking.js';
 
@@ -71,6 +71,16 @@ export function isIgnorable(line) {
   return line === '' || COMMENT.test(line);
 }
 
+// Option names in one spelling: lowercase, with the short forms written out.
+function optionNames(options) {
+  return options.map((option) => {
+    const name = option.trim().toLowerCase();
+    const negated = name.startsWith('~');
+    const plain = negated ? name.slice(1) : name;
+    return `${negated ? '~' : ''}${ALIASES[plain] ?? plain}`;
+  });
+}
+
 // Which of the list's rule shapes a line is. A dropped line says why.
 export function parseLine(line) {
   if (SCRIPTLET.test(line)) return { dropped: 'scriptlet' };
@@ -84,22 +94,56 @@ export function parseLine(line) {
   return { allow, pattern: list ? body.slice(0, list.index) : body, options: list ? list[1].split(',') : [] };
 }
 
-// One rule's options as a declarativeNetRequest condition, or the reason it can't be one.
-export function parseOptions(options) {
-  const names = options.map((option) => {
-    const name = option.trim().toLowerCase();
-    const negated = name.startsWith('~');
-    const plain = negated ? name.slice(1) : name;
-    return `${negated ? '~' : ''}${ALIASES[plain] ?? plain}`;
-  });
-  if (names.some((name) => name === 'domain' || name.startsWith('domain='))) return { dropped: 'domain=' };
+// A domain= list as initiator conditions. The lists mean the page or frame making the request, which
+// is the initiator: topDomains reads the top page instead, and needs Chrome 145.
+export function parseDomains(values) {
+  const included = new Set();
+  const excluded = new Set();
+  for (const value of values) {
+    const negated = value.startsWith('~');
+    const entry = negated ? value.slice(1) : value;
+    // google.* means every public suffix of a name, and no such list exists to expand it from.
+    if (entry.includes('*')) return { dropped: 'domain= wildcard' };
+    const domain = normalizeRuleDomain(entry);
+    if (!domain) return { dropped: 'invalid domain in domain=' };
+    // Excluding a private address is fine: that keeps a rule away from it.
+    if (!negated && PRIVATE_ADDRESS.test(domain)) return { dropped: 'private address' };
+    (negated ? excluded : included).add(domain);
+  }
+  // In a list the most specific entry wins. Chrome lets the exclusion win, so ~a.com|b.a.com would
+  // never match anything.
+  const domains = [...included];
+  if ([...excluded].some((parent) => domains.some((domain) => domain === parent || domain.endsWith(`.${parent}`)))) {
+    return { dropped: 'domain= excludes its own parent' };
+  }
+  return {
+    condition: {
+      ...(included.size ? { initiatorDomains: domains.sort() } : {}),
+      ...(excluded.size ? { excludedInitiatorDomains: [...excluded].sort() } : {}),
+    },
+  };
+}
+
+// One rule's options as a declarativeNetRequest condition, or the reason it can't be one. Only an
+// exception can carry $document: on a block rule it stays dropped.
+export function parseOptions(options, allow = false) {
+  const names = optionNames(options);
+  if (allow && names.includes('document')) {
+    if (names.some((name) => name !== 'document' && name !== 'subdocument')) return { dropped: '$document with other options' };
+    return { wholePage: true, condition: { resourceTypes: ['main_frame', 'sub_frame'] } };
+  }
 
   const included = new Set();
   const excluded = new Set();
   const parties = new Set();
+  const domains = [];
   let caseSensitive = false;
   for (const name of names) {
     if (DROPPED_OPTIONS.has(name)) return { dropped: `$${name}` };
+    if (name.startsWith('domain=')) {
+      domains.push(...name.slice('domain='.length).split('|'));
+      continue;
+    }
     if (name === 'match-case') {
       caseSensitive = true;
       continue;
@@ -115,7 +159,10 @@ export function parseOptions(options) {
   }
   if (parties.size > 1) return { dropped: 'both first-party and third-party' };
 
-  const condition = parties.size ? { domainType: [...parties][0] } : {};
+  const parsedDomains = domains.length ? parseDomains(domains) : { condition: {} };
+  if (parsedDomains.dropped) return parsedDomains;
+
+  const condition = { ...parsedDomains.condition, ...(parties.size ? { domainType: [...parties][0] } : {}) };
   if (caseSensitive) condition.isUrlFilterCaseSensitive = true;
   if (included.size) {
     const types = [...included].filter((type) => !excluded.has(type));
@@ -155,6 +202,15 @@ export function patternProblem(pattern) {
   return null;
 }
 
+// A $document exception lifts every list on that page, so it has to name one place: a host with a
+// path, or a bare host of three labels. There is no public suffix list here, and ||co.uk^ and
+// ||github.io^ both look like a site.
+export function wholePageProblem(pattern) {
+  const [, host, rest] = pattern.match(/^\|\|([^/^*|]+)(.*)$/) ?? [];
+  if (!host) return true;
+  return host.split('.').length < (/\/\w/.test(rest) ? 2 : 3);
+}
+
 // A lowercase ASCII domain, or null. One bad entry could cost Chrome a whole merged rule.
 export function normalizeRuleDomain(host) {
   const lower = host.toLowerCase();
@@ -167,9 +223,9 @@ export function normalizeRuleDomain(host) {
 // Rules with the same action and options become one group holding all their domains.
 export function groupByOptions(entries) {
   const groups = new Map();
-  for (const { allow, domain, condition } of entries) {
+  for (const { allow, wholePage, domain, condition } of entries) {
     const key = JSON.stringify([allow, condition]);
-    if (!groups.has(key)) groups.set(key, { allow, condition, domains: new Set() });
+    if (!groups.has(key)) groups.set(key, { allow, wholePage, condition, domains: new Set() });
     groups.get(key).domains.add(domain);
   }
   return [...groups.values()];
@@ -178,8 +234,8 @@ export function groupByOptions(entries) {
 // One group per path rule. Only the very same pattern with the very same options folds into one.
 export function uniquePathRules(entries) {
   const groups = new Map();
-  for (const { allow, urlFilter, condition } of entries) {
-    groups.set(JSON.stringify([allow, urlFilter, condition]), { allow, condition: { urlFilter, ...condition } });
+  for (const { allow, wholePage, urlFilter, condition } of entries) {
+    groups.set(JSON.stringify([allow, urlFilter, condition]), { allow, wholePage, condition: { urlFilter, ...condition } });
   }
   return [...groups.values()];
 }
@@ -194,17 +250,24 @@ export function buildRules(groups) {
   });
   let blockId = 0;
   let allowId = ALLOW_RULE_ID_BASE;
-  return sorted.map(({ allow, condition, domains }) => ({
+  return sorted.map(({ allow, wholePage, condition, domains }) => ({
     id: allow ? ++allowId : ++blockId,
     priority: allow ? ALLOW_PRIORITY : BLOCK_PRIORITY,
-    action: { type: allow ? 'allow' : 'block' },
+    action: { type: wholePage ? 'allowAllRequests' : allow ? 'allow' : 'block' },
     condition: domains ? { requestDomains: [...domains].sort(), ...condition } : condition,
   }));
 }
 
+const hasBadfilter = ({ options }) => options !== undefined && optionNames(options).includes('badfilter');
+
+// The same rule, with or without $badfilter and whatever order its options come in.
+function ruleKey({ allow, host, pattern, options }) {
+  const names = optionNames(options).filter((name) => name !== 'badfilter').sort();
+  return JSON.stringify([allow, pattern ?? `||${host}^`, names]);
+}
+
 export function convertList(text) {
   const dropped = {};
-  let read = 0;
   let droppedExceptions = 0;
   const entries = [];
   const pathEntries = [];
@@ -213,25 +276,37 @@ export function convertList(text) {
     if (allow) droppedExceptions += 1;
   };
 
-  for (const raw of text.split(/\r?\n/)) {
-    const line = raw.trim();
-    if (isIgnorable(line)) continue;
-    read += 1;
-    const parsed = parseLine(line);
+  const lines = text.split(/\r?\n/).map((raw) => raw.trim()).filter((line) => !isIgnorable(line)).map(parseLine);
+  // A $badfilter line can come after the rule it cancels.
+  const cancelled = new Set(lines.filter(hasBadfilter).map(ruleKey));
+
+  for (const parsed of lines) {
     if (parsed.dropped) {
       drop(parsed.dropped, parsed.allow);
       continue;
     }
     const { allow, host, pattern, options } = parsed;
-    const { condition, dropped: reason } = parseOptions(options);
+    if (hasBadfilter(parsed)) {
+      drop('$badfilter', allow);
+      continue;
+    }
+    if (cancelled.has(ruleKey(parsed))) {
+      drop('cancelled by $badfilter', allow);
+      continue;
+    }
+    const { condition, wholePage, dropped: reason } = parseOptions(options, allow);
     if (reason) {
       drop(reason, allow);
+      continue;
+    }
+    if (wholePage && wholePageProblem(pattern ?? `||${host}^`)) {
+      drop('$document exception too broad', allow);
       continue;
     }
     if (pattern !== undefined) {
       const problem = patternProblem(pattern);
       if (problem) drop(problem, allow);
-      else pathEntries.push({ allow, urlFilter: pattern, condition });
+      else pathEntries.push({ allow, wholePage, urlFilter: pattern, condition });
       continue;
     }
     const domain = normalizeRuleDomain(host);
@@ -243,13 +318,13 @@ export function convertList(text) {
       drop('private address', allow);
       continue;
     }
-    entries.push({ allow, domain, condition });
+    entries.push({ allow, wholePage, domain, condition });
   }
 
   const paths = uniquePathRules(pathEntries);
   const rules = buildRules([...groupByOptions(entries), ...paths]);
   return {
-    read,
+    read: lines.length,
     converted: entries.length + pathEntries.length,
     dropped,
     droppedExceptions,
