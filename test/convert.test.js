@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
   buildRules,
   convertList,
+  formatReport,
   groupByOptions,
   hostsToFilters,
   normalizeRuleDomain,
   parseLine,
   parseOptions,
+  patternProblem,
 } from '../scripts/convert.js';
+import { LISTS } from '../scripts/lists.config.js';
 import { ALLOW_RULE_ID_BASE } from '../src/shared/blocking.js';
 
 const ruleFor = (text) => convertList(text).rules[0];
@@ -119,6 +123,7 @@ test('no output rule can ever touch main_frame', () => {
   const list = [
     '||a.com^', '@@||b.com^', '||c.com^$third-party', '||d.com^$~script', '||e.com^$subdocument',
     '||f.com^$document', '||g.com^$all', '||h.com^$main_frame', '@@||i.com^$~image,~third-party',
+    '||j.com/ads/', '@@||k.com/ok/', '/ads/one.$third-party', '/ads/two.$~script', '/ads/three.$main_frame',
   ].join('\n');
   const { rules } = convertList(list);
   assert.ok(rules.length >= 5);
@@ -134,11 +139,170 @@ test('other rule shapes are dropped by reason', () => {
   assert.equal(parseLine('example.com#@#.ad').dropped, 'cosmetic');
   assert.equal(parseLine('example.com##+js(nowoif)').dropped, 'scriptlet');
   assert.equal(parseLine('/banner[0-9]+/').dropped, 'regex');
-  assert.equal(parseLine('||a.com/ads.js').dropped, 'not a ||domain^ rule');
-  assert.equal(parseLine('||a.com^*.gif').dropped, 'not a ||domain^ rule');
-  assert.equal(parseLine('||a.*^').dropped, 'not a ||domain^ rule');
-  assert.equal(parseLine('@@||a.com/x^$script').allow, true);
-  assert.equal(parseLine('/ads/banner.').dropped, 'not a ||domain^ rule');
+  assert.equal(parseLine('@@/banner[0-9]+/$script').dropped, 'regex');
+});
+
+test('a path rule comes apart into its pattern and its options', () => {
+  assert.deepEqual(parseLine('||a.com/ads.js'), { allow: false, pattern: '||a.com/ads.js', options: [] });
+  assert.deepEqual(parseLine('||a.com^*.gif$image'), { allow: false, pattern: '||a.com^*.gif', options: ['image'] });
+  assert.deepEqual(parseLine('@@||a.com/x^$script,third-party'), { allow: true, pattern: '||a.com/x^', options: ['script', 'third-party'] });
+  assert.deepEqual(parseLine('/ads/banner.'), { allow: false, pattern: '/ads/banner.', options: [] });
+  assert.deepEqual(parseLine('|http://a.com/x|'), { allow: false, pattern: '|http://a.com/x|', options: [] });
+});
+
+test('only a well-formed list after the $ counts as options', () => {
+  assert.deepEqual(parseLine('/a$b/c.js$script'), { allow: false, pattern: '/a$b/c.js', options: ['script'] });
+  assert.deepEqual(parseLine('/a$b/c.js'), { allow: false, pattern: '/a$b/c.js', options: [] });
+});
+
+test('every path shape becomes a urlFilter, unchanged, and stays off main_frame', () => {
+  for (const filter of ['||a.com/ads.js', '||a.com^*.gif', '||a.*/promo/', '||a.com*x=', '||adservice.google.', '|http://a.com/x', '|https://a.com/x|', '/banner/ad.', '-300x250-', '.com/*=abc', 'wss://a.*.com/ws^', '/addyn|*;adtech;']) {
+    assert.deepEqual(ruleFor(filter), {
+      id: 1,
+      priority: 1,
+      action: { type: 'block' },
+      condition: { urlFilter: filter, excludedResourceTypes: ['main_frame'] },
+    });
+  }
+});
+
+test('a path rule keeps its options', () => {
+  assert.deepEqual(ruleFor('||a.com/x$script,image,third-party\n').condition, {
+    urlFilter: '||a.com/x',
+    domainType: 'thirdParty',
+    resourceTypes: ['image', 'script'],
+  });
+  assert.deepEqual(ruleFor('/banner/x$~script,~third-party\n').condition, {
+    urlFilter: '/banner/x',
+    domainType: 'firstParty',
+    excludedResourceTypes: ['main_frame', 'script'],
+  });
+});
+
+test('a path exception is an allow rule at priority 2, with its id above the base', () => {
+  const { rules } = convertList('||a.com/ads/\n@@||a.com/ads/ok.js$script\n');
+  const allow = rules.find((rule) => rule.action.type === 'allow');
+  assert.equal(allow.priority, 2);
+  assert.ok(allow.id > ALLOW_RULE_ID_BASE);
+  assert.deepEqual(allow.condition, { urlFilter: '||a.com/ads/ok.js', resourceTypes: ['script'] });
+  assert.ok(rules.find((rule) => rule.action.type === 'block').id <= ALLOW_RULE_ID_BASE);
+});
+
+test('match-case asks for a case-sensitive match, and nothing else sets it', () => {
+  assert.equal(ruleFor('/AdBanner/x$match-case\n').condition.isUrlFilterCaseSensitive, true);
+  assert.equal(ruleFor('/AdBanner/x\n').condition.isUrlFilterCaseSensitive, undefined);
+});
+
+test('path rules stay one each, and only the very same rule folds', () => {
+  const result = convertList('/ads/one.\n/ads/two.\n/ads/one.\n/ads/one.$script\n@@/ads/one.\n');
+  assert.equal(result.read, 5);
+  assert.equal(result.converted, 5);
+  assert.equal(result.pathRules, 4);
+  assert.equal(result.rules.length, 4);
+});
+
+test('domain rules still merge beside path rules, and hold the first ids', () => {
+  const result = convertList('/ads/one.\n||a.com^\n||b.com^\n');
+  assert.equal(result.domains, 2);
+  assert.equal(result.pathRules, 1);
+  assert.deepEqual(result.rules[0].condition.requestDomains, ['a.com', 'b.com']);
+  assert.equal(result.rules[1].condition.urlFilter, '/ads/one.');
+});
+
+test('out-of-scope options drop a path rule by the same reasons as a domain rule', () => {
+  const result = convertList([
+    '||a.com/x$domain=b.com',
+    '@@||a.com/y$script,domain=b.com',
+    '/ads/x$popup',
+    '/ads/y$document',
+    '/ads/z$all',
+    '/ads/w$removeparam=utm',
+    '/ads/v$generichide',
+  ].join('\n'));
+  assert.deepEqual(result.rules, []);
+  assert.deepEqual(result.dropped, {
+    'domain=': 2,
+    $popup: 1,
+    $document: 1,
+    $all: 1,
+    'unknown option: removeparam': 1,
+    'unknown option: generichide': 1,
+  });
+  assert.equal(result.droppedExceptions, 1);
+});
+
+test('a pattern Chrome would refuse is dropped by reason', () => {
+  assert.equal(patternProblem('||a.com/تبلیغ/'), 'non-ASCII pattern');
+  assert.equal(patternProblem('||تبلیغ.ir/ads/'), 'non-ASCII pattern');
+  assert.equal(patternProblem('||*.com/ads/'), 'pattern starts with ||*');
+  assert.equal(patternProblem('||*'), 'pattern starts with ||*');
+  assert.equal(patternProblem(''), 'pattern too broad');
+});
+
+test('a pattern that could not match a real address, or was cut wrong, is dropped by reason', () => {
+  assert.equal(patternProblem('/a b/c.js'), 'space, # or $ in pattern');
+  assert.equal(patternProblem('/a$b/c.js'), 'space, # or $ in pattern');
+  assert.equal(patternProblem('example.com#$?#.ad'), 'space, # or $ in pattern');
+});
+
+test('a pattern that could match nearly everything is refused', () => {
+  for (const pattern of ['', '*', '**', '^', '|', '||', '|*', '||^', '|http', '|http://', '|https://*', 'http', 'https://', 'http*://', 'wss://', '://', '|http*://*?', 'www.', '//www.', '.com', '.com/', '/*', '/ads/', '/e/cm?', '?z=*&rb=', '.html', '.html?', '.php*', '.gif?']) {
+    assert.equal(patternProblem(pattern), 'pattern too broad', pattern);
+  }
+  const result = convertList('*$image,third-party\n$third-party\n@@*$image\n');
+  assert.deepEqual(result.rules, []);
+  assert.deepEqual(result.dropped, { 'pattern too broad': 3 });
+  assert.equal(result.droppedExceptions, 1);
+});
+
+test('short patterns that name something real stay', () => {
+  for (const pattern of ['/s.gif?', '/gtm.js', '/oo/*/l.js', '://t.*/open^', '.300x250.', '.468x60-', '.sharecounter.', '.EventTracking.', '-120x600-', '|http://r.i.ua^']) {
+    assert.equal(patternProblem(pattern), null, pattern);
+  }
+});
+
+test('a private address is dropped in a pattern too, whole or cut short', () => {
+  for (const pattern of ['||10.10.34.*^', '||10.10.34.34/x', '|http://192.168.1.1/x', '://10.1.1.', '||172.16.0.1/x', '10.10.34.', '||127.0.0.1/x', 'http*://10.0.0.1/']) {
+    assert.equal(patternProblem(pattern), 'private address', pattern);
+  }
+  for (const pattern of ['||142.91.159.', '||23.109.82.', '||172.15.0.1/x', '||10.example.com/x', '/images/10.10.gif']) {
+    assert.equal(patternProblem(pattern), null, pattern);
+  }
+});
+
+test('a wildcard host with no path is dropped, and a path narrows one down enough to keep', () => {
+  assert.equal(patternProblem('||analytics-*.example.com^'), 'wildcard host, no path');
+  assert.equal(patternProblem('||cacheserve.*/promodisplay/'), null);
+  assert.equal(patternProblem('||api.example.com*plvid='), null);
+  assert.equal(patternProblem('||example.com^*.gif'), null);
+});
+
+test('the real lists add up, take no pattern Chrome refuses, and fit the guaranteed rules', () => {
+  const available = LISTS.filter((list) => existsSync(new URL(`../lists/${list.listFile}`, import.meta.url)));
+  assert.ok(available.length >= 2);
+  let total = 0;
+  for (const list of available) {
+    const result = convertList(readFileSync(new URL(`../lists/${list.listFile}`, import.meta.url), 'utf8'));
+    const dropped = Object.values(result.dropped).reduce((sum, count) => sum + count, 0);
+    assert.equal(result.read, result.converted + dropped, list.title);
+    assert.ok(!Object.keys(result.dropped).some((reason) => reason.includes('||domain^')), list.title);
+    assert.equal(new Set(result.rules.map((rule) => rule.id)).size, result.rules.length, list.title);
+    for (const { condition } of result.rules) {
+      if (!condition.urlFilter) continue;
+      assert.match(condition.urlFilter, /^[\x00-\x7f]+$/);
+      assert.ok(!condition.urlFilter.startsWith('||*'), condition.urlFilter);
+      assert.ok(!condition.resourceTypes?.includes('main_frame'), condition.urlFilter);
+      if (!condition.resourceTypes) assert.ok(condition.excludedResourceTypes.includes('main_frame'), condition.urlFilter);
+    }
+    total += result.rules.length;
+  }
+  assert.ok(total < 30000, `${total} rules`);
+});
+
+test('the report says how many path rules there are', () => {
+  const report = formatReport('List', convertList('||a.com^\n/ads/one.\n*\n'));
+  assert.match(report, /^List: read 3, converted 2, dropped 1 \(exceptions among them: 0\), output 2 rules: 1 path rules, the rest holding 1 domains/);
+  assert.match(report, /1 {2}pattern too broad/);
 });
 
 test('domains are lowercased and converted to punycode', () => {
@@ -194,7 +358,7 @@ test('host-file rules convert, and a wildcard entry is dropped rather than guess
   assert.equal(result.read, 3);
   assert.equal(result.converted, 1);
   assert.deepEqual(result.rules[0].condition.requestDomains, ['ads.example.com']);
-  assert.equal(result.dropped['not a ||domain^ rule'], 2);
+  assert.deepEqual(result.dropped, { 'wildcard host, no path': 1, 'private address': 1 });
 });
 
 test('the same input always builds the same output', () => {
@@ -205,6 +369,11 @@ test('the same input always builds the same output', () => {
   ];
   assert.deepEqual(buildRules(groupByOptions(entries)), buildRules(groupByOptions([...entries].reverse())));
   assert.deepEqual(buildRules(groupByOptions(entries))[1].condition.requestDomains, ['a.com', 'b.com']);
+});
+
+test('the same path rules in another order build the same output', () => {
+  const lines = ['/ads/one.', '/ads/two.$script', '@@/ads/three.', '||a.com^', '||b.com/x'];
+  assert.deepEqual(convertList(lines.join('\n')).rules, convertList([...lines].reverse().join('\n')).rules);
 });
 
 test('Windows line endings and surrounding spaces do not change a rule', () => {

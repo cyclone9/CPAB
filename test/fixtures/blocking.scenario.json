@@ -630,6 +630,117 @@
   },
   {
    "expectLoaded": "mine-frame"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fgooglesyndication.com%2Fpagead%2Fpath-pagead.gif&image=http%3A%2F%2Fproof.googlesyndication.com%2Fsafeframe%2Fpath-safeframe.gif&image=http%3A%2F%2Fgooglesyndication.com%2Fpath-harmless.gif&image=http%3A%2F%2Fgeneric.fixtures.localhost%3A8733%2Fbanner-300x250-path-generic.gif&script=http%3A%2F%2Fgeneric.fixtures.localhost%3A8733%2Fbanner-300x250-path-wrong-type.js&image=http%3A%2F%2Fnrk.no%2Fx%2Fstats%2Fpath-privacy.gif&fetch=http%3A%2F%2Fnrk.no%2Fx%2Fstats%2Fpath-privacy-fetch&image=http%3A%2F%2Fnrk.no%2Fpath-privacy-harmless.gif&image=http%3A%2F%2Fabipic.com%2Fads%2Fpath-iran.gif&image=http%3A%2F%2Fabipic.com%2Fpath-iran-harmless.gif&image=http%3A%2F%2Fdiscretemath.org%2Fads%2Fpath-exception-allow.gif&image=http%3A%2F%2Fmathproof.org%2Fads%2Fpath-exception-block.gif&script=http%3A%2F%2Fsankei.co.jp%2Fjs%2Fanalytics%2Fskd.Analysis.js-path-exception-typed.js&image=http%3A%2F%2Fsankei.co.jp%2Fjs%2Fanalytics%2Fskd.Analysis.js-path-exception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "path-pagead"
+  },
+  {
+   "expectBlocked": "path-safeframe"
+  },
+  {
+   "expectBlocked": "path-generic"
+  },
+  {
+   "expectBlocked": "path-privacy"
+  },
+  {
+   "expectBlocked": "path-privacy-fetch"
+  },
+  {
+   "expectBlocked": "path-iran"
+  },
+  {
+   "expectBlocked": "path-exception-block"
+  },
+  {
+   "expectBlocked": "path-exception-wrong-type"
+  },
+  {
+   "expectLoaded": "path-harmless"
+  },
+  {
+   "expectLoaded": "path-wrong-type"
+  },
+  {
+   "expectLoaded": "path-privacy-harmless"
+  },
+  {
+   "expectLoaded": "path-iran-harmless"
+  },
+  {
+   "expectLoaded": "path-exception-allow"
+  },
+  {
+   "expectLoaded": "path-exception-typed"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"trackers\":false}}}).then(()=>'set')",
+   "label": "path rules: trackers group off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fgooglesyndication.com%2Fpagead%2Fpath-pagead.gif&image=http%3A%2F%2Fproof.googlesyndication.com%2Fsafeframe%2Fpath-safeframe.gif&image=http%3A%2F%2Fgooglesyndication.com%2Fpath-harmless.gif&image=http%3A%2F%2Fgeneric.fixtures.localhost%3A8733%2Fbanner-300x250-path-generic.gif&script=http%3A%2F%2Fgeneric.fixtures.localhost%3A8733%2Fbanner-300x250-path-wrong-type.js&image=http%3A%2F%2Fnrk.no%2Fx%2Fstats%2Fpath-privacy.gif&fetch=http%3A%2F%2Fnrk.no%2Fx%2Fstats%2Fpath-privacy-fetch&image=http%3A%2F%2Fnrk.no%2Fpath-privacy-harmless.gif&image=http%3A%2F%2Fabipic.com%2Fads%2Fpath-iran.gif&image=http%3A%2F%2Fabipic.com%2Fpath-iran-harmless.gif&image=http%3A%2F%2Fdiscretemath.org%2Fads%2Fpath-exception-allow.gif&image=http%3A%2F%2Fmathproof.org%2Fads%2Fpath-exception-block.gif&script=http%3A%2F%2Fsankei.co.jp%2Fjs%2Fanalytics%2Fskd.Analysis.js-path-exception-typed.js&image=http%3A%2F%2Fsankei.co.jp%2Fjs%2Fanalytics%2Fskd.Analysis.js-path-exception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "path-privacy"
+  },
+  {
+   "expectLoaded": "path-privacy-fetch"
+  },
+  {
+   "expectBlocked": "path-pagead"
+  },
+  {
+   "expectBlocked": "path-iran"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"pausedSites\":[\"fixtures.localhost\"]}}).then(()=>'set')",
+   "label": "path rules: page paused"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fgooglesyndication.com%2Fpagead%2Fpath-pagead.gif&image=http%3A%2F%2Fproof.googlesyndication.com%2Fsafeframe%2Fpath-safeframe.gif&image=http%3A%2F%2Fgooglesyndication.com%2Fpath-harmless.gif&image=http%3A%2F%2Fgeneric.fixtures.localhost%3A8733%2Fbanner-300x250-path-generic.gif&script=http%3A%2F%2Fgeneric.fixtures.localhost%3A8733%2Fbanner-300x250-path-wrong-type.js&image=http%3A%2F%2Fnrk.no%2Fx%2Fstats%2Fpath-privacy.gif&fetch=http%3A%2F%2Fnrk.no%2Fx%2Fstats%2Fpath-privacy-fetch&image=http%3A%2F%2Fnrk.no%2Fpath-privacy-harmless.gif&image=http%3A%2F%2Fabipic.com%2Fads%2Fpath-iran.gif&image=http%3A%2F%2Fabipic.com%2Fpath-iran-harmless.gif&image=http%3A%2F%2Fdiscretemath.org%2Fads%2Fpath-exception-allow.gif&image=http%3A%2F%2Fmathproof.org%2Fads%2Fpath-exception-block.gif&script=http%3A%2F%2Fsankei.co.jp%2Fjs%2Fanalytics%2Fskd.Analysis.js-path-exception-typed.js&image=http%3A%2F%2Fsankei.co.jp%2Fjs%2Fanalytics%2Fskd.Analysis.js-path-exception-wrong-type.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "path-pagead"
+  },
+  {
+   "expectLoaded": "path-safeframe"
+  },
+  {
+   "expectLoaded": "path-generic"
+  },
+  {
+   "expectLoaded": "path-privacy"
+  },
+  {
+   "expectLoaded": "path-privacy-fetch"
+  },
+  {
+   "expectLoaded": "path-iran"
+  },
+  {
+   "expectLoaded": "path-exception-block"
+  },
+  {
+   "expectLoaded": "path-exception-wrong-type"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "path rules: back to defaults"
+  },
+  {
+   "wait": 500
   }
  ]
 }

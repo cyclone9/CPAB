@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The motto is now "Free ad blocker. No data collected.", in both languages and both READMEs.
+- About no longer lists the typeface, and its links now sit right below the version.
 - Ads, Trackers and Iran now block for real, through rules converted from EasyList, EasyPrivacy and PersianBlocker, one file per list.
 - The main switch and the group switches turn those rules on and off, and pausing a site lets everything on it through.
 - The Iran list now comes from the maintained PersianBlocker repository, joined from its older list and its ads, trackers and hosts files.
@@ -16,6 +18,7 @@
 - About shows the full name, with the Persian name in Persian, and links to the family page and the site.
 - The "nothing is blocked yet" notice is gone from the popup and settings.
 - The popup's Settings link is now a button, and Latin text sits centred in buttons and tags.
+- Rules that name a path, such as an ad folder on a shared host, now block too, with their exceptions, and the build report gives an exact reason for every line it drops.
 
 ## 0.1.0 - 2026-11-04
 
