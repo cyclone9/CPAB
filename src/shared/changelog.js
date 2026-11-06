@@ -6,6 +6,16 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.1.6',
+    date: '2026-11-06',
+    en: [
+      'Blocking is unchanged. Memory use, updates and the way to hide ad boxes were checked.',
+    ],
+    fa: [
+      'مسدودکردن تغییری نکرده است. مصرف حافظه، به‌روزرسانی و روش پنهان‌کردن جای تبلیغ بررسی شد.',
+    ],
+  },
+  {
     version: '0.1.5',
     date: '2026-11-06',
     en: [

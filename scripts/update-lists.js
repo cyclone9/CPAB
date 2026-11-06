@@ -22,7 +22,8 @@ const sha256 = (text) => createHash('sha256').update(text).digest('hex');
 async function download(url, headers = {}) {
   const response = await fetch(url, { headers });
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
-  return response.text();
+  // Git stores line endings as LF here, so the recorded hash has to describe LF text.
+  return (await response.text()).replace(/\r\n/g, '\n');
 }
 
 // Parts of one list carry titles such as PersianBlockerAds, and a host file writes # for !.

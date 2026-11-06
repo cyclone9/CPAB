@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- List snapshots now record their checksum after line endings are normalised, so it matches the stored file.
 - The motto is now "Free ad blocker. No data collected.", in both languages and both READMEs.
 - About no longer lists the typeface, and its links now sit right below the version.
 - Ads, Trackers and Iran now block for real, through rules converted from EasyList, EasyPrivacy and PersianBlocker, one file per list.
