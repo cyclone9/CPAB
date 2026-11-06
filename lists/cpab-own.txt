@@ -5,3 +5,7 @@
 ! CPAB's own rules, from the owner's reports and our own research. Write every rule here by hand,
 ! never copied from another list, with a comment above it saying where it came from and when:
 ! ! 2026-11-04, owner report, example.ir
+!
+! 2026-11-06, owner report, kojaro.com: the top banner. PersianBlocker's kojaro rules no longer match
+! it, and its images carry no ad address. The close button is what marks this box as an ad.
+kojaro.com##div:has(> div > button[aria-label="بستن تبلیغ"])

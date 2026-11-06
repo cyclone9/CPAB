@@ -56,7 +56,6 @@ export function blockedRules(settings) {
 export const BLOCK_GROUPS = Object.freeze([
   Object.freeze({ label: 'groupAds', rulesets: GROUP_RULESETS.ads }),
   Object.freeze({ label: 'groupTrackers', rulesets: GROUP_RULESETS.trackers }),
-  Object.freeze({ label: 'groupIran', rulesets: GROUP_RULESETS.iran }),
   Object.freeze({ label: 'groupYourSites', rulesets: Object.freeze([DYNAMIC_RULESET]) }),
 ]);
 

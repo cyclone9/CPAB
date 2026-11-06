@@ -70,8 +70,8 @@ test('the manifest asks only for what this version needs', () => {
   assert.equal(manifest.manifest_version, 3);
   assert.equal(manifest.minimum_chrome_version, '121');
   assert.equal(manifest.version, readJson('../package.json').version);
-  assert.deepEqual(manifest.permissions, ['storage', 'activeTab', 'declarativeNetRequest']);
-  assert.equal(manifest.host_permissions, undefined);
+  assert.deepEqual(manifest.permissions, ['storage', 'activeTab', 'declarativeNetRequest', 'scripting']);
+  assert.deepEqual(manifest.host_permissions, ['<all_urls>']);
   assert.equal(manifest.background.type, 'module');
 });
 

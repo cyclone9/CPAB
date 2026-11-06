@@ -87,7 +87,8 @@ function renderSiteList(sites) {
   sites.empty.hidden = domains.length > 0;
 }
 
-const listsOf = (group) => (lists ?? []).filter((list) => list.group === group);
+const inGroup = (group) => (lists ?? []).filter((list) => list.group === group);
+const listsOf = (group) => inGroup(group).filter((list) => list.listed !== false);
 
 function fillMeta(element, parts) {
   element.replaceChildren(...parts.map((text) => Object.assign(document.createElement('span'), { textContent: text })));
@@ -112,7 +113,7 @@ function groupFacts(group, members) {
 
 // On the group's row, not the list's: a refusal has to show while the group is closed.
 function renderProblems(group, members) {
-  const refused = members.filter((list) => problems[list.ruleset]);
+  const refused = inGroup(group).filter((list) => problems[list.ruleset]);
   const problem = document.querySelector(`[data-problem="${group}"]`);
   problem.hidden = !refused.length;
   problem.replaceChildren(...refused.map((list) => {
@@ -146,11 +147,18 @@ function listRow(list) {
   const title = Object.assign(document.createElement('bdi'), { className: 'row-title', id: `list-${list.ruleset}-title`, dir: 'ltr', textContent: list.title });
   const meta = Object.assign(document.createElement('span'), { className: 'row-meta' });
   meta.dataset.listMeta = list.ruleset;
-  text.append(title, meta);
+  text.append(title);
+  if (list.descriptionKey) {
+    const description = Object.assign(document.createElement('span'), { className: 'row-desc', id: `list-${list.ruleset}-desc` });
+    description.dataset.t = list.descriptionKey;
+    text.append(description);
+  }
+  text.append(meta);
 
   const toggle = Object.assign(document.createElement('input'), { className: 'switch', type: 'checkbox' });
   toggle.setAttribute('role', 'switch');
   toggle.setAttribute('aria-labelledby', title.id);
+  if (list.descriptionKey) toggle.setAttribute('aria-describedby', `list-${list.ruleset}-desc`);
   toggle.dataset.list = list.ruleset;
   toggle.addEventListener('change', () => save((current) => ({
     lists: { ...current.lists, [list.ruleset]: toggle.checked },

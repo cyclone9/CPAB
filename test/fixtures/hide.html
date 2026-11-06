@@ -1,0 +1,26 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CPAB hiding fixture</title>
+<script>
+  // dez.ro has an exception for #ad-carousel: the page's own display value has to come back.
+  const pageRule = new URLSearchParams(location.search).get('page');
+  if (pageRule) document.write(`<style id="page-css">#ad-carousel{display:${pageRule}}</style>`);
+</script>
+</head>
+<body>
+<div id="ad-box">Matches a generic rule in EasyList</div>
+<div id="ad-carousel">Matches a generic rule, with an exception on dez.ro</div>
+<div class="adbox">Matches varzesh3.com##.adbox in PersianBlocker</div>
+<p id="content">Page content, which always stays</p>
+<script>
+  const frame = new URLSearchParams(location.search).get('frame');
+  if (frame) {
+    window.frameReport = new Promise((done) => addEventListener('message', ({ data }) => done(data)));
+    document.body.append(Object.assign(document.createElement('iframe'), { src: frame }));
+  }
+</script>
+</body>
+</html>

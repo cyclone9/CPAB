@@ -6,6 +6,22 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.0',
+    date: '2026-11-06',
+    en: [
+      'Empty ad boxes and other leftovers are now hidden from the page.',
+      'CPAB now asks for access to all sites, because hiding needs it.',
+      'Ad blocking for Iranian sites now sits under Ads as a third source list, PersianBlocker, with its own switch. There is one Ads switch, and your choice stays as it was.',
+      'A first rule of CPAB\'s own hides the top banner on kojaro.com.',
+    ],
+    fa: [
+      'کادرهای خالی تبلیغ و بقایای آن‌ها حالا از صفحه پنهان می‌شوند.',
+      'تبلیغ‌شکن حالا دسترسی به همهٔ سایت‌ها را می‌خواهد، چون پنهان‌کردن به آن نیاز دارد.',
+      'مسدودکردن تبلیغ‌های سایت‌های ایرانی حالا زیر تبلیغ‌ها و به‌عنوان فهرست سوم، یعنی PersianBlocker، با کلید خودش قرار دارد. حالا یک کلید برای تبلیغ‌ها هست و انتخاب شما همان می‌ماند.',
+      'اولین قانون خود تبلیغ‌شکن بنر بالای kojaro.com را پنهان می‌کند.',
+    ],
+  },
+  {
     version: '0.1.6',
     date: '2026-11-06',
     en: [

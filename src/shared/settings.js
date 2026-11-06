@@ -9,9 +9,8 @@ const THEMES = ['dark', 'light'];
 // The rulesets behind each group, in display order. Each is one source list with its own switch, and
 // the group's switch sits above them, so turning a group off leaves every list's own choice stored.
 export const GROUP_RULESETS = Object.freeze({
-  ads: Object.freeze(['ads', 'ads-adguard-base']),
+  ads: Object.freeze(['ads', 'ads-adguard-base', 'iran', 'cpab-own']),
   trackers: Object.freeze(['trackers']),
-  iran: Object.freeze(['iran']),
 });
 
 export const GROUP_IDS = Object.freeze(Object.keys(GROUP_RULESETS));
@@ -19,7 +18,7 @@ export const RULESET_IDS = Object.freeze(Object.values(GROUP_RULESETS).flat());
 
 export const DEFAULTS = Object.freeze({
   master: true,
-  groups: Object.freeze({ ads: true, trackers: true, iran: true }),
+  groups: Object.freeze({ ads: true, trackers: true }),
   lists: Object.freeze(Object.fromEntries(RULESET_IDS.map((id) => [id, true]))),
   pausedSites: Object.freeze([]),
   blockedSites: Object.freeze([]),
@@ -30,9 +29,25 @@ export const DEFAULTS = Object.freeze({
 
 const flag = (value, fallback) => (typeof value === 'boolean' ? value : fallback);
 
+// Up to 0.1.6 PersianBlocker had a group of its own, and it now sits under Ads. What the old switches
+// did carries over: Iran off becomes that list off. Iran on with Ads off keeps it running, by moving
+// the off onto the other Ads lists, because the Ads switch would stop it too.
+function withoutIranGroup(value) {
+  if (typeof value.groups?.iran !== 'boolean') return value;
+  const { iran, ...groups } = value.groups;
+  const lists = { ...value.lists };
+  if (!iran) {
+    lists.iran = false;
+  } else if (groups.ads === false && lists.iran !== false) {
+    groups.ads = true;
+    for (const id of GROUP_RULESETS.ads.filter((list) => list !== 'iran')) lists[id] = false;
+  }
+  return { ...value, groups, lists };
+}
+
 // Stored data can come from an older version, so nothing in it is trusted to have the current shape.
 export function normalizeSettings(stored) {
-  const value = stored && typeof stored === 'object' ? stored : {};
+  const value = withoutIranGroup(stored && typeof stored === 'object' ? stored : {});
   const siteList = (sites) => [...new Set((Array.isArray(sites) ? sites : []).map(normalizeDomain).filter(Boolean))].sort();
   return {
     master: flag(value.master, DEFAULTS.master),

@@ -24,7 +24,7 @@ test('wanted rulesets follow the master switch and the groups', () => {
   const declared = ['ads', 'trackers', 'iran'];
   assert.deepEqual(wantedRulesets(normalizeSettings({}), declared), declared);
   assert.deepEqual(wantedRulesets(normalizeSettings({ master: false }), declared), []);
-  assert.deepEqual(wantedRulesets(normalizeSettings({ groups: { ads: false } }), declared), ['trackers', 'iran']);
+  assert.deepEqual(wantedRulesets(normalizeSettings({ groups: { ads: false } }), declared), ['trackers']);
 });
 
 test('a list runs only with its group and its own switch on', () => {
@@ -33,13 +33,14 @@ test('a list runs only with its group and its own switch on', () => {
   assert.deepEqual(wantedRulesets(normalizeSettings({ lists: { 'ads-adguard-base': false } }), declared), ['ads', 'trackers', 'iran']);
   assert.deepEqual(wantedRulesets(normalizeSettings({ lists: { ads: false } }), declared), ['ads-adguard-base', 'trackers', 'iran']);
   assert.deepEqual(wantedRulesets(normalizeSettings({ lists: { ads: false, 'ads-adguard-base': false } }), declared), ['trackers', 'iran']);
+  assert.deepEqual(wantedRulesets(normalizeSettings({ lists: { iran: false } }), declared), ['ads', 'ads-adguard-base', 'trackers']);
 });
 
 test('a group off stops all its lists, and turning it back on restores each list\'s own choice', () => {
   const declared = ['ads', 'ads-adguard-base', 'trackers', 'iran'];
   const choice = { lists: { 'ads-adguard-base': false } };
   const off = normalizeSettings({ ...choice, groups: { ads: false } });
-  assert.deepEqual(wantedRulesets(off, declared), ['trackers', 'iran']);
+  assert.deepEqual(wantedRulesets(off, declared), ['trackers']);
   assert.equal(off.lists.ads, true);
   assert.equal(off.lists['ads-adguard-base'], false);
   const on = normalizeSettings({ ...off, groups: { ...off.groups, ads: true } });
@@ -115,14 +116,13 @@ test('the split counts each group in order, with allow rules and the pause rule 
   ];
   const split = splitBlocked(matches);
   assert.deepEqual(split, [
-    { label: 'groupAds', count: 2 },
+    { label: 'groupAds', count: 3 },
     { label: 'groupTrackers', count: 1 },
-    { label: 'groupIran', count: 1 },
   ]);
   assert.equal(split.reduce((sum, { count }) => sum + count, 0), countBlocked(matches));
 });
 
-test('both Ads lists count under Ads', () => {
+test('every Ads list counts under Ads', () => {
   const match = (rulesetId, ruleId) => ({ rule: { rulesetId, ruleId } });
   assert.deepEqual(splitBlocked([match('ads', 1), match('ads-adguard-base', 1), match('ads-adguard-base', 2), match('trackers', 3)]), [
     { label: 'groupAds', count: 3 },
@@ -177,8 +177,8 @@ test('every list has its own rule file and its own record', () => {
 });
 
 test('only the Iran list may be missing, and its record avoids the name git-guard refuses', () => {
-  assert.deepEqual(LISTS.filter(({ required }) => !required).map(({ group }) => group), ['iran']);
-  const record = LISTS.find(({ group }) => group === 'iran');
+  assert.deepEqual(LISTS.filter(({ required }) => !required).map(({ ruleset }) => ruleset), ['iran']);
+  const record = LISTS.find(({ ruleset }) => ruleset === 'iran');
   assert.ok(!record.metaFile.toLowerCase().includes(record.name));
   for (const list of LISTS) assert.equal(Object.keys(list.admission.checks).length, 7);
 });

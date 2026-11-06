@@ -94,11 +94,11 @@ function noticeEntry(meta) {
     `- **Licence of the converted file:** ${meta.licence.name}, SPDX \`${meta.licence.spdx}\`, ${meta.licence.url}`,
     `- **Licence of the list:** ${meta.licence.source}`,
     `- **Snapshot:** ${[meta.snapshot.date, meta.snapshot.listVersion && `version ${meta.snapshot.listVersion}`, meta.snapshot.listCommit && `commit ${meta.snapshot.listCommit}`].filter(Boolean).join(', ')}`,
-    '- **Changes:** converted to declarativeNetRequest form by CPAB\'s build',
+    '- **Changes:** converted to declarativeNetRequest form and CSS by CPAB\'s build',
   ];
   if (meta.snapshot.files) lines.push(`- **Files used:** ${meta.snapshot.files.map(({ name }) => `\`${name}\``).join(', ')}, joined in that order`);
   if (meta.licence.copy) lines.push(`- **Copy in the package:** \`rules/${meta.licence.copy}\`, beside the rule file`);
-  if (meta.group === 'iran') lines.push('- **Where it lives:** `lists/persianblocker.txt`, with its licence in `lists/LICENSE.AGPL-3.0.txt`.');
+  if (meta.name === 'persianblocker') lines.push('- **Where it lives:** `lists/persianblocker.txt`, with its licence in `lists/LICENSE.AGPL-3.0.txt`.');
   return lines.join('\n');
 }
 
@@ -112,7 +112,7 @@ function updateNotices(metas) {
 }
 
 const snapshots = [];
-for (const list of LISTS) {
+for (const list of LISTS.filter(({ url, repository }) => url || repository)) {
   const snapshot = await downloadList(list);
   checkSnapshot(list, snapshot.text);
   snapshots.push({ list, snapshot });

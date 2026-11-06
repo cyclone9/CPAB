@@ -40,6 +40,9 @@ const ALIASES = {
   frame: 'subdocument',
   doc: 'document',
   from: 'domain',
+  ghide: 'generichide',
+  ehide: 'elemhide',
+  shide: 'specifichide',
 };
 
 const COMMENT = /^(?:!|\[.*\]$)/;
@@ -73,7 +76,7 @@ export function isIgnorable(line) {
 }
 
 // Option names in one spelling: lowercase, with the short forms written out.
-function optionNames(options) {
+export function optionNames(options) {
   return options.map((option) => {
     const name = option.trim().toLowerCase();
     const negated = name.startsWith('~');
@@ -179,7 +182,7 @@ export function parseOptions(options, allow = false) {
 
 // Private addresses aren't ad networks. The 10.x entries in hosts lists can point at a network's own
 // infrastructure, including filtering pages, and this extension leaves those alone.
-const PRIVATE_ADDRESS = /^(?:10|127)\.\d+\.\d+\.\d+$|^192\.168\.\d+\.\d+$|^172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+$/;
+export const PRIVATE_ADDRESS = /^(?:10|127)\.\d+\.\d+\.\d+$|^192\.168\.\d+\.\d+$|^172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+$/;
 
 // The same addresses at the host position of a pattern, whole or cut short: ||10.10.34.*^, ://10.1.1.
 const PRIVATE_PATTERN = /^\|{0,2}(?:[a-z*]*:\/\/)?(?:(?:10|127)\.[\d*]|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.)/i;
@@ -268,10 +271,10 @@ export function buildRules(groups) {
   }));
 }
 
-const hasBadfilter = ({ options }) => options !== undefined && optionNames(options).includes('badfilter');
+export const hasBadfilter = ({ options }) => options !== undefined && optionNames(options).includes('badfilter');
 
 // The same rule, with or without $badfilter and whatever order its options come in.
-function ruleKey({ allow, host, pattern, options }) {
+export function ruleKey({ allow, host, pattern, options }) {
   const names = optionNames(options).filter((name) => name !== 'badfilter').sort();
   return JSON.stringify([allow, pattern ?? `||${host}^`, names]);
 }

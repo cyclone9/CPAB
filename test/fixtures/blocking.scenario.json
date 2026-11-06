@@ -43,7 +43,7 @@
   },
   {
    "sw": "chrome.storage.local.set({settings:{\"groups\":{\"ads\":false}}}).then(()=>'set')",
-   "label": "ads group off"
+   "label": "ads group off, which lifts all three of its lists"
   },
   {
    "wait": 500
@@ -59,7 +59,7 @@
    "expectBlocked": "trackers-probe"
   },
   {
-   "expectBlocked": "iran-probe"
+   "expectLoaded": "iran-probe"
   },
   {
    "sw": "chrome.storage.local.set({settings:{\"groups\":{\"trackers\":false}}}).then(()=>'set')",
@@ -82,8 +82,8 @@
    "expectBlocked": "iran-probe"
   },
   {
-   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"iran\":false}}}).then(()=>'set')",
-   "label": "iran group off"
+   "sw": "chrome.storage.local.set({settings:{\"lists\":{\"iran\":false}}}).then(()=>'set')",
+   "label": "PersianBlocker list off"
   },
   {
    "wait": 500
@@ -102,7 +102,7 @@
    "expectLoaded": "iran-probe"
   },
   {
-   "sw": "chrome.storage.local.set({settings:{\"master\":false,\"groups\":{\"ads\":true,\"trackers\":true,\"iran\":true}}}).then(()=>'set')",
+   "sw": "chrome.storage.local.set({settings:{\"master\":false,\"groups\":{\"ads\":true,\"trackers\":true}}}).then(()=>'set')",
    "label": "master off"
   },
   {
@@ -236,7 +236,7 @@
    "stopWorker": true
   },
   {
-   "eval": "chrome.storage.local.set({settings:{groups:{ads:false,trackers:true,iran:true}}}).then(()=>'saved from a page with the worker stopped')",
+   "eval": "chrome.storage.local.set({settings:{groups:{ads:false,trackers:true}}}).then(()=>'saved from a page with the worker stopped')",
    "label": "settings change wakes the worker"
   },
   {
@@ -922,10 +922,11 @@
   },
   {
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
-   "label": "lists: all four rulesets enabled",
+   "label": "lists: all five rulesets enabled",
    "equals": [
     "ads",
     "ads-adguard-base",
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -961,6 +962,7 @@
    "label": "lists: AdGuard Base off",
    "equals": [
     "ads",
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -996,6 +998,7 @@
    "label": "lists: EasyList off",
    "equals": [
     "ads-adguard-base",
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -1021,7 +1024,7 @@
   },
   {
    "sw": "chrome.storage.local.set({settings:{\"lists\":{\"ads\":false,\"ads-adguard-base\":false}}}).then(()=>'set')",
-   "label": "lists: both Ads lists off, group on"
+   "label": "lists: EasyList and AdGuard Base off, group on"
   },
   {
    "wait": 600
@@ -1030,6 +1033,7 @@
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
    "label": "lists: both off",
    "equals": [
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -1055,7 +1059,7 @@
   },
   {
    "sw": "chrome.storage.local.set({settings:{\"groups\":{\"ads\":false}}}).then(()=>'set')",
-   "label": "lists: group Ads off, both lists on"
+   "label": "lists: group Ads off, all three lists on"
   },
   {
    "wait": 600
@@ -1064,7 +1068,6 @@
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
    "label": "lists: group off",
    "equals": [
-    "iran",
     "trackers"
    ]
   },
@@ -1076,7 +1079,7 @@
    "expectBlocked": "easyprivacy-only-probe"
   },
   {
-   "expectBlocked": "persianblocker-only-probe"
+   "expectLoaded": "persianblocker-only-probe"
   },
   {
    "expectLoaded": "adguard-only-probe"
@@ -1189,6 +1192,7 @@
    "label": "lists: master on, the list choice held",
    "equals": [
     "ads",
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -1233,13 +1237,14 @@
    "label": "source lists",
    "equals": [
     "EasyList",
-    "AdGuard Base filter"
+    "AdGuard Base filter",
+    "PersianBlocker"
    ]
   },
   {
    "eval": "document.querySelectorAll('[data-list]').length",
    "label": "only Ads has list switches",
-   "equals": 2
+   "equals": 3
   },
   {
    "click": "[data-list=\"ads-adguard-base\"]"
@@ -1250,8 +1255,9 @@
    "equals": {
     "ads": true,
     "ads-adguard-base": false,
-    "trackers": true,
-    "iran": true
+    "iran": true,
+    "cpab-own": true,
+    "trackers": true
    }
   },
   {
@@ -1263,6 +1269,7 @@
    "label": "lists: list switch took effect",
    "equals": [
     "ads",
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -1292,6 +1299,11 @@
      "ads-adguard-base",
      false,
      true
+    ],
+    [
+     "iran",
+     true,
+     true
     ]
    ]
   },
@@ -1299,7 +1311,6 @@
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
    "label": "lists: group off from the page",
    "equals": [
-    "iran",
     "trackers"
    ]
   },
@@ -1319,6 +1330,11 @@
      "ads-adguard-base",
      false,
      false
+    ],
+    [
+     "iran",
+     true,
+     false
     ]
    ]
   },
@@ -1327,6 +1343,7 @@
    "label": "lists: group on, the list choice held",
    "equals": [
     "ads",
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -1340,6 +1357,7 @@
    "equals": [
     "ads",
     "ads-adguard-base",
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -1363,6 +1381,7 @@
    "label": "lists: a stopped worker wakes and applies a list change",
    "equals": [
     "ads",
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -1373,7 +1392,7 @@
   },
   {
    "eval": "chrome.storage.local.set({settings:{groups:{iran:false},lists:{'ads-adguard-base':false},pausedSites:['paused.example'],blockedSites:['mine.example'],theme:'light',language:'fa',badge:false}}).then(()=>'saved')",
-   "label": "choices before the reload"
+   "label": "0.1.6 style choices before the reload, Iran group off"
   },
   {
    "wait": 600
@@ -1389,6 +1408,7 @@
    "label": "lists: rulesets after the reload",
    "equals": [
     "ads",
+    "cpab-own",
     "trackers"
    ]
   },
@@ -1396,11 +1416,17 @@
    "sw": "chrome.storage.local.get('settings').then(({settings})=>settings)",
    "label": "settings after the reload",
    "equals": {
+    "master": true,
     "groups": {
-     "iran": false
+     "ads": true,
+     "trackers": true
     },
     "lists": {
-     "ads-adguard-base": false
+     "ads": true,
+     "ads-adguard-base": false,
+     "iran": false,
+     "cpab-own": true,
+     "trackers": true
     },
     "pausedSites": [
      "paused.example"
@@ -1408,10 +1434,21 @@
     "blockedSites": [
      "mine.example"
     ],
-    "theme": "light",
     "language": "fa",
+    "theme": "light",
     "badge": false
    }
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>[settings.groups,settings.lists.iran])",
+   "label": "the reload moved the Iran group onto the list",
+   "equals": [
+    {
+     "ads": true,
+     "trackers": true
+    },
+    false
+   ]
   },
   {
    "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
@@ -1441,10 +1478,11 @@
   },
   {
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
-   "label": "lists: all four again",
+   "label": "lists: all five again",
    "equals": [
     "ads",
     "ads-adguard-base",
+    "cpab-own",
     "iran",
     "trackers"
    ]
@@ -1497,10 +1535,11 @@
   },
   {
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
-   "label": "lists: all four after the refusal",
+   "label": "lists: all five after the refusal",
    "equals": [
     "ads",
     "ads-adguard-base",
+    "cpab-own",
     "iran",
     "trackers"
    ]

@@ -1,0 +1,489 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>s.map(x=>x.id).sort())",
+   "label": "registered at install",
+   "equals": [
+    "generic-css-ads",
+    "generic-css-ads-adguard-base",
+    "generic-css-iran",
+    "generic-css-trackers"
+   ]
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>{const x=s.find(y=>y.id==='generic-css-ads');return [x.runAt,x.allFrames,x.persistAcrossSessions,x.matches,x.js??null,x.css,x.excludeMatches.includes('*://*.jetzt.de/*')]})",
+   "label": "generic script shape",
+   "equals": [
+    "document_start",
+    true,
+    true,
+    [
+     "<all_urls>"
+    ],
+    null,
+    [
+     "rules/ads-easylist.generic.css"
+    ],
+    true
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.getBytesInUse(null)",
+   "label": "storage bytes in use"
+  },
+  {
+   "sw": "chrome.storage.local.get('cssSeed').then(s=>/^[0-9a-f]{64}$/.test(s.cssSeed))",
+   "label": "seed mark",
+   "equals": true
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "all on: generic and site hidden, content stays",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "content": "block",
+    "styles": 1
+   }
+  },
+  {
+   "open": "http://varzesh3.com/hide.html?csp",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "strict page CSP: stored CSS still lands",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "content": "block",
+    "styles": 1
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "another site: generic only, and no style element",
+   "equals": {
+    "generic": "none",
+    "site": "block",
+    "content": "block",
+    "styles": 0
+   }
+  },
+  {
+   "open": "http://dez.ro/hide.html?page=flex",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "exception site: other rules stay",
+   "equals": {
+    "generic": "none",
+    "site": "block",
+    "content": "block",
+    "styles": 2
+   }
+  },
+  {
+   "eval": "getComputedStyle(document.querySelector(\"#ad-carousel\")).display",
+   "label": "exception gives back the page's own display",
+   "equals": "flex"
+  },
+  {
+   "open": "http://dez.ro/hide.html?page=none",
+   "settle": 500
+  },
+  {
+   "eval": "getComputedStyle(document.querySelector(\"#ad-carousel\")).display",
+   "label": "exception leaves a box the page itself hides hidden",
+   "equals": "none"
+  },
+  {
+   "open": "http://dez.ro/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "getComputedStyle(document.querySelector(\"#ad-carousel\")).display",
+   "label": "exception with no page rule",
+   "equals": "block"
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "getComputedStyle(document.querySelector(\"#ad-carousel\")).display",
+   "label": "the same selector elsewhere stays hidden",
+   "equals": "none"
+  },
+  {
+   "open": "http://jetzt.de/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "generichide site: no generic rule applies",
+   "equals": {
+    "generic": "block",
+    "site": "block",
+    "content": "block",
+    "styles": 0
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/hide.html?frame=http%3A%2F%2Fvarzesh3.com%2Fhide-frame.html",
+   "settle": 1000
+  },
+  {
+   "eval": "window.frameReport",
+   "label": "hiding reaches a cross-site frame",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "content": "block"
+   }
+  },
+  {
+   "open": "http://kojaro.com/kojaro-banner.html",
+   "settle": 500
+  },
+  {
+   "eval": "({banner:getComputedStyle(document.querySelector(\"#banner\")).display,section:getComputedStyle(document.querySelector(\"#section\")).display,article:getComputedStyle(document.querySelector(\"#article\")).display,h2:getComputedStyle(document.querySelector(\"h2\")).display,next:getComputedStyle(document.querySelector(\"[aria-label=\\\"اسلاید بعدی\\\"]\")).display})",
+   "label": "kojaro: only the banner goes",
+   "equals": {
+    "banner": "none",
+    "section": "block",
+    "article": "block",
+    "h2": "block",
+    "next": "inline-block"
+   }
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"master\":false}}).then(()=>'set')",
+   "label": "master off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>s.map(x=>x.id).sort())",
+   "label": "master off: nothing registered",
+   "equals": []
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "master off: nothing hidden, no style",
+   "equals": {
+    "generic": "block",
+    "site": "block",
+    "content": "block",
+    "styles": 0
+   }
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"master\":true}}).then(()=>'set')",
+   "label": "master on"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>s.map(x=>x.id).sort())",
+   "label": "master on: registered again",
+   "equals": [
+    "generic-css-ads",
+    "generic-css-ads-adguard-base",
+    "generic-css-iran",
+    "generic-css-trackers"
+   ]
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "master on: hidden again",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "content": "block",
+    "styles": 1
+   }
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"ads\":false}}}).then(()=>'set')",
+   "label": "ads group off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "ads group off: all three lists stop hiding",
+   "equals": {
+    "generic": "block",
+    "site": "block",
+    "content": "block",
+    "styles": 0
+   }
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"trackers\":false}}}).then(()=>'set')",
+   "label": "trackers group off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "trackers group off: Ads hiding stays",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "content": "block",
+    "styles": 1
+   }
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"lists\":{\"ads\":false}}}).then(()=>'set')",
+   "label": "EasyList off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>s.map(x=>x.id).sort())",
+   "label": "EasyList off: its script gone",
+   "equals": [
+    "generic-css-ads-adguard-base",
+    "generic-css-iran",
+    "generic-css-trackers"
+   ]
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "EasyList off: its generic rule gone",
+   "equals": {
+    "generic": "block",
+    "site": "none",
+    "content": "block",
+    "styles": 1
+   }
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"lists\":{\"iran\":false}}}).then(()=>'set')",
+   "label": "Iran list off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "Iran list off: its site rule gone",
+   "equals": {
+    "generic": "none",
+    "site": "block",
+    "content": "block",
+    "styles": 1
+   }
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"lists\":{\"cpab-own\":false}}}).then(()=>'set')",
+   "label": "own list off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://kojaro.com/kojaro-banner.html",
+   "settle": 500
+  },
+  {
+   "eval": "getComputedStyle(document.querySelector(\"#banner\")).display",
+   "label": "own list off: banner back",
+   "equals": "block"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "all back on"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"pausedSites\":[\"varzesh3.com\"]}}).then(()=>'set')",
+   "label": "site paused"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>s.every(x=>x.excludeMatches.includes('*://*.varzesh3.com/*')))",
+   "label": "paused site in every script's excludes",
+   "equals": true
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "paused: nothing hidden, no style",
+   "equals": {
+    "generic": "block",
+    "site": "block",
+    "content": "block",
+    "styles": 0
+   }
+  },
+  {
+   "open": "http://www.varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "paused: subdomain too",
+   "equals": {
+    "generic": "block",
+    "site": "block",
+    "content": "block",
+    "styles": 0
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "paused: other sites keep hiding",
+   "equals": {
+    "generic": "none",
+    "site": "block",
+    "content": "block",
+    "styles": 0
+   }
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "unpaused"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "unpaused: hidden again",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "content": "block",
+    "styles": 1
+   }
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 600
+  },
+  {
+   "stopWorker": true
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "worker stopped: hidden, nothing needed the worker",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "content": "block",
+    "styles": 1
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/hide.html?frame=http%3A%2F%2Fvarzesh3.com%2Fhide-frame.html",
+   "settle": 1000
+  },
+  {
+   "eval": "window.frameReport",
+   "label": "worker stopped: frame hidden",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "content": "block"
+   }
+  },
+  {
+   "open": "http://varzesh3.com/hide.html",
+   "settle": 500
+  },
+  {
+   "eval": "location.reload(),1",
+   "label": "reload"
+  },
+  {
+   "wait": 700
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "label": "after reload",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "content": "block",
+    "styles": 1
+   }
+  },
+  {
+   "eval": "[...document.querySelectorAll('script[src]')].length",
+   "label": "nothing but CSS added: no script element",
+   "equals": 0
+  },
+  {
+   "eval": "document.querySelector('style').textContent.includes('url(')",
+   "label": "the added style holds no url(",
+   "equals": false
+  }
+ ]
+}

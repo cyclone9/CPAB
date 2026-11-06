@@ -1,0 +1,20 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CPAB hiding fixture, inside a frame</title>
+</head>
+<body>
+<div id="ad-box">Generic</div>
+<div class="adbox">Site</div>
+<p id="content">Content</p>
+<script>
+  // A cross-site frame can't be read from outside, so it reports its own state.
+  setTimeout(() => {
+    const display = (selector) => getComputedStyle(document.querySelector(selector)).display;
+    parent.postMessage({ generic: display('#ad-box'), site: display('.adbox'), content: display('#content') }, '*');
+  }, 300);
+</script>
+</body>
+</html>

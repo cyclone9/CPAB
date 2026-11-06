@@ -23,8 +23,10 @@ function fixtureFile(pathname) {
 }
 
 const server = createServer((request, response) => {
-  const { pathname } = new URL(request.url, 'http://fixtures.localhost');
+  const { pathname, searchParams } = new URL(request.url, 'http://fixtures.localhost');
   const headers = { 'cache-control': 'no-store', 'access-control-allow-origin': '*' };
+  // A strict page, to prove the stored CSS still lands on one.
+  if (searchParams.has('csp')) headers['content-security-policy'] = "style-src 'none'";
   const file = fixtureFile(pathname);
   const type = TYPES[extname(pathname)];
   if (file) {
