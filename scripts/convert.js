@@ -29,9 +29,9 @@ const PARTY = {
   '~third-party': 'firstParty',
 };
 
-const DROPPED_OPTIONS = new Set(['popup', 'document', 'all']);
+const DROPPED_OPTIONS = new Set(['popup', 'document', 'all', 'to']);
 
-// Short names some lists use for the options above.
+// Other names some lists use for these options.
 const ALIASES = {
   '3p': 'third-party',
   '1p': 'first-party',
@@ -39,6 +39,7 @@ const ALIASES = {
   css: 'stylesheet',
   frame: 'subdocument',
   doc: 'document',
+  from: 'domain',
 };
 
 const COMMENT = /^(?:!|\[.*\]$)/;
@@ -76,8 +77,8 @@ function optionNames(options) {
   return options.map((option) => {
     const name = option.trim().toLowerCase();
     const negated = name.startsWith('~');
-    const plain = negated ? name.slice(1) : name;
-    return `${negated ? '~' : ''}${ALIASES[plain] ?? plain}`;
+    const [plain, ...value] = (negated ? name.slice(1) : name).split('=');
+    return `${negated ? '~' : ''}${[ALIASES[plain] ?? plain, ...value].join('=')}`;
   });
 }
 
@@ -139,7 +140,8 @@ export function parseOptions(options, allow = false) {
   const domains = [];
   let caseSensitive = false;
   for (const name of names) {
-    if (DROPPED_OPTIONS.has(name)) return { dropped: `$${name}` };
+    const option = name.split('=')[0];
+    if (DROPPED_OPTIONS.has(option)) return { dropped: `$${option}` };
     if (name.startsWith('domain=')) {
       domains.push(...name.slice('domain='.length).split('|'));
       continue;
@@ -189,15 +191,23 @@ const EXTENSION_ONLY = /^\W*\.[a-z]{1,5}\W*$/i;
 // A host-file entry with a wildcard, and nothing after the host to narrow it down.
 const WILDCARD_HOST = /^\|\|[^/^]*\*[^/^]*\^$/;
 
+// True when every included domain is a site, which is what limits a broad pattern. A bare suffix
+// (domain=ir) isn't one, and neither is a rule that only excludes. There is no public suffix list
+// here, so a two-label suffix such as co.ir would pass.
+export function namesSite({ initiatorDomains }) {
+  return initiatorDomains?.every((domain) => domain.includes('.')) ?? false;
+}
+
 // Why a pattern can't be a urlFilter, or null. Chrome itself refuses only non-ASCII, a ||* start and
-// an empty string; it takes * and ^ alone, which would block nearly everything.
-export function patternProblem(pattern) {
+// an empty string; it takes * and ^ alone, which would block nearly everything unless onSite limits it.
+export function patternProblem(pattern, onSite = false) {
   if (!ASCII_ONLY.test(pattern)) return 'non-ASCII pattern';
   if (pattern.startsWith('||*')) return 'pattern starts with ||*';
   if (/[\s$#]/.test(pattern)) return 'space, # or $ in pattern';
   if (PRIVATE_PATTERN.test(pattern)) return 'private address';
   const rest = pattern.replace(ADDRESS_START, '');
-  if (rest.replace(/[^a-z0-9]/gi, '').length < MIN_PATTERN_CHARACTERS || EXTENSION_ONLY.test(rest)) return 'pattern too broad';
+  const broad = rest.replace(/[^a-z0-9]/gi, '').length < MIN_PATTERN_CHARACTERS || EXTENSION_ONLY.test(rest);
+  if (pattern === '' || (broad && !onSite)) return 'pattern too broad';
   if (WILDCARD_HOST.test(pattern)) return 'wildcard host, no path';
   return null;
 }
@@ -304,7 +314,7 @@ export function convertList(text) {
       continue;
     }
     if (pattern !== undefined) {
-      const problem = patternProblem(pattern);
+      const problem = patternProblem(pattern, namesSite(condition));
       if (problem) drop(problem, allow);
       else pathEntries.push({ allow, wholePage, urlFilter: pattern, condition });
       continue;

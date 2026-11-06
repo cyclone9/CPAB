@@ -875,6 +875,43 @@
   },
   {
    "wait": 500
+  },
+  {
+   "open": "http://fararu.com/probe.html?image=http%3A%2F%2Fcdn.fararu.com%2Fservev2%2F2026%2Ffrom-banner.gif&image=http%3A%2F%2Fcdn.fararu.com%2Fthumbnail%2F2026%2Ffrom-article.jpg",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "cdn.fararu.com/servev2/2026/from-banner"
+  },
+  {
+   "expectLoaded": "cdn.fararu.com/thumbnail/2026/from-article"
+  },
+  {
+   "open": "http://other-news.ir/probe.html?image=http%3A%2F%2Fcdn.other-news.ir%2Fservev2%2F2026%2Ffrom-elsewhere.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "cdn.other-news.ir/servev2/2026/from-elsewhere"
+  },
+  {
+   "open": "http://najiremix.ir/probe.html?script=http%3A%2F%2Flib.fixtures.localhost%2Fsite-scope-lib.js&script=http%3A%2F%2Fnajiremix.ir%2Fsite-scope-own.js&image=http%3A%2F%2Flib.fixtures.localhost%2Fsite-scope-image.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "site-scope-lib"
+  },
+  {
+   "expectLoaded": "site-scope-own"
+  },
+  {
+   "expectLoaded": "site-scope-image"
+  },
+  {
+   "open": "http://other-news.ir/probe.html?script=http%3A%2F%2Flib.fixtures.localhost%2Fsite-scope-lib.js",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "site-scope-lib"
   }
  ]
 }

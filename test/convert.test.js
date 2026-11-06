@@ -157,10 +157,85 @@ test('$popup with domain= keeps its $popup reason, and other out-of-scope option
   assert.deepEqual(result.dropped, { $popup: 1, 'unknown option: generichide': 1, 'unknown option: rewrite': 1 });
 });
 
-test('a domain= rule can still be too broad: the threshold does not look at the domain', () => {
-  const result = convertList('.gif^$image,3p,domain=a.ir\n*$script,domain=a.ir\n$third-party,xmlhttprequest,domain=a.com\n');
+test('a named site limits a broad pattern, so the rule converts with its scope', () => {
+  const result = convertList('.gif^$image,3p,domain=a.ir\n*$script,3p,from=b.ir|c.ir\n');
+  assert.deepEqual(result.dropped, {});
+  assert.deepEqual(result.rules.map(({ condition }) => condition).sort((a, b) => a.urlFilter < b.urlFilter ? -1 : 1), [
+    { urlFilter: '*', initiatorDomains: ['b.ir', 'c.ir'], domainType: 'thirdParty', resourceTypes: ['script'] },
+    { urlFilter: '.gif^', initiatorDomains: ['a.ir'], domainType: 'thirdParty', resourceTypes: ['image'] },
+  ]);
+});
+
+test('an excluded site alongside a named one keeps the exemption', () => {
+  assert.deepEqual(ruleFor('*$script,domain=a.ir|~b.a.ir').condition, {
+    urlFilter: '*',
+    initiatorDomains: ['a.ir'],
+    excludedInitiatorDomains: ['b.a.ir'],
+    resourceTypes: ['script'],
+  });
+});
+
+test('a broad pattern with no site in its scope stays refused', () => {
+  const result = convertList('*$script,domain=~a.ir\n.gif^$image,domain=~a.ir|~b.ir\n*$script,domain=ir\n.gif^$image,from=ir\n*$script,domain=ir|a.com\n');
   assert.deepEqual(result.rules, []);
-  assert.deepEqual(result.dropped, { 'pattern too broad': 3 });
+  assert.deepEqual(result.dropped, { 'pattern too broad': 5 });
+});
+
+test('a suffix scope still converts a pattern that is specific on its own', () => {
+  assert.deepEqual(ruleFor('||accounts.google.com/gsi^$~script,from=ir').condition, {
+    urlFilter: '||accounts.google.com/gsi^',
+    initiatorDomains: ['ir'],
+    excludedResourceTypes: ['main_frame', 'script'],
+  });
+});
+
+test('the site exemption covers only breadth, not a pattern Chrome refuses or a bad one', () => {
+  assert.equal(patternProblem('', true), 'pattern too broad');
+  assert.equal(patternProblem('||*.com/ads/', true), 'pattern starts with ||*');
+  assert.equal(patternProblem('/تبلیغ', true), 'non-ASCII pattern');
+  assert.equal(patternProblem('/a b', true), 'space, # or $ in pattern');
+  assert.equal(patternProblem('||10.1.1.1/a', true), 'private address');
+  assert.equal(patternProblem('||ads*^', true), 'wildcard host, no path');
+  assert.equal(patternProblem('*', true), null);
+  const result = convertList('$third-party,xmlhttprequest,domain=a.com\n||*$image,domain=a.com\n');
+  assert.deepEqual(result.rules, []);
+  assert.deepEqual(result.dropped, { 'pattern too broad': 1, 'pattern starts with ||*': 1 });
+});
+
+test('from= means the same as domain=', () => {
+  for (const [from, domain] of [
+    ['||cdn.a.com/x^$from=a.com|~b.a.com,image', '||cdn.a.com/x^$domain=a.com|~b.a.com,image'],
+    ['||t.com^$from=a.com', '||t.com^$domain=a.com'],
+    ['@@||t.com/x^$from=a.com', '@@||t.com/x^$domain=a.com'],
+    ['||t.com/x^$FROM=A.com', '||t.com/x^$domain=a.com'],
+  ]) {
+    assert.deepEqual(ruleFor(from), ruleFor(domain), from);
+  }
+  assert.deepEqual(parseOptions(['from=google.*']), { dropped: 'domain= wildcard' });
+  assert.deepEqual(parseOptions(['from=']), { dropped: 'invalid domain in domain=' });
+});
+
+test('the rule behind fararu.com banners converts with its wildcard host', () => {
+  const result = convertList('||cdn.*/servev2^$from=donya-e-eqtesad.com|sharghdaily.com|fararu.com,image,1p\n');
+  assert.deepEqual(result.dropped, {});
+  assert.deepEqual(result.rules[0].condition, {
+    urlFilter: '||cdn.*/servev2^',
+    initiatorDomains: ['donya-e-eqtesad.com', 'fararu.com', 'sharghdaily.com'],
+    domainType: 'firstParty',
+    resourceTypes: ['image'],
+  });
+});
+
+test('to= stays dropped with its own reason, alone or next to from=', () => {
+  const result = convertList('*$image,3p,from=a.blog.ir,to=b.com|c.ir\n||a.com/x^$to=b.com\n||a.com/y^$to=b.com,from=c.com\n');
+  assert.deepEqual(result.rules, []);
+  assert.deepEqual(result.dropped, { $to: 3 });
+});
+
+test('$badfilter cancels a from= rule written with domain=, and the other way round', () => {
+  const result = convertList('||a.com/x^$from=b.com\n||a.com/x^$domain=b.com,badfilter\n||a.com/y^$domain=b.com\n||a.com/y^$from=b.com,badfilter\n');
+  assert.deepEqual(result.rules, []);
+  assert.equal(result.dropped['cancelled by $badfilter'], 2);
 });
 
 test('a named $document exception allows the whole page, at the same priority as other exceptions', () => {
