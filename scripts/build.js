@@ -4,14 +4,16 @@ import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { convertBreaches, formatBreachReport } from './convert-breaches.js';
 import { convertList, formatReport } from './convert.js';
 import { exceptedSelectors, finishCss, formatCssReport, readCss } from './convert-css.js';
 import { parseExceptions } from './convert-exceptions.js';
 import { convertHarmful, extensionId, formatHarmfulReport } from './convert-harmful.js';
 import { convertPopups, formatPopupReport, hasPopupRules, popupBadfilters } from './convert-popup.js';
-import { AGPL_TEXT, LISTS } from './lists.config.js';
+import { AGPL_TEXT, DATALEAK_LISTS, LISTS } from './lists.config.js';
 import { EXCEPTIONS_FILE } from '../src/shared/blocking.js';
 import { CSS_INDEX, seedEntries, storedBytes } from '../src/shared/css.js';
+import { DATALEAK_FILE } from '../src/shared/dataleak.js';
 import { POPUP_INDEX } from '../src/shared/popups.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -105,6 +107,31 @@ function convertCss(lists) {
   }));
 }
 
+// The data-leak notice's data: no rules, just a file the popup and the worker read.
+function convertDataLeak(list) {
+  const source = join(root, 'lists', list.listFile);
+  if (!existsSync(source)) throw new Error(`lists/${list.listFile} is missing. Run npm run lists -- ${list.name}.`);
+  const meta = readJson(join(root, 'lists', list.metaFile));
+  const result = convertBreaches(readJson(source), { now: new Date(`${meta.snapshot.date}T00:00:00Z`) });
+  writeFileSync(join(dist, DATALEAK_FILE), JSON.stringify(result.data));
+  console.log(formatBreachReport(list.title, result));
+  return {
+    group: list.group,
+    available: true,
+    listed: false,
+    descriptionKey: null,
+    title: meta.title,
+    attribution: meta.attribution,
+    homepage: meta.homepage,
+    sourceLink: list.sourceLink ?? null,
+    licence: { name: meta.licence.name, url: meta.licence.url, copy: null },
+    snapshotDate: meta.snapshot.date,
+    read: result.read,
+    converted: result.kept,
+    domains: Object.keys(result.data.domains).length,
+  };
+}
+
 function writeCssIndex(lists, css) {
   const entries = lists.map((list) => ({ list, stem: list.rulesFile.replace(/\.json$/, ''), output: css.get(list) }));
   const seed = createHash('sha256');
@@ -140,7 +167,8 @@ const css = convertCss(present);
 const cancelledPopups = new Set(present.flatMap((list) => popupBadfilters(readFileSync(join(root, 'lists', list.listFile), 'utf8'))));
 const lists = LISTS.map((list) => convertInto(rulesDir, list, css.get(list), cancelledPopups));
 writeCssIndex(present, css);
-writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists: lists.map(({ popupFile, rulesList, ...list }) => list) }));
+const dataLeak = DATALEAK_LISTS.map(convertDataLeak);
+writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists: [...lists.map(({ popupFile, rulesList, ...list }) => list), ...dataLeak] }));
 
 const regexRules = lists.reduce((total, { rulesList = [] }) => total + rulesList.filter(({ condition }) => condition.regexFilter).length, 0);
 const staticRules = lists.reduce((total, { rulesList = [] }) => total + rulesList.length, 0);

@@ -35,6 +35,7 @@ test('the defaults are on, dark, automatic and empty', () => {
     blockedSites: [],
     allowedSites: [],
     recommendedExceptions: true,
+    dataLeak: true,
     language: 'auto',
     theme: 'dark',
     badge: true,
@@ -51,6 +52,7 @@ test('valid stored values are kept', () => {
     blockedSites: ['c.com'],
     allowedSites: ['d.ir'],
     recommendedExceptions: false,
+    dataLeak: false,
     language: 'fa',
     theme: 'light',
     badge: false,
@@ -67,6 +69,7 @@ test('bad stored values fall back to the defaults', () => {
     blockedSites: 'b.com',
     allowedSites: { a: 'c.com' },
     recommendedExceptions: 'no',
+    dataLeak: 'off',
     language: 'de',
     theme: 'blue',
     badge: null,
@@ -97,6 +100,7 @@ test('settings saved by 0.1.4 keep every choice and gain the per-list switches',
     lists: { ...ALL_LISTS_ON, iran: false },
     allowedSites: [],
     recommendedExceptions: true,
+    dataLeak: true,
   });
 });
 
@@ -121,6 +125,7 @@ test('settings saved by 0.2.2 keep every choice and gain HaGeZi, allowed address
     lists: { ...saved.lists, 'trackers-hagezi-light': true, 'popups-adguard': true, 'widgets-adguard': true, 'widgets-fanboy-social': true, 'harmful-hagezi-tif': true, 'harmful-badware': true, 'adult-hagezi-nsfw': true },
     allowedSites: [],
     recommendedExceptions: true,
+    dataLeak: true,
   });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['ads', 'iran', 'cpab-own', 'trackers-hagezi-light', 'widgets-adguard', 'widgets-fanboy-social', ...HARMFUL]);
 });
@@ -173,12 +178,33 @@ test('settings saved by 0.2.4 keep every choice and gain the Widgets group and l
     ...saved,
     groups: { ...saved.groups, widgets: true, harmful: true, adult: false },
     lists: { ...saved.lists, 'widgets-adguard': true, 'widgets-fanboy-social': true, 'harmful-hagezi-tif': true, 'harmful-badware': true, 'adult-hagezi-nsfw': true },
+    dataLeak: true,
   });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['ads', 'iran', 'cpab-own', 'widgets-adguard', 'widgets-fanboy-social', ...HARMFUL]);
   assert.deepEqual(normalizeSettings(normal), normal);
   assert.deepEqual(wantedRulesets(normalizeSettings({ ...normal, groups: { ...normal.groups, widgets: false } }), RULESET_IDS), ['ads', 'iran', 'cpab-own', ...HARMFUL]);
   assert.deepEqual(wantedRulesets(normalizeSettings({ ...normal, lists: { ...normal.lists, 'widgets-fanboy-social': false } }), RULESET_IDS), ['ads', 'iran', 'cpab-own', 'widgets-adguard', ...HARMFUL]);
   assert.deepEqual(wantedRulesets(normalizeSettings({ ...normal, master: false }), RULESET_IDS), HARMFUL);
+});
+
+// What 0.2.7 wrote: every switch there is today but the data-leak notice.
+test('settings saved by 0.2.7 keep every choice and gain the data-leak notice, on', () => {
+  const saved = {
+    master: false,
+    groups: { ads: true, trackers: false, popups: true, widgets: false, harmful: false, adult: true },
+    lists: { ...ALL_LISTS_ON, 'ads-adguard-base': false },
+    pausedSites: ['a.com'],
+    blockedSites: ['c.com'],
+    allowedSites: ['b.ir'],
+    recommendedExceptions: false,
+    language: 'fa',
+    theme: 'light',
+    badge: false,
+  };
+  const normal = normalizeSettings(saved);
+  assert.deepEqual(normal, { ...saved, dataLeak: true });
+  assert.deepEqual(wantedRulesets(normal, RULESET_IDS), wantedRulesets(normalizeSettings({ ...saved, dataLeak: false }), RULESET_IDS));
+  assert.equal(normalizeSettings({ ...saved, dataLeak: false }).dataLeak, false);
 });
 
 test('after an update from 0.1.4 a list runs when its group was on', () => {

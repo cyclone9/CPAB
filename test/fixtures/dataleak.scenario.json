@@ -1,0 +1,352 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733",
+  "--disable-site-isolation-trials"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.action.getTitle({})",
+   "label": "the action keeps its own title",
+   "equals": "CPAB - Ad Blocker"
+  },
+  {
+   "open": "http://abandonia.com/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "a listed site sets the tab title",
+   "equals": [
+    "CPAB - Ad Blocker\nListed in a known data breach: ⁨Abandonia⁩ (2015, 2022)."
+   ]
+  },
+  {
+   "sw": "chrome.action.getTitle({})",
+   "label": "and only that tab's",
+   "equals": "CPAB - Ad Blocker"
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.map(t=>chrome.action.getBadgeText({tabId:t.id}))))",
+   "label": "the badge is left to the count"
+  },
+  {
+   "open": "http://not-listed.example/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "an unlisted site after it: the title is plain again",
+   "equals": [
+    "CPAB - Ad Blocker"
+   ]
+  },
+  {
+   "eval": "history.back()",
+   "label": "back to the listed site"
+  },
+  {
+   "wait": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "going back marks it again",
+   "equals": [
+    "CPAB - Ad Blocker\nListed in a known data breach: ⁨Abandonia⁩ (2015, 2022)."
+   ]
+  },
+  {
+   "open": "http://www.forum.abandonia.com/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "a subdomain matches through its parent",
+   "equals": [
+    "CPAB - Ad Blocker\nListed in a known data breach: ⁨Abandonia⁩ (2015, 2022)."
+   ]
+  },
+  {
+   "open": "http://dominos.be/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "the parent of a subdomain entry is not marked",
+   "equals": [
+    "CPAB - Ad Blocker"
+   ]
+  },
+  {
+   "open": "http://shop.pizza.dominos.be/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "below a subdomain entry it is",
+   "equals": [
+    "CPAB - Ad Blocker\nListed in a known data breach: ⁨Domino's⁩ (2014)."
+   ]
+  },
+  {
+   "open": "http://bell.ca/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "a date in the title comes off the name",
+   "equals": [
+    "CPAB - Ad Blocker\nListed in a known data breach: ⁨Bell⁩ (2014, 2017)."
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"dataLeak\":false}}})).then(()=>'set')",
+   "label": "switch off"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "switching off clears the open tab",
+   "equals": [
+    "CPAB - Ad Blocker"
+   ]
+  },
+  {
+   "open": "http://abandonia.com/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "off: a listed site sets nothing",
+   "equals": [
+    "CPAB - Ad Blocker"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"dataLeak\":true}}})).then(()=>'set')",
+   "label": "switch on"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "switching on marks the open tab",
+   "equals": [
+    "CPAB - Ad Blocker\nListed in a known data breach: ⁨Abandonia⁩ (2015, 2022)."
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"master\":false,\"pausedSites\":[\"abandonia.com\"]}}})).then(()=>'set')",
+   "label": "master off and the site paused"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://abandonia.com/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "the notice follows only its own switch",
+   "equals": [
+    "CPAB - Ad Blocker\nListed in a known data breach: ⁨Abandonia⁩ (2015, 2022)."
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"master\":true,\"pausedSites\":[],\"language\":\"fa\"}}})).then(()=>'set')",
+   "label": "Persian"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "a language change rewrites the title",
+   "equals": [
+    "CPAB - Ad Blocker\nنام این سایت در یک نشت دادهٔ شناخته‌شده آمده است: ⁨Abandonia⁩ (۲۰۱۵، ۲۰۲۲ میلادی)."
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"language\":\"en\"}}})).then(()=>'set')",
+   "label": "English"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "viewport": [
+    340,
+    520
+   ]
+  },
+  {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://www.linkedin.com/feed/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-source');return {line:document.getElementById('dataleak-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,ltr:[...document.querySelectorAll('#dataleak bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup line on a listed site",
+   "equals": {
+    "line": "Listed in a known data breach: LinkedIn (2012, 2021).",
+    "link": "https://haveibeenpwned.com/PwnedWebsites#LinkedIn",
+    "linkText": "Source: Have I Been Pwned",
+    "target": "_blank",
+    "rel": "noopener noreferrer",
+    "ltr": [
+     "ltr:LinkedIn",
+     "ltr:Have I Been Pwned"
+    ]
+   }
+  },
+  {
+   "eval": "[...performance.getEntriesByType('resource')].map(e=>new URL(e.name).protocol).filter(p=>p!=='chrome-extension:')",
+   "label": "the popup loads nothing from outside",
+   "equals": []
+  },
+  {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://x.pizza.dominos.be/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-source');return {line:document.getElementById('dataleak-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,ltr:[...document.querySelectorAll('#dataleak bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup line through a parent entry",
+   "equals": {
+    "line": "Listed in a known data breach: Domino's (2014).",
+    "link": "https://haveibeenpwned.com/PwnedWebsites#Dominos",
+    "linkText": "Source: Have I Been Pwned",
+    "target": "_blank",
+    "rel": "noopener noreferrer",
+    "ltr": [
+     "ltr:Domino's",
+     "ltr:Have I Been Pwned"
+    ]
+   }
+  },
+  {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://not-listed.example/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-source');return {line:document.getElementById('dataleak-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,ltr:[...document.querySelectorAll('#dataleak bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup on an unlisted site: no line",
+   "equals": null
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"dataLeak\":false}}})).then(()=>'set')",
+   "label": "switch off"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://linkedin.com/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-source');return {line:document.getElementById('dataleak-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,ltr:[...document.querySelectorAll('#dataleak bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup with the switch off: no line",
+   "equals": null
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"dataLeak\":true,\"language\":\"fa\"}}})).then(()=>'set')",
+   "label": "Persian"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://linkedin.com/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-source');return {line:document.getElementById('dataleak-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,ltr:[...document.querySelectorAll('#dataleak bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup line in Persian",
+   "equals": {
+    "line": "نام این سایت در یک نشت دادهٔ شناخته‌شده آمده است: LinkedIn (۲۰۱۲، ۲۰۲۱ میلادی).",
+    "link": "https://haveibeenpwned.com/PwnedWebsites#LinkedIn",
+    "linkText": "منبع: Have I Been Pwned",
+    "target": "_blank",
+    "rel": "noopener noreferrer",
+    "ltr": [
+     "ltr:LinkedIn",
+     "ltr:Have I Been Pwned"
+    ]
+   }
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"language\":\"en\"}}})).then(()=>'set')",
+   "label": "English"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "viewport": [
+    1100,
+    900
+   ]
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 1200
+  },
+  {
+   "eval": "(()=>{const s=document.getElementById('dataleak');return {checked:s.checked,title:document.getElementById('dataleak-title').textContent,meta:document.getElementById('dataleak-meta').textContent,source:document.getElementById('dataleak-source').textContent,href:document.getElementById('dataleak-source').href}})()",
+   "label": "settings row",
+   "equals": {
+    "checked": true,
+    "title": "Data-leak notice",
+    "meta": "929 sitesList dated Nov 7, 2026",
+    "source": "Source: Have I Been Pwned",
+    "href": "https://haveibeenpwned.com/"
+   }
+  },
+  {
+   "eval": "[...document.querySelectorAll('#credits .credit-title')].map(e=>e.textContent).includes('Have I Been Pwned breaches')",
+   "label": "credited in About",
+   "equals": true
+  },
+  {
+   "eval": "(document.getElementById('dataleak').scrollIntoView({block:'center',behavior:'instant'}),'scrolled')"
+  },
+  {
+   "click": "#dataleak",
+   "settle": 800
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>s.settings.dataLeak)",
+   "label": "the switch saves off",
+   "equals": false
+  },
+  {
+   "click": "#dataleak",
+   "settle": 800
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>s.settings.dataLeak)",
+   "label": "and on again",
+   "equals": true
+  }
+ ]
+}

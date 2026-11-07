@@ -5,7 +5,7 @@
 // that names part of a site is never widened to the host. An adult-sites list takes the same path in its
 // own form: one rule to the blocked page, carrying the host only, and nothing blocked for other pages.
 import { createHash } from 'node:crypto';
-import { ADULT_PRIORITY, HARMFUL_PRIORITY } from '../src/shared/blocking.js';
+import { ADULT_PRIORITY, HARMFUL_PRIORITY, HOST_OF_ADDRESS } from '../src/shared/blocking.js';
 import { adultRedirect, warningRedirect } from '../src/shared/harmful.js';
 import { PRIVATE_ADDRESS, hasBadfilter, isIgnorable, normalizeRuleDomain, optionNames, parseLine, ruleKey } from './convert.js';
 
@@ -24,9 +24,7 @@ export const SHARED_HOSTING = Object.freeze([
 // redirect can hand the whole address to the warning page.
 export const ANY_WEB_ADDRESS = '^https?://.*';
 
-// Chrome replaces only the part a regexFilter matched, so this one runs to the end of the address: the
-// path and query never reach the blocked page. \1 is the host, without any user name or port.
-export const HOST_OF_ADDRESS = '^https?://(?:[^/?#@]*@)?([^/?#:]+).*';
+export { HOST_OF_ADDRESS };
 
 // The extension ID Chrome derives from the manifest key: the first 128 bits of the key's SHA-256,
 // one letter a to p per hex digit.

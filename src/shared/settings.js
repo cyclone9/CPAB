@@ -32,6 +32,8 @@ export const DEFAULTS = Object.freeze({
   blockedSites: Object.freeze([]),
   allowedSites: Object.freeze([]),
   recommendedExceptions: true,
+  // The data-leak notice (PRD D14). It only informs, so it answers to its own switch alone.
+  dataLeak: true,
   language: 'auto',
   theme: 'dark',
   badge: true,
@@ -75,6 +77,7 @@ export function normalizeSettings(stored) {
     blockedSites: siteList(value.blockedSites),
     allowedSites: siteList(value.allowedSites),
     recommendedExceptions: flag(value.recommendedExceptions, DEFAULTS.recommendedExceptions),
+    dataLeak: flag(value.dataLeak, DEFAULTS.dataLeak),
     language: LANGUAGES.includes(value.language) ? value.language : DEFAULTS.language,
     theme: THEMES.includes(value.theme) ? value.theme : DEFAULTS.theme,
     badge: flag(value.badge, DEFAULTS.badge),
@@ -102,9 +105,11 @@ export function updateSettings(change) {
   return write;
 }
 
+// The listener gets the new settings, then the ones they replaced.
 export function onSettingsChange(listener) {
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes[STORAGE_KEY]) listener(normalizeSettings(changes[STORAGE_KEY].newValue));
+    if (area !== 'local' || !changes[STORAGE_KEY]) return;
+    listener(normalizeSettings(changes[STORAGE_KEY].newValue), normalizeSettings(changes[STORAGE_KEY].oldValue));
   });
 }
 

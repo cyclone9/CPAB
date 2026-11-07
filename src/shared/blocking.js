@@ -9,8 +9,11 @@ export const BADGE_COLORS = Object.freeze({ text: '#1A1A11', background: '#D4DE3
 export const PAUSED_RULE_ID = 1;
 const PAUSED_PRIORITY = 3;
 
-// Above the pause rule, so pausing a page can't let a person's own blocked site through it.
+// Above the pause rule, so pausing a page can't let a person's own blocked site through it. What a
+// blocked site's pages load is blocked; the site itself is sent to the blocked page, at Adult sites'
+// priority, so Continue once past a harmful-site warning can't open a site the person blocked.
 export const BLOCKED_RULE_ID = 2;
+export const BLOCKED_PAGE_RULE_ID = 5;
 const BLOCKED_PRIORITY = 4;
 
 // Allowed addresses and the recommended exceptions sit with the lists' own exceptions: above every list
@@ -27,6 +30,10 @@ const ALLOWED_PRIORITY = 2;
 export const HARMFUL_PRIORITY = 5;
 export const CONTINUE_PRIORITY = 6;
 export const ADULT_PRIORITY = 7;
+
+// Chrome replaces only the part a regexFilter matched, so this one runs to the end of the address: the
+// path and query never reach the blocked page. \1 is the host, without any user name or port.
+export const HOST_OF_ADDRESS = '^https?://(?:[^/?#@]*@)?([^/?#:]+).*';
 
 // The recommended exceptions, as { domains } built from lists/cpab-exceptions.txt.
 export const EXCEPTIONS_FILE = 'rules/cpab-exceptions.json';
@@ -68,14 +75,20 @@ export function pausedRules(pausedSites) {
   }];
 }
 
-// The person's own list follows the master switch and nothing else.
-export function blockedRules(settings) {
+// The person's own list follows the master switch and nothing else. `redirect` is where a blocked site's
+// page goes: ownBlockedRedirect() in shared/harmful.js, with this extension's ID.
+export function blockedRules(settings, redirect) {
   if (!settings.master || !settings.blockedSites.length) return [];
   return [{
     id: BLOCKED_RULE_ID,
     priority: BLOCKED_PRIORITY,
     action: { type: 'block' },
-    condition: { requestDomains: [...settings.blockedSites], resourceTypes: [...ALL_RESOURCE_TYPES] },
+    condition: { requestDomains: [...settings.blockedSites], resourceTypes: ALL_RESOURCE_TYPES.filter((type) => type !== 'main_frame') },
+  }, {
+    id: BLOCKED_PAGE_RULE_ID,
+    priority: ADULT_PRIORITY,
+    action: { type: 'redirect', redirect: { ...redirect } },
+    condition: { requestDomains: [...settings.blockedSites], regexFilter: HOST_OF_ADDRESS, resourceTypes: ['main_frame'] },
   }];
 }
 

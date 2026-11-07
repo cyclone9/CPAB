@@ -78,6 +78,7 @@ label.row:hover { background: var(--wash); }
 .row-meta span + span::before { content: "·"; margin-inline-end: 0.5rem; }
 .row-problem { margin-block-start: 0.25rem; color: var(--cpab-color-warning); overflow-wrap: anywhere; }
 .row-problem span { display: block; }
+.row-source { padding-block: 0 0.875rem; padding-inline: 1.125rem; }
 .row-note {
   padding-block: 0.625rem;
   padding-inline: 1.125rem;

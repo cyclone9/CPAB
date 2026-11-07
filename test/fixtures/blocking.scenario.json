@@ -353,18 +353,26 @@
    "settle": 1200
   },
   {
-   "expectBlocked": "mine-main"
-  },
-  {
-   "eval": "location.href",
-   "label": "blocked site, opened directly, ended at"
+   "eval": "(()=>[location.href,document.getElementById('reason').textContent,document.getElementById('note').textContent])()",
+   "label": "blocked site opened directly (mine-main) shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=own&h=sub.my-blocked.localhost",
+    "You blocked this site in CPAB's settings.",
+    "To open it, remove it from Blocked sites in CPAB's settings."
+   ]
   },
   {
    "open": "http://my-blocked.localhost:8733/mine-root",
    "settle": 1200
   },
   {
-   "expectBlocked": "mine-root"
+   "eval": "(()=>[location.href,document.getElementById('reason').textContent,document.getElementById('note').textContent])()",
+   "label": "blocked site opened directly (mine-root) shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=own&h=my-blocked.localhost",
+    "You blocked this site in CPAB's settings.",
+    "To open it, remove it from Blocked sites in CPAB's settings."
+   ]
   },
   {
    "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"],\"master\":false}}).then(()=>'set')",
@@ -428,18 +436,26 @@
    "settle": 1200
   },
   {
-   "expectBlocked": "mine-main"
-  },
-  {
-   "eval": "location.href",
-   "label": "blocked site, opened directly, ended at"
+   "eval": "(()=>[location.href,document.getElementById('reason').textContent,document.getElementById('note').textContent])()",
+   "label": "blocked site opened directly (mine-main) shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=own&h=sub.my-blocked.localhost",
+    "You blocked this site in CPAB's settings.",
+    "To open it, remove it from Blocked sites in CPAB's settings."
+   ]
   },
   {
    "open": "http://my-blocked.localhost:8733/mine-root",
    "settle": 1200
   },
   {
-   "expectBlocked": "mine-root"
+   "eval": "(()=>[location.href,document.getElementById('reason').textContent,document.getElementById('note').textContent])()",
+   "label": "blocked site opened directly (mine-root) shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=own&h=my-blocked.localhost",
+    "You blocked this site in CPAB's settings.",
+    "To open it, remove it from Blocked sites in CPAB's settings."
+   ]
   },
   {
    "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"],\"pausedSites\":[\"fixtures.localhost\"]}}).then(()=>'set')",
@@ -479,18 +495,26 @@
    "settle": 1200
   },
   {
-   "expectBlocked": "mine-main"
-  },
-  {
-   "eval": "location.href",
-   "label": "blocked site, opened directly, ended at"
+   "eval": "(()=>[location.href,document.getElementById('reason').textContent,document.getElementById('note').textContent])()",
+   "label": "blocked site opened directly (mine-main) shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=own&h=sub.my-blocked.localhost",
+    "You blocked this site in CPAB's settings.",
+    "To open it, remove it from Blocked sites in CPAB's settings."
+   ]
   },
   {
    "open": "http://my-blocked.localhost:8733/mine-root",
    "settle": 1200
   },
   {
-   "expectBlocked": "mine-root"
+   "eval": "(()=>[location.href,document.getElementById('reason').textContent,document.getElementById('note').textContent])()",
+   "label": "blocked site opened directly (mine-root) shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=own&h=my-blocked.localhost",
+    "You blocked this site in CPAB's settings.",
+    "To open it, remove it from Blocked sites in CPAB's settings."
+   ]
   },
   {
    "sw": "chrome.storage.local.set({settings:{\"blockedSites\":[\"my-blocked.localhost\"]}}).then(()=>'set')",
@@ -527,18 +551,26 @@
    "settle": 1200
   },
   {
-   "expectBlocked": "mine-main"
-  },
-  {
-   "eval": "location.href",
-   "label": "blocked site, opened directly, ended at"
+   "eval": "(()=>[location.href,document.getElementById('reason').textContent,document.getElementById('note').textContent])()",
+   "label": "blocked site opened directly (mine-main) shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=own&h=sub.my-blocked.localhost",
+    "You blocked this site in CPAB's settings.",
+    "To open it, remove it from Blocked sites in CPAB's settings."
+   ]
   },
   {
    "open": "http://my-blocked.localhost:8733/mine-root",
    "settle": 1200
   },
   {
-   "expectBlocked": "mine-root"
+   "eval": "(()=>[location.href,document.getElementById('reason').textContent,document.getElementById('note').textContent])()",
+   "label": "blocked site opened directly (mine-root) shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=own&h=my-blocked.localhost",
+    "You blocked this site in CPAB's settings.",
+    "To open it, remove it from Blocked sites in CPAB's settings."
+   ]
   },
   {
    "open": "settings/settings.html",
@@ -1584,6 +1616,7 @@
     "blockedSites": [
      "mine.example"
     ],
+    "dataLeak": true,
     "groups": {
      "ads": true,
      "adult": false,

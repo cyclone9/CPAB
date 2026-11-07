@@ -6,8 +6,9 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { convertBreaches, newestAdded } from './convert-breaches.js';
 import { hostsToFilters } from './convert.js';
-import { AGPL_TEXT, LISTS } from './lists.config.js';
+import { AGPL_TEXT, DATALEAK_LISTS, LISTS } from './lists.config.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const listsDir = join(root, 'lists');
@@ -71,7 +72,17 @@ async function downloadPinned(list) {
   return { text, commit };
 }
 
+// A JSON catalogue with no title line, version or commit: the counts and the newest entry identify it.
+async function downloadCatalogue(list) {
+  const text = await download(list.url, list.fetchHeaders);
+  const catalogue = JSON.parse(text);
+  const { read, kept } = convertBreaches(catalogue);
+  if (kept === 0) throw new Error(`${list.url}: no breach in the answer passes the filter`);
+  return { text, catalogue: { total: read, kept, newestAddedDate: newestAdded(catalogue) } };
+}
+
 async function downloadList(list) {
+  if (list.group === 'dataleak') return downloadCatalogue(list);
   if (list.repository) return downloadRepository(list);
   if (list.pinned) return downloadPinned(list);
   const text = await download(list.url);
@@ -79,8 +90,8 @@ async function downloadList(list) {
   return list.commitApi ? { text, commit: await latestCommit(list.commitApi) } : { text };
 }
 
-function record(list, { text, commit, files }, snapshotDate) {
-  const { name, group, ruleset, listFile, rulesFile, metaFile, required, url, repository, commitApi, pinned, fileTitle, cssStyles, harmful, adult, plainRules, ...details } = list;
+function record(list, { text, commit, files, catalogue }, snapshotDate) {
+  const { name, group, ruleset, listFile, rulesFile, metaFile, required, url, repository, commitApi, pinned, fileTitle, cssStyles, harmful, adult, plainRules, fetchHeaders, ...details } = list;
   return {
     name,
     group,
@@ -92,6 +103,7 @@ function record(list, { text, commit, files }, snapshotDate) {
       listVersion: headerValue(text, 'Version'),
       listCommit: commit ?? headerValue(text, 'Commit'),
       ...(files ? { files } : {}),
+      ...(catalogue ?? {}),
     },
   };
 }
@@ -106,8 +118,9 @@ function noticeEntry(meta) {
     `- **Source:** ${meta.sourceUrl}`,
     `- **Licence of the converted file:** ${meta.licence.name}, SPDX \`${meta.licence.spdx}\`, ${meta.licence.url}`,
     `- **Licence of the list:** ${meta.licence.source}`,
-    `- **Snapshot:** ${[meta.snapshot.date, meta.snapshot.listVersion && `version ${meta.snapshot.listVersion}`, meta.snapshot.listCommit && `commit ${meta.snapshot.listCommit}`].filter(Boolean).join(', ')}`,
-    {
+    `- **Snapshot:** ${[meta.snapshot.date, meta.snapshot.listVersion && `version ${meta.snapshot.listVersion}`, meta.snapshot.listCommit && `commit ${meta.snapshot.listCommit}`,
+      !meta.snapshot.listVersion && !meta.snapshot.listCommit && `SHA-256 ${meta.snapshot.sha256}`].filter(Boolean).join(', ')}`,
+    meta.changes ? `- **Changes:** ${meta.changes}, by CPAB's build` : {
       harmful: '- **Changes:** converted to declarativeNetRequest warning and block rules by CPAB\'s build',
       adult: '- **Changes:** converted to a declarativeNetRequest rule that sends listed sites to a blocked page, by CPAB\'s build',
     }[meta.group] ?? '- **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB\'s build',
@@ -127,7 +140,7 @@ function updateNotices(metas) {
   writeFileSync(NOTICES, `${text.slice(0, start)}${NOTICES_START}\n${entries}\n${text.slice(end)}`);
 }
 
-const fetchable = LISTS.filter(({ url, repository }) => url || repository);
+const fetchable = [...LISTS, ...DATALEAK_LISTS].filter(({ url, repository }) => url || repository);
 const only = process.argv.slice(2);
 const unknown = only.filter((name) => !fetchable.some((list) => list.name === name));
 if (unknown.length) throw new Error(`no fetched list is called ${unknown.join(', ')}`);

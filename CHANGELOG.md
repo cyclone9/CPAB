@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a data-leak notice: the toolbar popup and the toolbar button's tooltip say when the open site is listed in Have I Been Pwned's breach catalogue (CC BY 4.0), with the years. The check runs on the device against a copy inside the extension, and it has its own switch in Protection.
+- Sites you block yourself now show CPAB's blocked page, which says you blocked them, instead of Chrome's error page.
 - Adult sites is now a working switch, off by default, with HaGeZi NSFW (GPL-3.0-only) as its source list. While it is on, a listed site is replaced by a blocked page that names only the site and the list, with Go back. The main switch, pausing a site and Allowed addresses don't lift it, and the popup says it stays on.
 - Continue once now keeps the site open in that tab until you leave it, instead of warning again on the next page load.
 - Harmful sites is now a working switch, on by default, with HaGeZi Threat Intelligence Feeds mini and uBlock filters - Badware risks (both GPL-3.0-only) as source lists, each with its own switch. A listed site is replaced by a warning page that names the site and the list, with Go back and Continue once.

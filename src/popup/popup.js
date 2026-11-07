@@ -1,15 +1,24 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-import { formatNumber, t } from '../i18n/i18n.js';
+import { formatNumber, formatYears, t } from '../i18n/i18n.js';
 import { adultRunning, countBlocked, harmfulRunning, splitBlocked } from '../shared/blocking.js';
+import { BREACH_SOURCE, DATALEAK_FILE, breachNotice, findBreaches } from '../shared/dataleak.js';
 import { fillWithDomains, applyPage } from '../shared/page.js';
 import { addSite, findSiteEntry, siteFromUrl } from '../shared/domains.js';
+import { BLOCKED_PAGE, OWN_BLOCKED_LIST, readBlocked as readBlockedPage } from '../shared/harmful.js';
 import { loadSettings, normalizeSettings, onSettingsChange, updateSettings } from '../shared/settings.js';
 
 const byId = (id) => document.getElementById(id);
 
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true }).catch(() => []);
+// CPAB's blocked page stands in for a site the person blocked, so the popup speaks for that site.
+function siteOf(url) {
+  if (!url.startsWith(`${chrome.runtime.getURL(BLOCKED_PAGE)}?`)) return siteFromUrl(url);
+  const { list, host } = readBlockedPage(new URL(url).search);
+  return list === OWN_BLOCKED_LIST && host ? siteFromUrl(`http://${host}/`) : null;
+}
+
 // activeTab shows the URL only where the extension may run; elsewhere tab.url is missing.
-const site = tab?.url ? siteFromUrl(tab.url) : null;
+const site = tab?.url ? siteOf(tab.url) : null;
 
 let settings = await loadSettings().catch(() => normalizeSettings());
 const opened = { master: settings.master, paused: site ? findSiteEntry(site, settings.pausedSites) : null };
@@ -27,6 +36,32 @@ async function readBlocked() {
 }
 
 const blocked = await readBlocked();
+
+// The file is in the package and read only while the switch is on. Nothing loads from the source's
+// site unless the link is pressed.
+async function readNotice() {
+  if (!site || !settings.dataLeak) return null;
+  try {
+    const { domains } = await fetch(`../${DATALEAK_FILE}`).then((response) => response.json());
+    return breachNotice(findBreaches(site, domains));
+  } catch {
+    return null;
+  }
+}
+
+const notice = await readNotice();
+
+function renderNotice(language) {
+  const box = byId('dataleak');
+  box.hidden = !settings.dataLeak || !notice;
+  if (box.hidden) return;
+  // The years go in first as plain text, so only the breach's name is set apart left to right.
+  const line = t(language, 'dataLeakLine').replace('{years}', () => formatYears(language, notice.years));
+  fillWithDomains(byId('dataleak-line'), line, { breach: notice.label });
+  const source = byId('dataleak-source');
+  source.href = notice.link;
+  fillWithDomains(source, t(language, 'dataLeakSource'), { source: BREACH_SOURCE });
+}
 
 function renderBlocked(language) {
   const total = byId('blocked');
@@ -54,6 +89,7 @@ function render() {
   const entry = findSiteEntry(site, settings.pausedSites);
   const blockedHere = Boolean(findSiteEntry(site, settings.blockedSites));
   byId('domain').textContent = site;
+  renderNotice(language);
   renderBlocked(language);
   byId('pause').textContent = t(language, entry ? 'resume' : 'pause');
   // No pause reaches a person's own blocked sites, so the button would do nothing.

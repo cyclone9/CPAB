@@ -11,6 +11,13 @@ html, body { inline-size: 340px; }
 .domain { font-size: 1.1875rem; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
 .state { margin-block-start: 0.125rem; color: var(--cpab-color-warning); }
 
+.dataleak {
+  display: grid;
+  gap: 0.125rem;
+  padding-inline-start: 0.625rem;
+  border-inline-start: 2px solid var(--cpab-color-border);
+}
+
 .count {
   padding-block: 0.625rem;
   padding-inline: 0.75rem;

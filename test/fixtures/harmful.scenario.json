@@ -440,6 +440,42 @@
    ]
   },
   {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,blockedSites:['anj-whatsapp.com']}})).then(()=>'set')",
+   "label": "the person blocks the site Continue once let through"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://anj-whatsapp.com/probe.html?mine=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>[location.href,document.getElementById('reason').textContent,document.getElementById('note').textContent])()",
+   "label": "blocked by the person and harmful, after Continue once: CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=own&h=anj-whatsapp.com",
+    "You blocked this site in CPAB's settings.",
+    "To open it, remove it from Blocked sites in CPAB's settings."
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,blockedSites:[]}})).then(()=>'set')",
+   "label": "unblocked again"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://anj-whatsapp.com/probe.html?link=1",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname+location.pathname+location.search",
+   "label": "Continue once still holds for the tab",
+   "equals": "anj-whatsapp.com/probe.html?link=1"
+  },
+  {
    "eval": "(()=>{const b=document.createElement('button');b.id='nt';b.textContent='new tab';b.onclick=()=>window.open('about:blank');document.body.append(b);return 'button'})()",
    "label": "a button that opens a tab"
   },

@@ -454,6 +454,46 @@ export const LISTS = [
   },
 ];
 
+// Data that isn't a filter list: the data-leak notice reads it, and nothing blocks on it.
+// scripts/convert-breaches.js keeps only what the popup line needs.
+export const DATALEAK_LISTS = [
+  {
+    name: 'hibp-breaches',
+    group: 'dataleak',
+    listFile: 'hibp-breaches.json',
+    metaFile: 'hibp-breaches.meta.json',
+    rulesFile: 'hibp-breaches.json',
+    required: true,
+    title: 'Have I Been Pwned breaches',
+    url: 'https://haveibeenpwned.com/api/v3/breaches',
+    // HIBP answers a request without a User-Agent with 403, and asks for one that names the caller.
+    fetchHeaders: { 'user-agent': 'CPAB list fetcher (+https://cpab.cyclone9.dev/)', accept: 'application/json' },
+    homepage: 'https://haveibeenpwned.com/PwnedWebsites',
+    sourceLink: 'https://haveibeenpwned.com/PwnedWebsites',
+    attribution: 'Have I Been Pwned (https://haveibeenpwned.com/)',
+    changes: 'filtered to verified breaches with a domain; reduced to name, title and year',
+    licence: {
+      name: 'CC BY 4.0',
+      spdx: 'CC-BY-4.0',
+      url: 'https://creativecommons.org/licenses/by/4.0/',
+      source: 'The API documentation, section "License - breach & paste APIs", puts the breach data under CC BY 4.0. The Terms of Use, clause 1.3, let the unauthenticated breach catalogue endpoints, /breaches included, be used for any lawful purpose, including within commercial products and for the benefit of third parties. Clause 2.1(a)(iv) asks for clear and visible attribution with a hyperlink to haveibeenpwned.com.',
+    },
+    admission: {
+      reviewed: '2026-11-07',
+      result: 'admitted, with care',
+      checks: {
+        licenceStated: 'The API documentation (https://haveibeenpwned.com/API/v3), section "License - breach & paste APIs": "This work is licensed under a Creative Commons Attribution 4.0 International License", and HIBP must be named as the source. Read on 2026-11-07.',
+        licenceAccepted: 'CC BY 4.0 is on the accepted set. Terms of Use clause 1.3 lifts the third-party, resale and Permitted Purpose restrictions for the unauthenticated catalogue endpoints.',
+        notRefused: 'No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience. Care: clause 1.3 keeps the restriction on building a substantially similar service, and clause 2.1(d)(iii) forbids building or operating a breach database, breach search engine or similar service that provides substantially the same functionality as HIBP. CPAB ships a reduced subset (name, title, year per site, no search, no email lookup, no descriptions or data classes) and shows one line about the site already open, linking to HIBP for the rest. If CPAB ever offered search or lookup over this data, go back to the advisor.',
+        attribution: 'Have I Been Pwned (https://haveibeenpwned.com/), with a hyperlink, beside every notice in the popup, on the switch in settings, in the credits and in THIRD-PARTY-NOTICES.md (clause 2.1(a)(iv)).',
+        aggregated: 'Not an aggregate of other lists: HIBP\'s own catalogue of the breaches it has loaded.',
+        ownFile: 'The reduced data is one file of its own, rules/hibp-breaches.json, never merged with another list, under CC BY 4.0.',
+        retrievable: 'A stable API URL with no versions or commits. The snapshot records the fetch date, its SHA-256, the number of breaches read and kept, and the newest AddedDate.',
+      },
+    },
+  },
+];
+
 // Stored under this name beside the rule file, because AGPLv3 needs the text with the work.
 export const AGPL_TEXT = {
   url: 'https://raw.githubusercontent.com/PersianBlocker/PersianBlocker/main/LICENSE',

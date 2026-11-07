@@ -6,6 +6,18 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.8',
+    date: '2026-11-07',
+    en: [
+      'New data-leak notice. When the site you are on is listed in Have I Been Pwned\'s breach catalogue, the toolbar popup and the toolbar button\'s tooltip say so, with the years. The check runs on your device against a copy inside the extension, and it has its own switch in Protection.',
+      'Sites you block yourself now show CPAB\'s blocked page, which says you blocked them, instead of Chrome\'s error page.',
+    ],
+    fa: [
+      'اعلان نشت داده اضافه شد. اگر سایتی که باز کرده‌اید در فهرست نشت‌های Have I Been Pwned آمده باشد، پنجرهٔ کوچک افزونه و راهنمای دکمهٔ نوار ابزار آن را با سال‌های نشت (میلادی) نشان می‌دهند. مقایسه روی دستگاه شما و با نسخه‌ای از فهرست انجام می‌شود که درون افزونه است، و در بخش حفاظت کلید جداگانه دارد.',
+      'سایت‌هایی که خودتان مسدود می‌کنید حالا به‌جای صفحهٔ خطای Chrome، صفحهٔ مسدودی تبلیغ‌شکن را نشان می‌دهند که می‌گوید خودتان مسدودشان کرده‌اید.',
+    ],
+  },
+  {
     version: '0.2.7',
     date: '2026-11-07',
     en: [

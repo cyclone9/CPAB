@@ -127,6 +127,17 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.
 - **Snapshot:** 2026-11-07, version 2026.1107.1617.39, commit 3cba4065c1273abd841c7f8ff42b882c620382cb
 - **Changes:** converted to a declarativeNetRequest rule that sends listed sites to a blocked page, by CPAB's build
+
+## Have I Been Pwned breaches
+
+- **Title:** Have I Been Pwned breaches
+- **Attribution:** Have I Been Pwned (https://haveibeenpwned.com/)
+- **Homepage:** https://haveibeenpwned.com/PwnedWebsites
+- **Source:** https://haveibeenpwned.com/api/v3/breaches
+- **Licence of the converted file:** CC BY 4.0, SPDX `CC-BY-4.0`, https://creativecommons.org/licenses/by/4.0/
+- **Licence of the list:** The API documentation, section "License - breach & paste APIs", puts the breach data under CC BY 4.0. The Terms of Use, clause 1.3, let the unauthenticated breach catalogue endpoints, /breaches included, be used for any lawful purpose, including within commercial products and for the benefit of third parties. Clause 2.1(a)(iv) asks for clear and visible attribution with a hyperlink to haveibeenpwned.com.
+- **Snapshot:** 2026-11-07, SHA-256 cd399da32e80af36470515e11f38c2daddbec48801859084cf27bfbb73ecfad7
+- **Changes:** filtered to verified breaches with a domain; reduced to name, title and year, by CPAB's build
 <!-- lists:end -->
 
 ## Vazirmatn

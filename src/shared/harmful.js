@@ -13,6 +13,9 @@ export const CONTINUE_PREFIX = 'harmfulContinue:';
 
 const LIST_ID = /^[a-z0-9-]+$/;
 
+// The blocked page's list for the person's own Blocked sites. No ruleset has this ID.
+export const OWN_BLOCKED_LIST = 'own';
+
 // What a warning rule does. The build writes the destination, so no list can choose where a page goes.
 // \0 is the whole address the rule matched, and it goes last and unencoded: everything after u= is it.
 export function warningRedirect(extensionId, listId) {
@@ -27,6 +30,11 @@ export function adultRedirect(extensionId, listId) {
   if (!/^[a-p]{32}$/.test(extensionId)) throw new Error(`"${extensionId}" is not an extension ID`);
   if (!LIST_ID.test(listId)) throw new Error(`"${listId}" is not a ruleset ID`);
   return { regexSubstitution: `chrome-extension://${extensionId}/${BLOCKED_PAGE}?list=${listId}&h=\\1` };
+}
+
+// Where a person's own blocked site goes: the same page and the same host-only address as Adult sites.
+export function ownBlockedRedirect(extensionId) {
+  return adultRedirect(extensionId, OWN_BLOCKED_LIST);
 }
 
 // The list and the blocked host, from the blocked page's own location. Anything that isn't a plain host

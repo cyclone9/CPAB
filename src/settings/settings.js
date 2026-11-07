@@ -2,6 +2,7 @@
 import { format, formatDate, formatNumber, t } from '../i18n/i18n.js';
 import { EXCEPTIONS_FILE } from '../shared/blocking.js';
 import { recentChangelog } from '../shared/changelog.js';
+import { BREACH_SOURCE } from '../shared/dataleak.js';
 import { addSite, findOverlap, normalizeDomain } from '../shared/domains.js';
 import { applyPage, fillWithDomains, fillWithLatin } from '../shared/page.js';
 import { PAGE_SIZE, searchSites } from '../shared/site-search.js';
@@ -280,6 +281,15 @@ function renderCredits() {
   byId('credits-empty').hidden = shown.length > 0;
 }
 
+function renderDataLeak() {
+  byId('dataleak').checked = settings.dataLeak;
+  const [list] = inGroup('dataleak');
+  fillMeta(byId('dataleak-meta'), list?.available
+    ? [format(language, 'metaSites', { count: formatNumber(language, list.domains) }), format(language, 'metaSnapshot', { date: formatDate(language, list.snapshotDate) })]
+    : [t(language, 'groupUnavailable')]);
+  fillWithDomains(byId('dataleak-source'), t(language, 'dataLeakSource'), { source: BREACH_SOURCE });
+}
+
 function renderExceptions() {
   byId('exceptions-list').replaceChildren(...exceptions.map((domain) => {
     const item = document.createElement('li');
@@ -328,6 +338,7 @@ function render() {
   renderGroups();
   renderListRows();
   renderCredits();
+  renderDataLeak();
   renderExceptions();
   renderChangelog();
   byId('name-fa').hidden = language !== 'fa';
@@ -349,6 +360,7 @@ async function save(change) {
 byId('master').addEventListener('change', (event) => save({ master: event.target.checked }));
 byId('badge').addEventListener('change', (event) => save({ badge: event.target.checked }));
 byId('recommended-exceptions').addEventListener('change', (event) => save({ recommendedExceptions: event.target.checked }));
+byId('dataleak').addEventListener('change', (event) => save({ dataLeak: event.target.checked }));
 
 for (const toggle of document.querySelectorAll('[data-group]')) {
   toggle.addEventListener('change', () => save((current) => ({

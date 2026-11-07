@@ -4,6 +4,7 @@
 import {
   ALLOWED_RULE_ID,
   BADGE_COLORS,
+  BLOCKED_PAGE_RULE_ID,
   BLOCKED_RULE_ID,
   EXCEPTIONS_FILE,
   EXCEPTIONS_RULE_ID,
@@ -14,7 +15,9 @@ import {
   wantedRulesets,
 } from '../shared/blocking.js';
 import { CSS_INDEX, SEED_KEY, scriptChanges, scriptList, seedEntries, staleKeys, wantedScripts } from '../shared/css.js';
+import { ownBlockedRedirect } from '../shared/harmful.js';
 import { loadSettings, onSettingsChange, saveRulesetProblems, updateSettings } from '../shared/settings.js';
+import './dataleak.js';
 import './harmful.js';
 import './popups.js';
 
@@ -49,8 +52,8 @@ const packageJson = (path) => fetch(chrome.runtime.getURL(path)).then((response)
 async function applySiteRules(settings) {
   const { domains: exceptions } = await packageJson(EXCEPTIONS_FILE);
   await dnr.updateDynamicRules({
-    removeRuleIds: [PAUSED_RULE_ID, BLOCKED_RULE_ID, ALLOWED_RULE_ID, EXCEPTIONS_RULE_ID],
-    addRules: [...pausedRules(settings.pausedSites), ...blockedRules(settings), ...allowedRules(settings, exceptions)],
+    removeRuleIds: [PAUSED_RULE_ID, BLOCKED_RULE_ID, BLOCKED_PAGE_RULE_ID, ALLOWED_RULE_ID, EXCEPTIONS_RULE_ID],
+    addRules: [...pausedRules(settings.pausedSites), ...blockedRules(settings, ownBlockedRedirect(chrome.runtime.id)), ...allowedRules(settings, exceptions)],
   });
 }
 

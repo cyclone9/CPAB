@@ -8,7 +8,9 @@ import {
   ALLOWED_RULE_ID,
   ALLOW_RULE_ID_BASE,
   BADGE_COLORS,
+  BLOCKED_PAGE_RULE_ID,
   BLOCKED_RULE_ID,
+  HOST_OF_ADDRESS,
   BLOCK_GROUPS,
   EXCEPTIONS_RULE_ID,
   PAUSED_RULE_ID,
@@ -21,6 +23,7 @@ import {
   wantedRulesets,
 } from '../src/shared/blocking.js';
 import { STRINGS } from '../src/i18n/strings.js';
+import { ownBlockedRedirect, readBlocked } from '../src/shared/harmful.js';
 import { GROUP_RULESETS, RULESET_IDS, normalizeSettings } from '../src/shared/settings.js';
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
@@ -73,21 +76,39 @@ test('paused sites are one allowAllRequests rule above every block and allow rul
   }]);
 });
 
-test('blocked sites are one rule above the pause rule, on every resource type', () => {
-  const [rule] = blockedRules(normalizeSettings({ blockedSites: ['a.com', 'b.ir'] }));
-  assert.equal(rule.id, BLOCKED_RULE_ID);
-  assert.notEqual(rule.id, PAUSED_RULE_ID);
-  assert.ok(rule.priority > pausedRules(['x.com'])[0].priority);
-  assert.equal(rule.action.type, 'block');
-  assert.deepEqual(rule.condition.requestDomains, ['a.com', 'b.ir']);
-  assert.ok(rule.condition.resourceTypes.includes('main_frame'));
-  assert.equal(rule.condition.resourceTypes.length, 15);
+const OWN_ID = 'hgfgdeboohokimlkibkjlhgppmpdpgal';
+const OWN = ownBlockedRedirect(OWN_ID);
+
+test('blocked sites are a block for what pages load and a redirect for the site itself, both above the pause rule', () => {
+  const [block, page] = blockedRules(normalizeSettings({ blockedSites: ['a.com', 'b.ir'] }), OWN);
+  assert.equal(block.id, BLOCKED_RULE_ID);
+  assert.equal(page.id, BLOCKED_PAGE_RULE_ID);
+  assert.equal(new Set([PAUSED_RULE_ID, BLOCKED_RULE_ID, BLOCKED_PAGE_RULE_ID]).size, 3);
+  for (const rule of [block, page]) {
+    assert.ok(rule.priority > pausedRules(['x.com'])[0].priority);
+    assert.deepEqual(rule.condition.requestDomains, ['a.com', 'b.ir']);
+  }
+  assert.equal(block.action.type, 'block');
+  assert.ok(!block.condition.resourceTypes.includes('main_frame'));
+  assert.equal(block.condition.resourceTypes.length, 14);
+  assert.deepEqual(page.action, { type: 'redirect', redirect: { regexSubstitution: `chrome-extension://${OWN_ID}/blocked/blocked.html?list=own&h=\\1` } });
+  assert.deepEqual(page.condition.resourceTypes, ['main_frame']);
+  assert.equal(page.condition.regexFilter, HOST_OF_ADDRESS);
+});
+
+test('the own blocked page gets the host alone, and reads it back', () => {
+  const regex = new RegExp(HOST_OF_ADDRESS);
+  const substitute = (url) => url.replace(regex, OWN.regexSubstitution.replace('\\1', '$1'));
+  const landed = substitute('https://user@sub.a.com:8443/path?q=secret#frag');
+  assert.equal(landed, `chrome-extension://${OWN_ID}/blocked/blocked.html?list=own&h=sub.a.com`);
+  assert.deepEqual(readBlocked(new URL(landed).search), { list: 'own', host: 'sub.a.com' });
+  assert.throws(() => ownBlockedRedirect('not-an-id'));
 });
 
 test('blocked sites follow the master switch, and nothing else', () => {
-  assert.deepEqual(blockedRules(normalizeSettings({})), []);
-  assert.deepEqual(blockedRules(normalizeSettings({ master: false, blockedSites: ['a.com'] })), []);
-  assert.equal(blockedRules(normalizeSettings({ blockedSites: ['a.com'], pausedSites: ['b.com'], groups: { ads: false } })).length, 1);
+  assert.deepEqual(blockedRules(normalizeSettings({}), OWN), []);
+  assert.deepEqual(blockedRules(normalizeSettings({ master: false, blockedSites: ['a.com'] }), OWN), []);
+  assert.equal(blockedRules(normalizeSettings({ blockedSites: ['a.com'], pausedSites: ['b.com'], groups: { ads: false } }), OWN).length, 2);
 });
 
 test('allowed addresses and the exceptions are two allow rules, above list blocks and below the pause and blocked-sites rules', () => {
@@ -104,9 +125,9 @@ test('allowed addresses and the exceptions are two allow rules, above list block
     assert.ok(rule.priority > listBlock.priority);
     assert.ok(rule.priority >= listAllow.priority);
     assert.ok(rule.priority < pausedRules(['x.com'])[0].priority);
-    assert.ok(rule.priority < blockedRules(normalizeSettings({ blockedSites: ['x.com'] }))[0].priority);
+    for (const own of blockedRules(normalizeSettings({ blockedSites: ['x.com'] }), OWN)) assert.ok(rule.priority < own.priority);
   }
-  const ids = [PAUSED_RULE_ID, BLOCKED_RULE_ID, ALLOWED_RULE_ID, EXCEPTIONS_RULE_ID];
+  const ids = [PAUSED_RULE_ID, BLOCKED_RULE_ID, BLOCKED_PAGE_RULE_ID, ALLOWED_RULE_ID, EXCEPTIONS_RULE_ID];
   assert.equal(new Set(ids).size, ids.length);
 });
 

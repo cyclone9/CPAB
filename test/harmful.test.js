@@ -5,6 +5,7 @@ import { test } from 'node:test';
 import { ANY_WEB_ADDRESS, BLOCK_RULE_ID, SHARED_HOSTING, WARN_RULE_ID, convertHarmful, extensionId } from '../scripts/convert-harmful.js';
 import { LISTS } from '../scripts/lists.config.js';
 import { CONTINUE_PRIORITY, HARMFUL_PRIORITY, allowedRules, blockedRules, harmfulRunning, pausedRules, wantedRulesets } from '../src/shared/blocking.js';
+import { ownBlockedRedirect } from '../src/shared/harmful.js';
 import { CONTINUE_PREFIX, CONTINUE_STALE_MS, continueRecord, continueRule, readWarning, staleContinues, staysOnHost, warningRedirect } from '../src/shared/harmful.js';
 import { GROUP_RULESETS, RULESET_IDS, normalizeSettings } from '../src/shared/settings.js';
 
@@ -95,11 +96,12 @@ test('the redirect is built here, never from list data', () => {
   assert.throws(() => warningRedirect(ID, 'x&u=https://elsewhere'));
 });
 
-test('priorities: Continue once over the warning, over blocked sites, the pause and allowed addresses', () => {
+test('priorities: a person\'s blocked site over Continue once, over the warning, over the rest', () => {
   const settings = normalizeSettings({ pausedSites: ['a.com'], blockedSites: ['b.com'], allowedSites: ['c.com'] });
   const [paused] = pausedRules(settings.pausedSites);
-  const [blocked] = blockedRules(settings);
+  const [blocked, ownPage] = blockedRules(settings, ownBlockedRedirect(ID));
   const [allowed] = allowedRules(settings, []);
+  assert.ok(ownPage.priority > CONTINUE_PRIORITY);
   assert.ok(CONTINUE_PRIORITY > HARMFUL_PRIORITY);
   assert.ok(HARMFUL_PRIORITY > blocked.priority);
   assert.ok(HARMFUL_PRIORITY > paused.priority);

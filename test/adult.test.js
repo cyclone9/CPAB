@@ -6,6 +6,7 @@ import { HOST_OF_ADDRESS, SHARED_HOSTING, WARN_RULE_ID, convertHarmful } from '.
 import { LISTS } from '../scripts/lists.config.js';
 import {
   ADULT_PRIORITY,
+  BLOCKED_PAGE_RULE_ID,
   CONTINUE_PRIORITY,
   HARMFUL_PRIORITY,
   adultRunning,
@@ -17,7 +18,7 @@ import {
   splitBlocked,
   wantedRulesets,
 } from '../src/shared/blocking.js';
-import { BLOCKED_PAGE, adultRedirect, continueRule, readBlocked } from '../src/shared/harmful.js';
+import { BLOCKED_PAGE, adultRedirect, continueRule, ownBlockedRedirect, readBlocked } from '../src/shared/harmful.js';
 import { DEFAULTS, GROUP_RULESETS, PROTECTION_GROUPS, RULESET_IDS, normalizeSettings } from '../src/shared/settings.js';
 
 const ID = 'hgfgdeboohokimlkibkjlhgppmpdpgal';
@@ -132,10 +133,11 @@ test('on a host on both lists the adult page wins, and Continue once for Harmful
   assert.equal(winner, block);
 });
 
-test('a pause, an allowed address or a person\'s blocked site sit below it', () => {
+test('a pause, an allowed address or what a person\'s blocked site loads sit below it, and the site itself ties', () => {
   const settings = normalizeSettings({ pausedSites: ['a.com'], blockedSites: ['b.com'], allowedSites: ['c.com'] });
-  for (const rule of [...pausedRules(settings.pausedSites), ...blockedRules(settings), ...allowedRules(settings, ['d.ir'])]) {
-    assert.ok(ADULT_PRIORITY > rule.priority, rule.id);
+  for (const rule of [...pausedRules(settings.pausedSites), ...blockedRules(settings, ownBlockedRedirect(ID)), ...allowedRules(settings, ['d.ir'])]) {
+    if (rule.id === BLOCKED_PAGE_RULE_ID) assert.equal(rule.priority, ADULT_PRIORITY);
+    else assert.ok(ADULT_PRIORITY > rule.priority, rule.id);
   }
 });
 
