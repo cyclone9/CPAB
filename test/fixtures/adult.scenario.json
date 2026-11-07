@@ -1,0 +1,411 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733",
+  "--disable-site-isolation-trials"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.sort())",
+   "label": "Adult sites off by default",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
+    "iran",
+    "popups-adguard",
+    "trackers",
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(s=>s.settings.groups.adult)",
+   "label": "stored Adult switch is off",
+   "equals": false
+  },
+  {
+   "open": "http://005149.cn/probe.html?secret=1",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname",
+   "label": "off by default: an NSFW host opens",
+   "equals": "005149.cn"
+  },
+  {
+   "open": "http://auntymazax51.watch/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "new URL(location.href).searchParams.get('list')",
+   "label": "off: a host on both lists shows the Harmful warning",
+   "equals": "harmful-hagezi-tif"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true}}}).then(()=>'set')",
+   "label": "Adult sites on"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.sort())",
+   "label": "on: the adult ruleset joins",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "adult-hagezi-nsfw",
+    "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
+    "iran",
+    "popups-adguard",
+    "trackers",
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
+   ]
+  },
+  {
+   "open": "http://005149.cn/some/path.html?secret=1#frag",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "on: the tab holds the host only, with no path, query or fragment",
+   "equals": "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=adult-hagezi-nsfw&h=005149.cn"
+  },
+  {
+   "eval": "[performance.getEntriesByType('navigation')[0].name.includes('secret'),performance.getEntriesByType('navigation')[0].name.includes('path'),document.documentElement.outerHTML.includes('secret')]",
+   "label": "the path never reached the page",
+   "equals": [
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "eval": "[document.getElementById('domain').textContent,document.getElementById('reason').textContent,!!document.getElementById('continue'),document.title]",
+   "label": "names the host and the list, no Continue once",
+   "equals": [
+    "005149.cn",
+    "HaGeZi NSFW lists this site as adult content, and Adult sites is on in CPAB's settings.",
+    false,
+    "Site blocked"
+   ]
+  },
+  {
+   "eval": "[...performance.getEntriesByType('resource')].map(e=>new URL(e.name).protocol).filter(p=>p!=='chrome-extension:')",
+   "label": "the blocked page loads nothing from outside",
+   "equals": []
+  },
+  {
+   "open": "http://www.005149.cn/some/path.html?secret=1#frag",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "a subdomain is blocked too",
+   "equals": "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=adult-hagezi-nsfw&h=www.005149.cn"
+  },
+  {
+   "open": "http://auntymazax51.watch/some/path.html?secret=1#frag",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "a host on both lists shows the adult page, not the warning",
+   "equals": "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=adult-hagezi-nsfw&h=auntymazax51.watch"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2F005149.cn%2Fadult-sub-probe.gif&frame=http%3A%2F%2F005149.cn%2Fadult-frame-probe.html",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "adult-sub-probe"
+  },
+  {
+   "expectLoaded": "adult-frame-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true},\"master\":false,\"pausedSites\":[\"005149.cn\",\"auntymazax51.watch\",\"page.fixtures.localhost\"]}}).then(()=>'set')",
+   "label": "master off and the sites paused"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.sort())",
+   "label": "master off: Harmful and Adult alone",
+   "equals": [
+    "adult-hagezi-nsfw",
+    "harmful-badware",
+    "harmful-hagezi-tif"
+   ]
+  },
+  {
+   "open": "http://005149.cn/some/path.html?secret=1#frag",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "master off and paused: still blocked",
+   "equals": "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=adult-hagezi-nsfw&h=005149.cn"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true},\"pausedSites\":[\"005149.cn\",\"page.fixtures.localhost\"]}}).then(()=>'set')",
+   "label": "paused, master on"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://005149.cn/some/path.html?secret=1#frag",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "paused: still blocked",
+   "equals": "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=adult-hagezi-nsfw&h=005149.cn"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true},\"allowedSites\":[\"005149.cn\"]}}).then(()=>'set')",
+   "label": "an allowed address"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://005149.cn/some/path.html?secret=1#frag",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "an allowed address: still blocked",
+   "equals": "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=adult-hagezi-nsfw&h=005149.cn"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2F005149.cn%2Fadult-sub-probe.gif&frame=http%3A%2F%2F005149.cn%2Fadult-frame-probe.html",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "adult-sub-probe"
+  },
+  {
+   "expectLoaded": "adult-frame-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true,\"harmful\":false}}}).then(()=>'set')",
+   "label": "Harmful off, Adult on"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://auntymazax51.watch/some/path.html?secret=1#frag",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "Harmful off: Adult still blocks on its own",
+   "equals": "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=adult-hagezi-nsfw&h=auntymazax51.watch"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "defaults: Adult off"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html",
+   "settle": 800
+  },
+  {
+   "open": "http://auntymazax51.watch/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "new URL(location.href).searchParams.get('list')",
+   "label": "Harmful warning on the shared host",
+   "equals": "harmful-hagezi-tif"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true}}}).then(()=>'set')",
+   "label": "Adult on while the warning is open"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "click": "#continue",
+   "settle": 2500
+  },
+  {
+   "eval": "location.href",
+   "label": "Continue once on a host on both lists ends on the adult page",
+   "equals": "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=adult-hagezi-nsfw&h=auntymazax51.watch"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html",
+   "settle": 800
+  },
+  {
+   "open": "http://005149.cn/some/path.html?secret=1#frag",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "blocked after a page",
+   "equals": "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html?list=adult-hagezi-nsfw&h=005149.cn"
+  },
+  {
+   "click": "#back",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "Go back returns to the page before",
+   "equals": "http://page.fixtures.localhost:8733/probe.html"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true},\"lists\":{\"adult-hagezi-nsfw\":false}}}).then(()=>'set')",
+   "label": "group on, its list off"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://005149.cn/probe.html?secret=1",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname",
+   "label": "list off: the host opens",
+   "equals": "005149.cn"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true},\"theme\":\"dark\",\"language\":\"en\"}}).then(()=>'set')",
+   "label": "dark en"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://005149.cn/some/path.html?secret=1",
+   "settle": 1500
+  },
+  {
+   "viewport": [
+    800,
+    600
+   ]
+  },
+  {
+   "eval": "[document.documentElement.lang,document.documentElement.dir,document.documentElement.dataset.theme,getComputedStyle(document.body).fontFamily.includes('Vazirmatn'),getComputedStyle(document.getElementById('domain')).direction,document.documentElement.scrollWidth<=innerWidth]",
+   "label": "dark en: lang, dir, theme, font, host ltr, no overflow"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true},\"theme\":\"dark\",\"language\":\"fa\"}}).then(()=>'set')",
+   "label": "dark fa"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://005149.cn/some/path.html?secret=1",
+   "settle": 1500
+  },
+  {
+   "viewport": [
+    800,
+    600
+   ]
+  },
+  {
+   "eval": "[document.documentElement.lang,document.documentElement.dir,document.documentElement.dataset.theme,getComputedStyle(document.body).fontFamily.includes('Vazirmatn'),getComputedStyle(document.getElementById('domain')).direction,document.documentElement.scrollWidth<=innerWidth]",
+   "label": "dark fa: lang, dir, theme, font, host ltr, no overflow"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true},\"theme\":\"light\",\"language\":\"en\"}}).then(()=>'set')",
+   "label": "light en"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://005149.cn/some/path.html?secret=1",
+   "settle": 1500
+  },
+  {
+   "viewport": [
+    800,
+    600
+   ]
+  },
+  {
+   "eval": "[document.documentElement.lang,document.documentElement.dir,document.documentElement.dataset.theme,getComputedStyle(document.body).fontFamily.includes('Vazirmatn'),getComputedStyle(document.getElementById('domain')).direction,document.documentElement.scrollWidth<=innerWidth]",
+   "label": "light en: lang, dir, theme, font, host ltr, no overflow"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":true},\"theme\":\"light\",\"language\":\"fa\"}}).then(()=>'set')",
+   "label": "light fa"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://005149.cn/some/path.html?secret=1",
+   "settle": 1500
+  },
+  {
+   "viewport": [
+    800,
+    600
+   ]
+  },
+  {
+   "eval": "[document.documentElement.lang,document.documentElement.dir,document.documentElement.dataset.theme,getComputedStyle(document.body).fontFamily.includes('Vazirmatn'),getComputedStyle(document.getElementById('domain')).direction,document.documentElement.scrollWidth<=innerWidth]",
+   "label": "light fa: lang, dir, theme, font, host ltr, no overflow"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"adult\":false}}}).then(()=>'set')",
+   "label": "switch off"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.sort())",
+   "label": "off again",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
+    "iran",
+    "popups-adguard",
+    "trackers",
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
+   ]
+  },
+  {
+   "open": "http://005149.cn/probe.html?secret=1",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname",
+   "label": "switch off: the host opens",
+   "equals": "005149.cn"
+  }
+ ]
+}

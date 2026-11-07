@@ -361,21 +361,119 @@
    ]
   },
   {
+   "stopWorker": true
+  },
+  {
    "click": "#continue",
    "settle": 2500
   },
   {
    "eval": "location.hostname+location.pathname+location.search",
-   "label": "Continue once opens the page",
+   "label": "Continue once with the worker stopped first opens the page",
    "equals": "anj-whatsapp.com/harmful-page?x=1"
   },
   {
-   "sw": "chrome.declarativeNetRequest.getSessionRules()",
-   "label": "the Continue once rule is gone after the page commits",
+   "sw": "chrome.declarativeNetRequest.getSessionRules().then(r=>r.map(x=>[x.priority,x.condition.requestDomains,x.condition.tabIds.length]))",
+   "label": "the Continue once rule stays while the tab is on the host",
+   "equals": [
+    [
+     6,
+     [
+      "anj-whatsapp.com"
+     ],
+     1
+    ]
+   ]
+  },
+  {
+   "sw": "chrome.storage.session.get(null).then(s=>Object.entries(s).filter(([k])=>k.startsWith('harmfulContinue:')).map(([,v])=>v.host))",
+   "label": "pending, with its host",
+   "equals": [
+    "anj-whatsapp.com"
+   ]
+  },
+  {
+   "open": "http://anj-whatsapp.com/probe.html?second=1",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname+location.pathname+location.search",
+   "label": "(a) a second page on the host stays open",
+   "equals": "anj-whatsapp.com/probe.html?second=1"
+  },
+  {
+   "eval": "(()=>{const a=document.createElement('a');a.id='same';a.href='/probe.html?link=1';a.textContent='same host';document.body.append(a);return 'link'})()",
+   "label": "a link on the same host"
+  },
+  {
+   "click": "#same",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname+location.pathname+location.search",
+   "label": "(a) a link click on the host stays open",
+   "equals": "anj-whatsapp.com/probe.html?link=1"
+  },
+  {
+   "eval": "(setTimeout(()=>location.reload(),50),'reloading')",
+   "label": "reload"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "eval": "location.hostname+location.pathname+location.search+'|'+performance.getEntriesByType('navigation')[0].type",
+   "label": "(b) a reload stays open",
+   "equals": "anj-whatsapp.com/probe.html?link=1|reload"
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getSessionRules().then(r=>r.map(x=>[x.priority,x.condition.requestDomains,x.condition.tabIds.length]))",
+   "label": "still held after the reload",
+   "equals": [
+    [
+     6,
+     [
+      "anj-whatsapp.com"
+     ],
+     1
+    ]
+   ]
+  },
+  {
+   "eval": "(()=>{const b=document.createElement('button');b.id='nt';b.textContent='new tab';b.onclick=()=>window.open('about:blank');document.body.append(b);return 'button'})()",
+   "label": "a button that opens a tab"
+  },
+  {
+   "click": "#nt",
+   "settle": 800
+  },
+  {
+   "navigateOpened": "http://anj-whatsapp.com/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>t.map(x=>x.url??'').filter(u=>u.includes('/warning/warning.html')).map(u=>new URL(u).searchParams.get('list')))",
+   "label": "(d) the host in a new tab warns",
+   "equals": [
+    "harmful-badware"
+   ]
+  },
+  {
+   "eval": "location.hostname",
+   "label": "the first tab is still on the site",
+   "equals": "anj-whatsapp.com"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html",
+   "settle": 1500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getSessionRules().then(r=>r.map(x=>[x.priority,x.condition.requestDomains,x.condition.tabIds.length]))",
+   "label": "(c) another host takes the rule back",
    "equals": []
   },
   {
-   "sw": "chrome.storage.session.get(null).then(s=>Object.keys(s).filter(k=>k.startsWith('harmfulContinue:')))",
+   "sw": "chrome.storage.session.get(null).then(s=>Object.entries(s).filter(([k])=>k.startsWith('harmfulContinue:')).map(([,v])=>v.host))",
    "label": "nothing pending",
    "equals": []
   },
@@ -385,7 +483,7 @@
   },
   {
    "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
-   "label": "the next visit warns again",
+   "label": "(c) coming back to the host warns again",
    "equals": [
     "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
     "harmful-badware",

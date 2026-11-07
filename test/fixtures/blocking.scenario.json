@@ -1283,7 +1283,7 @@
   {
    "eval": "document.querySelectorAll('[data-list]').length",
    "label": "every group with several lists has list switches",
-   "equals": 10
+   "equals": 11
   },
   {
    "click": "[data-list=\"ads-adguard-base\"]"
@@ -1294,15 +1294,16 @@
    "equals": {
     "ads": true,
     "ads-adguard-base": false,
+    "adult-hagezi-nsfw": true,
     "cpab-own": true,
+    "harmful-badware": true,
+    "harmful-hagezi-tif": true,
     "iran": true,
     "popups-adguard": true,
     "trackers": true,
     "trackers-hagezi-light": true,
     "widgets-adguard": true,
-    "widgets-fanboy-social": true,
-    "harmful-hagezi-tif": true,
-    "harmful-badware": true
+    "widgets-fanboy-social": true
    }
   },
   {
@@ -1390,6 +1391,11 @@
      "harmful-badware",
      true,
      false
+    ],
+    [
+     "adult-hagezi-nsfw",
+     true,
+     true
     ]
    ]
   },
@@ -1462,6 +1468,11 @@
      "harmful-badware",
      true,
      false
+    ],
+    [
+     "adult-hagezi-nsfw",
+     true,
+     true
     ]
    ]
   },
@@ -1575,24 +1586,26 @@
     ],
     "groups": {
      "ads": true,
+     "adult": false,
+     "harmful": true,
      "popups": true,
      "trackers": true,
-     "widgets": true,
-     "harmful": true
+     "widgets": true
     },
     "language": "fa",
     "lists": {
      "ads": true,
      "ads-adguard-base": false,
+     "adult-hagezi-nsfw": true,
      "cpab-own": true,
+     "harmful-badware": true,
+     "harmful-hagezi-tif": true,
      "iran": false,
      "popups-adguard": true,
      "trackers": true,
      "trackers-hagezi-light": true,
      "widgets-adguard": true,
-     "widgets-fanboy-social": true,
-     "harmful-hagezi-tif": true,
-     "harmful-badware": true
+     "widgets-fanboy-social": true
     },
     "master": true,
     "pausedSites": [
@@ -1608,10 +1621,11 @@
    "equals": [
     {
      "ads": true,
+     "adult": false,
+     "harmful": true,
      "popups": true,
      "trackers": true,
-     "widgets": true,
-     "harmful": true
+     "widgets": true
     },
     false
    ]

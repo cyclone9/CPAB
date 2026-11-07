@@ -1,0 +1,35 @@
+{
+  "name": "hagezi-nsfw",
+  "group": "adult",
+  "descriptionKey": "listHageziNsfwDesc",
+  "title": "HaGeZi NSFW",
+  "homepage": "https://github.com/hagezi/dns-blocklists",
+  "sourceLink": "https://github.com/hagezi/dns-blocklists",
+  "attribution": "HaGeZi (https://github.com/hagezi/dns-blocklists)",
+  "licence": {
+    "name": "GPL-3.0-only",
+    "spdx": "GPL-3.0-only",
+    "url": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "source": "The repository LICENSE is the GPLv3 text and the list header points to it, with no \"or later\", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package."
+  },
+  "admission": {
+    "reviewed": "2026-11-07",
+    "result": "admitted, with care",
+    "checks": {
+      "licenceStated": "The list header \"License:\" points to https://github.com/hagezi/dns-blocklists/blob/main/LICENSE. That file was read on 2026-11-07: it is the GPLv3 text, byte-identical to CPAB's own LICENSE.",
+      "licenceAccepted": "GPL-3.0 is on the accepted set, only or later.",
+      "notRefused": "No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.",
+      "attribution": "HaGeZi (https://github.com/hagezi/dns-blocklists), shown in settings and THIRD-PARTY-NOTICES.md.",
+      "aggregated": "sources.md at acded31b209c342f06c38af538281c7ed306202e lists no input for NSFW ('-'); passes on HaGeZi's own-work statement (line 5, FAQ section 11). Care: re-read sources.md at each snapshot; if any adult source appears, or oisd nsfw / Block List Project / StevenBlack porn, go back to the advisor.",
+      "ownFile": "The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.",
+      "retrievable": "A stable repository. The snapshot is fetched at the last commit that changed adblock/nsfw.txt and records that commit, the list's own Version line and its SHA-256."
+    }
+  },
+  "sourceUrl": "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/nsfw.txt",
+  "snapshot": {
+    "date": "2026-11-07",
+    "sha256": "0f53d9524b640f92ae03185600270ca4ffda7545002f52aa070290b0d6010140",
+    "listVersion": "2026.1107.1617.39",
+    "listCommit": "3cba4065c1273abd841c7f8ff42b882c620382cb"
+  }
+}

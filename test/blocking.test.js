@@ -193,10 +193,12 @@ test('a group joins by one entry, and that entry can own several rulesets', () =
   assert.deepEqual(splitBlocked(matches), []);
 });
 
-test('every ruleset belongs to one group, and every group has its name in both languages', () => {
+// Adult sites is the one group the popup never counts.
+test('every ruleset but Adult sites belongs to one counted group, and every group has its name in both languages', () => {
   const { rule_resources: resources } = JSON.parse(read('../src/manifest.json')).declarative_net_request;
   const owned = BLOCK_GROUPS.flatMap(({ rulesets }) => rulesets).filter((id) => id !== '_dynamic');
-  assert.deepEqual([...owned].sort(), resources.map(({ id }) => id).sort());
+  assert.deepEqual([...owned, ...GROUP_RULESETS.adult].sort(), resources.map(({ id }) => id).sort());
+  assert.ok(!owned.some((id) => GROUP_RULESETS.adult.includes(id)));
   for (const { label } of BLOCK_GROUPS) assert.ok(STRINGS.en[label] && STRINGS.fa[label], label);
 });
 
@@ -212,7 +214,8 @@ test('the manifest, the list config and the settings agree on the rulesets', () 
   assert.deepEqual(resources.map(({ id }) => id), RULESET_IDS);
   assert.deepEqual(LISTS.map(({ ruleset }) => ruleset), RULESET_IDS);
   assert.deepEqual(resources.map(({ path }) => path), LISTS.map(({ rulesFile }) => `rules/${rulesFile}`));
-  assert.ok(resources.every(({ enabled }) => enabled));
+  // Chrome turns on what the manifest says before the worker first runs, so Adult sites starts off there too.
+  for (const { id, enabled } of resources) assert.equal(enabled, !GROUP_RULESETS.adult.includes(id), id);
   for (const { group, ruleset } of LISTS) assert.ok(GROUP_RULESETS[group].includes(ruleset), ruleset);
 });
 

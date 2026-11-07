@@ -2,10 +2,11 @@
 // Turns a harmful-sites list into at most two rules: one that sends whole hosts to the warning page
 // before they open, and one that blocks what other pages load from listed hosts. Only whole-host lines
 // are used; everything else is counted by reason and dropped. A warning names a whole host, so a line
-// that names part of a site is never widened to the host.
+// that names part of a site is never widened to the host. An adult-sites list takes the same path in its
+// own form: one rule to the blocked page, carrying the host only, and nothing blocked for other pages.
 import { createHash } from 'node:crypto';
-import { HARMFUL_PRIORITY } from '../src/shared/blocking.js';
-import { warningRedirect } from '../src/shared/harmful.js';
+import { ADULT_PRIORITY, HARMFUL_PRIORITY } from '../src/shared/blocking.js';
+import { adultRedirect, warningRedirect } from '../src/shared/harmful.js';
 import { PRIVATE_ADDRESS, hasBadfilter, isIgnorable, normalizeRuleDomain, optionNames, parseLine, ruleKey } from './convert.js';
 
 export const WARN_RULE_ID = 1;
@@ -22,6 +23,10 @@ export const SHARED_HOSTING = Object.freeze([
 // Matches every web address. requestDomains does the choosing; the regex is only there so the
 // redirect can hand the whole address to the warning page.
 export const ANY_WEB_ADDRESS = '^https?://.*';
+
+// Chrome replaces only the part a regexFilter matched, so this one runs to the end of the address: the
+// path and query never reach the blocked page. \1 is the host, without any user name or port.
+export const HOST_OF_ADDRESS = '^https?://(?:[^/?#@]*@)?([^/?#:]+).*';
 
 // The extension ID Chrome derives from the manifest key: the first 128 bits of the key's SHA-256,
 // one letter a to p per hex digit.
@@ -41,7 +46,7 @@ function hostAction(options, plainRules) {
   return plainRules === 'warn' ? { warn: true, block: false } : { warn: false, block: true };
 }
 
-export function convertHarmful(text, { listId, extensionId: id, plainRules }) {
+export function convertHarmful(text, { listId, extensionId: id, plainRules, adult = false }) {
   const dropped = {};
   const drop = (reason) => {
     dropped[reason] = (dropped[reason] ?? 0) + 1;
@@ -94,8 +99,10 @@ export function convertHarmful(text, { listId, extensionId: id, plainRules }) {
       drop('shared hosting root');
       continue;
     }
-    if (action.warn) warn.add(domain);
-    if (action.block) block.add(domain);
+    // Adult sites stop whole pages only: a block on what other pages load would show in their counts
+    // and let a page find out the switch is on.
+    if (action.warn || adult) warn.add(domain);
+    if (action.block && !adult) block.add(domain);
   }
 
   // Chrome lets excludedRequestDomains win over requestDomains, subdomains included, as an exception does.
@@ -106,12 +113,12 @@ export function convertHarmful(text, { listId, extensionId: id, plainRules }) {
   });
 
   const rules = [];
-  const warnCondition = withExceptions(warn, { regexFilter: ANY_WEB_ADDRESS, resourceTypes: ['main_frame'] });
+  const warnCondition = withExceptions(warn, { regexFilter: adult ? HOST_OF_ADDRESS : ANY_WEB_ADDRESS, resourceTypes: ['main_frame'] });
   if (warnCondition.requestDomains.length) {
     rules.push({
       id: WARN_RULE_ID,
-      priority: HARMFUL_PRIORITY,
-      action: { type: 'redirect', redirect: warningRedirect(id, listId) },
+      priority: adult ? ADULT_PRIORITY : HARMFUL_PRIORITY,
+      action: { type: 'redirect', redirect: adult ? adultRedirect(id, listId) : warningRedirect(id, listId) },
       condition: warnCondition,
     });
   }
@@ -123,6 +130,7 @@ export function convertHarmful(text, { listId, extensionId: id, plainRules }) {
   const warned = rules.find(({ id: ruleId }) => ruleId === WARN_RULE_ID)?.condition.requestDomains.length ?? 0;
   const blocked = rules.find(({ id: ruleId }) => ruleId === BLOCK_RULE_ID)?.condition.requestDomains.length ?? 0;
   return {
+    adult,
     read: lines.length,
     converted: new Set([...warn, ...block]).size,
     warned,
@@ -139,7 +147,7 @@ export function formatHarmfulReport(title, result) {
     .map(([reason, count]) => `    ${String(count).padStart(7)}  ${reason}`);
   const total = Object.values(result.dropped).reduce((sum, count) => sum + count, 0);
   return [
-    `${title}: read ${result.read}, ${result.warned} hosts warned, ${result.blocked} hosts blocked for other pages, ${result.exceptions} exceptions, dropped ${total}, output ${result.rules.length} rules`,
+    `${title}: read ${result.read}, ${result.warned} hosts ${result.adult ? 'sent to the blocked page' : 'warned'}, ${result.blocked} hosts blocked for other pages, ${result.exceptions} exceptions, dropped ${total}, output ${result.rules.length} rules`,
     ...reasons,
   ].join('\n');
 }

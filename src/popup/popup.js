@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import { formatNumber, t } from '../i18n/i18n.js';
-import { countBlocked, harmfulRunning, splitBlocked } from '../shared/blocking.js';
+import { adultRunning, countBlocked, harmfulRunning, splitBlocked } from '../shared/blocking.js';
 import { fillWithDomains, applyPage } from '../shared/page.js';
 import { addSite, findSiteEntry, siteFromUrl } from '../shared/domains.js';
 import { loadSettings, normalizeSettings, onSettingsChange, updateSettings } from '../shared/settings.js';
@@ -65,8 +65,13 @@ function render() {
   else if (entry && entry !== site) fillWithDomains(state, t(language, 'statePausedVia'), { domain: entry });
   else if (entry) state.textContent = t(language, 'statePaused');
   else state.textContent = t(language, 'stateOff');
-  // Pausing and the master switch leave Harmful sites on (PRD D10), and the popup says so.
-  byId('stays').hidden = !(entry || !settings.master) || !harmfulRunning(settings);
+  // Pausing and the master switch leave Harmful and Adult sites on (PRD D10), and the popup says so.
+  // The Adult part shows only while that switch is on.
+  const harmful = harmfulRunning(settings);
+  const adult = adultRunning(settings);
+  const stays = byId('stays');
+  stays.hidden = !(entry || !settings.master) || !(harmful || adult);
+  if (harmful || adult) stays.textContent = t(language, harmful && adult ? 'stateProtectionStays' : harmful ? 'stateHarmfulStays' : 'stateAdultStays');
 
   byId('reload-offer').hidden = settings.master === opened.master && entry === opened.paused;
 }

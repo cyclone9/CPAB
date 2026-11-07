@@ -409,6 +409,49 @@ export const LISTS = [
       },
     },
   },
+  // Adult sites: whole sites, blocked before they open, only while the person has turned the group on.
+  // scripts/convert-harmful.js reads it in its adult form: one redirect rule, no subresource block.
+  {
+    name: 'hagezi-nsfw',
+    group: 'adult',
+    descriptionKey: 'listHageziNsfwDesc',
+    ruleset: 'adult-hagezi-nsfw',
+    listFile: 'hagezi-nsfw.txt',
+    metaFile: 'hagezi-nsfw.meta.json',
+    rulesFile: 'adult-hagezi-nsfw.json',
+    required: true,
+    adult: true,
+    title: 'HaGeZi NSFW',
+    fileTitle: 'HaGeZi\'s NSFW - blocks adult content!',
+    url: 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/nsfw.txt',
+    pinned: {
+      commitsApi: 'https://api.github.com/repos/hagezi/dns-blocklists/commits?path=adblock/nsfw.txt&per_page=1',
+      raw: 'https://raw.githubusercontent.com/hagezi/dns-blocklists',
+      path: 'adblock/nsfw.txt',
+    },
+    homepage: 'https://github.com/hagezi/dns-blocklists',
+    sourceLink: 'https://github.com/hagezi/dns-blocklists',
+    attribution: 'HaGeZi (https://github.com/hagezi/dns-blocklists)',
+    licence: {
+      name: 'GPL-3.0-only',
+      spdx: 'GPL-3.0-only',
+      url: 'https://www.gnu.org/licenses/gpl-3.0.html',
+      source: 'The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.',
+    },
+    admission: {
+      reviewed: '2026-11-07',
+      result: 'admitted, with care',
+      checks: {
+        licenceStated: 'The list header "License:" points to https://github.com/hagezi/dns-blocklists/blob/main/LICENSE. That file was read on 2026-11-07: it is the GPLv3 text, byte-identical to CPAB\'s own LICENSE.',
+        licenceAccepted: 'GPL-3.0 is on the accepted set, only or later.',
+        notRefused: 'No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.',
+        attribution: 'HaGeZi (https://github.com/hagezi/dns-blocklists), shown in settings and THIRD-PARTY-NOTICES.md.',
+        aggregated: 'sources.md at acded31b209c342f06c38af538281c7ed306202e lists no input for NSFW (\'-\'); passes on HaGeZi\'s own-work statement (line 5, FAQ section 11). Care: re-read sources.md at each snapshot; if any adult source appears, or oisd nsfw / Block List Project / StevenBlack porn, go back to the advisor.',
+        ownFile: 'The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.',
+        retrievable: 'A stable repository. The snapshot is fetched at the last commit that changed adblock/nsfw.txt and records that commit, the list\'s own Version line and its SHA-256.',
+      },
+    },
+  },
 ];
 
 // Stored under this name beside the rule file, because AGPLv3 needs the text with the work.

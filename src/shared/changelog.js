@@ -6,6 +6,18 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.7',
+    date: '2026-11-07',
+    en: [
+      'The Adult sites switch now works and is off by default, with HaGeZi NSFW as its source list. While it is on, a listed site is replaced by a blocked page that names only the site and the list, with Go back. Pausing a site, the main switch and Allowed addresses leave it on.',
+      'Continue once on a harmful-site warning now keeps the site open in that tab until you leave it, instead of warning again on the next page load. The next visit warns again.',
+    ],
+    fa: [
+      'کلید سایت‌های بزرگسال حالا کار می‌کند و به‌طور پیش‌فرض خاموش است. فهرست مبدأ آن HaGeZi NSFW است. تا وقتی روشن باشد، سایتی که در فهرست آمده با صفحهٔ مسدودی جایگزین می‌شود که فقط نام سایت و فهرست را می‌گوید و دکمهٔ «بازگشت» دارد. متوقف کردن یک سایت، کلید اصلی و نشانی‌های مجاز آن را خاموش نمی‌کنند.',
+      'دکمهٔ «فقط این بار ادامه بده» در هشدار سایت‌های مضر حالا سایت را در همان زبانه باز نگه می‌دارد تا وقتی از آن بیرون بروید، و دیگر با بارگذاری صفحهٔ بعدی دوباره هشدار نمی‌دهد. در بازدید بعدی دوباره هشدار می‌دهد.',
+    ],
+  },
+  {
     version: '0.2.6',
     date: '2026-11-07',
     en: [

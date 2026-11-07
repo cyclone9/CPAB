@@ -30,7 +30,7 @@ const manifest = readJson(join(root, 'src/manifest.json'));
 if (manifest.version !== pkg.version) {
   throw new Error(`src/manifest.json says ${manifest.version}, package.json says ${pkg.version}`);
 }
-// The warning rules name the warning page by this ID, which the manifest key keeps stable.
+// The warning and adult rules name their pages by this ID, which the manifest key keeps stable.
 const ownId = extensionId(manifest.key);
 
 function convertInto(rulesDir, list, css, cancelledPopups) {
@@ -57,8 +57,8 @@ function convertInto(rulesDir, list, css, cancelledPopups) {
     snapshotDate: meta.snapshot.date,
   };
 
-  if (list.harmful) {
-    const result = convertHarmful(text, { listId: list.ruleset, extensionId: ownId, plainRules: list.plainRules });
+  if (list.harmful || list.adult) {
+    const result = convertHarmful(text, { listId: list.ruleset, extensionId: ownId, plainRules: list.plainRules, adult: Boolean(list.adult) });
     writeFileSync(join(rulesDir, list.rulesFile), JSON.stringify(result.rules));
     console.log(formatHarmfulReport(list.title, result));
     return { ...listed, popupFile: null, read: result.read, converted: result.converted, dropped: result.dropped, rules: result.rules.length, domains: result.converted, rulesList: result.rules };
@@ -134,8 +134,8 @@ for (const file of ['LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.md']) {
 
 const rulesDir = join(dist, 'rules');
 mkdirSync(rulesDir);
-// Harmful-sites lists only warn and block whole hosts: their CSS and popup lines are never used.
-const present = LISTS.filter((list) => !list.harmful && existsSync(join(root, 'lists', list.listFile)));
+// Harmful-sites and adult-sites lists only act on whole hosts: their CSS and popup lines are never used.
+const present = LISTS.filter((list) => !list.harmful && !list.adult && existsSync(join(root, 'lists', list.listFile)));
 const css = convertCss(present);
 const cancelledPopups = new Set(present.flatMap((list) => popupBadfilters(readFileSync(join(root, 'lists', list.listFile), 'utf8'))));
 const lists = LISTS.map((list) => convertInto(rulesDir, list, css.get(list), cancelledPopups));

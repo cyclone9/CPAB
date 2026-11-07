@@ -21,9 +21,12 @@ export const EXCEPTIONS_RULE_ID = 4;
 const ALLOWED_PRIORITY = 2;
 
 // Harmful sites warn above all of those, so neither a pause nor an allowed address lifts a warning.
-// Continue once is a session rule for one tab, just above the warning.
+// Continue once is a session rule for one tab, just above the warning. Adult sites sit above both, so
+// Continue once on a host that is on both kinds of list never opens it, and such a host always shows
+// the blocked page.
 export const HARMFUL_PRIORITY = 5;
 export const CONTINUE_PRIORITY = 6;
+export const ADULT_PRIORITY = 7;
 
 // The recommended exceptions, as { domains } built from lists/cpab-exceptions.txt.
 export const EXCEPTIONS_FILE = 'rules/cpab-exceptions.json';
@@ -49,6 +52,10 @@ export function wantedRulesets(settings, declared) {
 // True while at least one harmful-sites list is warning, whatever the master switch says.
 export function harmfulRunning(settings) {
   return wantedRulesets(settings, GROUP_RULESETS.harmful).length > 0;
+}
+
+export function adultRunning(settings) {
+  return wantedRulesets(settings, GROUP_RULESETS.adult).length > 0;
 }
 
 export function pausedRules(pausedSites) {
@@ -103,8 +110,10 @@ export const BLOCK_GROUPS = Object.freeze([
   Object.freeze({ label: 'groupYourSites', rulesets: Object.freeze([DYNAMIC_RULESET]) }),
 ]);
 
-// getMatchedRules also reports allow rules and the pause rule, which block nothing.
-const isBlock = ({ rule }) => (rule.rulesetId === DYNAMIC_RULESET ? rule.ruleId === BLOCKED_RULE_ID : rule.ruleId <= ALLOW_RULE_ID_BASE);
+// getMatchedRules also reports allow rules and the pause rule, which block nothing. Adult sites never
+// count anywhere (privacy.md).
+const isBlock = ({ rule }) => !GROUP_RULESETS.adult.includes(rule.rulesetId)
+  && (rule.rulesetId === DYNAMIC_RULESET ? rule.ruleId === BLOCKED_RULE_ID : rule.ruleId <= ALLOW_RULE_ID_BASE);
 const blockMatches = (matches) => matches.filter(isBlock);
 
 export function countBlocked(matches) {

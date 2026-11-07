@@ -14,17 +14,19 @@ export const GROUP_RULESETS = Object.freeze({
   popups: Object.freeze(['popups-adguard']),
   widgets: Object.freeze(['widgets-adguard', 'widgets-fanboy-social']),
   harmful: Object.freeze(['harmful-hagezi-tif', 'harmful-badware']),
+  adult: Object.freeze(['adult-hagezi-nsfw']),
 });
 
 // Groups that neither the master switch nor pausing a site reaches (PRD D10). They have their own switch.
-export const PROTECTION_GROUPS = Object.freeze(['harmful']);
+export const PROTECTION_GROUPS = Object.freeze(['harmful', 'adult']);
 
 export const GROUP_IDS = Object.freeze(Object.keys(GROUP_RULESETS));
 export const RULESET_IDS = Object.freeze(Object.values(GROUP_RULESETS).flat());
 
 export const DEFAULTS = Object.freeze({
   master: true,
-  groups: Object.freeze({ ads: true, trackers: true, popups: true, widgets: true, harmful: true }),
+  // Adult sites stays off until the person turns it on, on every install and every update (PRD D7).
+  groups: Object.freeze({ ads: true, trackers: true, popups: true, widgets: true, harmful: true, adult: false }),
   lists: Object.freeze(Object.fromEntries(RULESET_IDS.map((id) => [id, true]))),
   pausedSites: Object.freeze([]),
   blockedSites: Object.freeze([]),

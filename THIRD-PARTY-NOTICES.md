@@ -116,6 +116,17 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same licence ships as LICENSE at the top of the package.
 - **Snapshot:** 2026-11-07, commit 3badba2c3a27300459d96de360da38c9f69829e3
 - **Changes:** converted to declarativeNetRequest warning and block rules by CPAB's build
+
+## HaGeZi NSFW
+
+- **Title:** HaGeZi NSFW
+- **Attribution:** HaGeZi (https://github.com/hagezi/dns-blocklists)
+- **Homepage:** https://github.com/hagezi/dns-blocklists
+- **Source:** https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/nsfw.txt
+- **Licence of the converted file:** GPL-3.0-only, SPDX `GPL-3.0-only`, https://www.gnu.org/licenses/gpl-3.0.html
+- **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.
+- **Snapshot:** 2026-11-07, version 2026.1107.1617.39, commit 3cba4065c1273abd841c7f8ff42b882c620382cb
+- **Changes:** converted to a declarativeNetRequest rule that sends listed sites to a blocked page, by CPAB's build
 <!-- lists:end -->
 
 ## Vazirmatn

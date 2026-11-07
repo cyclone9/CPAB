@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { wantedRulesets } from '../src/shared/blocking.js';
 import { DEFAULTS, RULESET_IDS, normalizeSettings } from '../src/shared/settings.js';
 
-const ALL_LISTS_ON = { ads: true, 'ads-adguard-base': true, iran: true, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': true, 'popups-adguard': true, 'widgets-adguard': true, 'widgets-fanboy-social': true, 'harmful-hagezi-tif': true, 'harmful-badware': true };
+const ALL_LISTS_ON = { ads: true, 'ads-adguard-base': true, iran: true, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': true, 'popups-adguard': true, 'widgets-adguard': true, 'widgets-fanboy-social': true, 'harmful-hagezi-tif': true, 'harmful-badware': true, 'adult-hagezi-nsfw': true };
 // The harmful-sites lists, which come in on with every update and don't follow the master switch.
 const HARMFUL = ['harmful-hagezi-tif', 'harmful-badware'];
 
@@ -29,7 +29,7 @@ const SAVED_BY_0_1_6 = Object.freeze({
 test('the defaults are on, dark, automatic and empty', () => {
   assert.deepEqual(normalizeSettings(undefined), {
     master: true,
-    groups: { ads: true, trackers: true, popups: true, widgets: true, harmful: true },
+    groups: { ads: true, trackers: true, popups: true, widgets: true, harmful: true, adult: false },
     lists: ALL_LISTS_ON,
     pausedSites: [],
     blockedSites: [],
@@ -45,8 +45,8 @@ test('the defaults are on, dark, automatic and empty', () => {
 test('valid stored values are kept', () => {
   const stored = {
     master: false,
-    groups: { ads: false, trackers: true, popups: false, widgets: false, harmful: false },
-    lists: { ads: false, 'ads-adguard-base': true, iran: false, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': false, 'popups-adguard': false, 'widgets-adguard': true, 'widgets-fanboy-social': false, 'harmful-hagezi-tif': true, 'harmful-badware': false },
+    groups: { ads: false, trackers: true, popups: false, widgets: false, harmful: false, adult: true },
+    lists: { ads: false, 'ads-adguard-base': true, iran: false, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': false, 'popups-adguard': false, 'widgets-adguard': true, 'widgets-fanboy-social': false, 'harmful-hagezi-tif': true, 'harmful-badware': false, 'adult-hagezi-nsfw': false },
     pausedSites: ['a.com', 'b.ir'],
     blockedSites: ['c.com'],
     allowedSites: ['d.ir'],
@@ -61,7 +61,7 @@ test('valid stored values are kept', () => {
 test('bad stored values fall back to the defaults', () => {
   const normal = normalizeSettings({
     master: 'yes',
-    groups: { ads: 0, adult: true },
+    groups: { ads: 0, adult: 'yes' },
     lists: { ads: 'off', unknown: false },
     pausedSites: 'a.com',
     blockedSites: 'b.com',
@@ -93,7 +93,7 @@ test('allowed addresses are cleaned, deduplicated and sorted like paused sites',
 test('settings saved by 0.1.4 keep every choice and gain the per-list switches', () => {
   assert.deepEqual(normalizeSettings(SAVED_BY_0_1_4), {
     ...SAVED_BY_0_1_4,
-    groups: { ads: true, trackers: false, popups: true, widgets: true, harmful: true },
+    groups: { ads: true, trackers: false, popups: true, widgets: true, harmful: true, adult: false },
     lists: { ...ALL_LISTS_ON, iran: false },
     allowedSites: [],
     recommendedExceptions: true,
@@ -117,8 +117,8 @@ test('settings saved by 0.2.2 keep every choice and gain HaGeZi, allowed address
   const { popups, ...rest } = saved;
   assert.deepEqual(normal, {
     ...rest,
-    groups: { ...saved.groups, popups, widgets: true, harmful: true },
-    lists: { ...saved.lists, 'trackers-hagezi-light': true, 'popups-adguard': true, 'widgets-adguard': true, 'widgets-fanboy-social': true, 'harmful-hagezi-tif': true, 'harmful-badware': true },
+    groups: { ...saved.groups, popups, widgets: true, harmful: true, adult: false },
+    lists: { ...saved.lists, 'trackers-hagezi-light': true, 'popups-adguard': true, 'widgets-adguard': true, 'widgets-fanboy-social': true, 'harmful-hagezi-tif': true, 'harmful-badware': true, 'adult-hagezi-nsfw': true },
     allowedSites: [],
     recommendedExceptions: true,
   });
@@ -171,8 +171,8 @@ test('settings saved by 0.2.4 keep every choice and gain the Widgets group and l
   const normal = normalizeSettings(saved);
   assert.deepEqual(normal, {
     ...saved,
-    groups: { ...saved.groups, widgets: true, harmful: true },
-    lists: { ...saved.lists, 'widgets-adguard': true, 'widgets-fanboy-social': true, 'harmful-hagezi-tif': true, 'harmful-badware': true },
+    groups: { ...saved.groups, widgets: true, harmful: true, adult: false },
+    lists: { ...saved.lists, 'widgets-adguard': true, 'widgets-fanboy-social': true, 'harmful-hagezi-tif': true, 'harmful-badware': true, 'adult-hagezi-nsfw': true },
   });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['ads', 'iran', 'cpab-own', 'widgets-adguard', 'widgets-fanboy-social', ...HARMFUL]);
   assert.deepEqual(normalizeSettings(normal), normal);
@@ -189,7 +189,7 @@ test('after an update from 0.1.4 a list runs when its group was on', () => {
 
 test('a saved 0.1.6 Iran group off becomes the PersianBlocker list off, and the field goes', () => {
   const normal = normalizeSettings({ ...SAVED_BY_0_1_6, groups: { ads: true, trackers: true, iran: false } });
-  assert.deepEqual(normal.groups, { ads: true, trackers: true, popups: true, widgets: true, harmful: true });
+  assert.deepEqual(normal.groups, { ads: true, trackers: true, popups: true, widgets: true, harmful: true, adult: false });
   assert.equal(normal.lists.iran, false);
   assert.equal(normal.lists['ads-adguard-base'], false);
   assert.deepEqual(normalizeSettings(normal), normal);
@@ -197,7 +197,7 @@ test('a saved 0.1.6 Iran group off becomes the PersianBlocker list off, and the 
 
 test('a saved 0.1.6 Iran group on changes nothing, and its list keeps its own off', () => {
   assert.equal(normalizeSettings(SAVED_BY_0_1_6).lists.iran, true);
-  assert.deepEqual(normalizeSettings(SAVED_BY_0_1_6).groups, { ads: true, trackers: true, popups: true, widgets: true, harmful: true });
+  assert.deepEqual(normalizeSettings(SAVED_BY_0_1_6).groups, { ads: true, trackers: true, popups: true, widgets: true, harmful: true, adult: false });
   const listOff = { ...SAVED_BY_0_1_6, lists: { ...SAVED_BY_0_1_6.lists, iran: false } };
   assert.equal(normalizeSettings(listOff).lists.iran, false);
 });

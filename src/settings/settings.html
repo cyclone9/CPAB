@@ -133,13 +133,20 @@
 
         <h3 class="subheading" data-t="adultHeading"></h3>
         <div class="panel">
-          <div class="row is-later">
+          <label class="row">
             <span class="row-text">
               <span class="row-title" id="adult-title" data-t="adult"></span>
-              <span class="row-desc" data-t="adultDesc"></span>
-              <span class="tag" data-t="comingLater"></span>
+              <span class="row-desc" id="adult-desc" data-t="adultDesc"></span>
+              <span class="row-meta" data-meta="adult"></span>
+              <span class="row-problem small" data-problem="adult" hidden></span>
             </span>
-            <input class="switch" type="checkbox" role="switch" disabled aria-labelledby="adult-title">
+            <input class="switch" type="checkbox" role="switch" data-group="adult" aria-labelledby="adult-title" aria-describedby="adult-desc">
+          </label>
+          <button class="lists-toggle" type="button" data-opens-lists="adult" aria-expanded="false" aria-controls="adult-lists" aria-describedby="adult-title" hidden>
+            <span data-t="listsShow"></span>
+          </button>
+          <div id="adult-lists" class="lists" data-lists="adult" data-lists-always hidden>
+            <p class="lists-note small" data-lists-note="adult" hidden data-t="listsGroupOff"></p>
           </div>
         </div>
       </section>

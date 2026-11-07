@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Adult sites is now a working switch, off by default, with HaGeZi NSFW (GPL-3.0-only) as its source list. While it is on, a listed site is replaced by a blocked page that names only the site and the list, with Go back. The main switch, pausing a site and Allowed addresses don't lift it, and the popup says it stays on.
+- Continue once now keeps the site open in that tab until you leave it, instead of warning again on the next page load.
 - Harmful sites is now a working switch, on by default, with HaGeZi Threat Intelligence Feeds mini and uBlock filters - Badware risks (both GPL-3.0-only) as source lists, each with its own switch. A listed site is replaced by a warning page that names the site and the list, with Go back and Continue once.
 - The main switch, pausing a site and Allowed addresses don't lift the warnings, and the popup says they stay on.
 - malware-filter urlhaus-filter is not used: abuse.ch's terms of use since 2025-11-04 no longer put URLhaus data under CC0.

@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { ANY_WEB_ADDRESS, BLOCK_RULE_ID, SHARED_HOSTING, WARN_RULE_ID, convertHarmful, extensionId } from '../scripts/convert-harmful.js';
 import { LISTS } from '../scripts/lists.config.js';
 import { CONTINUE_PRIORITY, HARMFUL_PRIORITY, allowedRules, blockedRules, harmfulRunning, pausedRules, wantedRulesets } from '../src/shared/blocking.js';
-import { CONTINUE_MS, CONTINUE_PREFIX, continueRule, readWarning, staleContinues, warningRedirect } from '../src/shared/harmful.js';
+import { CONTINUE_PREFIX, CONTINUE_STALE_MS, continueRecord, continueRule, readWarning, staleContinues, staysOnHost, warningRedirect } from '../src/shared/harmful.js';
 import { GROUP_RULESETS, RULESET_IDS, normalizeSettings } from '../src/shared/settings.js';
 
 const ID = 'hgfgdeboohokimlkibkjlhgppmpdpgal';
@@ -143,9 +143,29 @@ test('Continue once is an allow rule for one tab, one host, main frame only', ()
     action: { type: 'allow' },
     condition: { requestDomains: ['bad.example'], resourceTypes: ['main_frame'], tabIds: [7] },
   });
-  const now = 1000000;
-  const stored = { [`${CONTINUE_PREFIX}1`]: now - CONTINUE_MS, [`${CONTINUE_PREFIX}2`]: now - 10, 'popupWatch:3': 0 };
-  assert.deepEqual(staleContinues(stored, now), [1]);
+});
+
+test('a Continue once runs out after an hour, and a record in an older shape counts as run out', () => {
+  const now = 10 * CONTINUE_STALE_MS;
+  const stored = {
+    [`${CONTINUE_PREFIX}1`]: continueRecord('a.example', now - CONTINUE_STALE_MS),
+    [`${CONTINUE_PREFIX}2`]: continueRecord('b.example', now - CONTINUE_STALE_MS + 1000),
+    [`${CONTINUE_PREFIX}3`]: now - 10,
+    'popupWatch:4': 0,
+  };
+  assert.deepEqual(staleContinues(stored, now), [1, 3]);
+});
+
+test('the tab keeps Continue once on the same host and its subdomains, and leaves it anywhere else', () => {
+  const record = continueRecord('bad.example', 0);
+  assert.equal(staysOnHost(record, 'https://bad.example/other/page?x=1'), true);
+  assert.equal(staysOnHost(record, 'http://bad.example/'), true);
+  assert.equal(staysOnHost(record, 'https://www.bad.example/'), true);
+  assert.equal(staysOnHost(record, 'https://notbad.example/'), false);
+  assert.equal(staysOnHost(record, 'https://bad.example.evil.test/'), false);
+  assert.equal(staysOnHost(record, 'https://example/'), false);
+  assert.equal(staysOnHost(record, 'not an address'), false);
+  assert.equal(staysOnHost(1234, 'https://bad.example/'), false);
 });
 
 // The worker module, against a fake chrome that keeps session rules and storage.session in memory.
@@ -175,13 +195,10 @@ function fakeChrome() {
   return { chrome, listeners, session, rules };
 }
 
-test('Continue once: the warning page asks, the tab gets one rule, and its next page takes it back', async () => {
+test('Continue once: the warning page asks, the tab keeps one rule on that host, and leaving the host takes it back', async () => {
   const fake = fakeChrome();
   globalThis.chrome = fake.chrome;
-  // The worker's 30-second fallback would hold the test run open; commits and closed tabs are tested here.
-  const realTimeout = globalThis.setTimeout;
-  globalThis.setTimeout = (callback, ms) => (ms === CONTINUE_MS ? 0 : realTimeout(callback, ms));
-  fake.session.set(`${CONTINUE_PREFIX}99`, 0);
+  fake.session.set(`${CONTINUE_PREFIX}99`, continueRecord('old.example', Date.now() - CONTINUE_STALE_MS));
   fake.rules.set(100, continueRule(99, 'old.example'));
   await import(`../src/background/harmful.js?${Date.now()}`);
   await new Promise((done) => setTimeout(done, 10));
@@ -201,14 +218,24 @@ test('Continue once: the warning page asks, the tab gets one rule, and its next 
   assert.deepEqual(await ask({ type: 'harmfulContinue', url: 'https://bad.example/path' }, page), { ok: true });
   assert.deepEqual([...fake.rules.values()], [continueRule(5, 'bad.example')]);
 
-  fake.listeners.committed({ tabId: 6, frameId: 0 });
-  fake.listeners.committed({ tabId: 5, frameId: 1 });
-  await new Promise((done) => setTimeout(done, 10));
-  assert.equal(fake.rules.size, 1, 'another tab or a frame leaves it');
+  const commit = async (details) => {
+    fake.listeners.committed(details);
+    await new Promise((done) => setTimeout(done, 10));
+  };
+  await commit({ tabId: 6, frameId: 0, url: 'https://elsewhere.example/' });
+  await commit({ tabId: 5, frameId: 1, url: 'https://elsewhere.example/' });
+  await commit({ tabId: 5, frameId: 0, url: 'https://elsewhere.example/', documentLifecycle: 'prerender' });
+  assert.equal(fake.rules.size, 1, 'another tab, a frame or a prerender leaves it');
 
-  fake.listeners.committed({ tabId: 5, frameId: 0 });
-  await new Promise((done) => setTimeout(done, 10));
-  assert.equal(fake.rules.size, 0);
+  await commit({ tabId: 5, frameId: 0, url: 'https://bad.example/path' });
+  await commit({ tabId: 5, frameId: 0, url: 'https://bad.example/path' });
+  await commit({ tabId: 5, frameId: 0, url: 'https://bad.example/other?page=2' });
+  await commit({ tabId: 5, frameId: 0, url: 'https://cdn.bad.example/' });
+  assert.equal(fake.rules.size, 1, 'the first page, a reload, a link and a subdomain keep it');
+  assert.deepEqual(fake.session.get(`${CONTINUE_PREFIX}5`).host, 'bad.example');
+
+  await commit({ tabId: 5, frameId: 0, url: 'https://elsewhere.example/' });
+  assert.equal(fake.rules.size, 0, 'another host takes it back');
   assert.ok(!fake.session.has(`${CONTINUE_PREFIX}5`));
 
   await ask({ type: 'harmfulContinue', url: 'https://bad.example/' }, page);
@@ -216,5 +243,4 @@ test('Continue once: the warning page asks, the tab gets one rule, and its next 
   await new Promise((done) => setTimeout(done, 10));
   assert.equal(fake.rules.size, 0, 'closing the tab takes it back');
   delete globalThis.chrome;
-  globalThis.setTimeout = realTimeout;
 });
