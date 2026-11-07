@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { wantedRulesets } from '../src/shared/blocking.js';
 import { DEFAULTS, RULESET_IDS, normalizeSettings } from '../src/shared/settings.js';
 
-const ALL_LISTS_ON = { ads: true, 'ads-adguard-base': true, iran: true, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': true };
+const ALL_LISTS_ON = { ads: true, 'ads-adguard-base': true, iran: true, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': true, 'popups-adguard': true };
 
 // What 0.1.4 wrote to storage: a group switch for each list, and no per-list switches.
 const SAVED_BY_0_1_4 = Object.freeze({
@@ -27,9 +27,8 @@ const SAVED_BY_0_1_6 = Object.freeze({
 test('the defaults are on, dark, automatic and empty', () => {
   assert.deepEqual(normalizeSettings(undefined), {
     master: true,
-    groups: { ads: true, trackers: true },
+    groups: { ads: true, trackers: true, popups: true },
     lists: ALL_LISTS_ON,
-    popups: true,
     pausedSites: [],
     blockedSites: [],
     allowedSites: [],
@@ -44,9 +43,8 @@ test('the defaults are on, dark, automatic and empty', () => {
 test('valid stored values are kept', () => {
   const stored = {
     master: false,
-    groups: { ads: false, trackers: true },
-    lists: { ads: false, 'ads-adguard-base': true, iran: false, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': false },
-    popups: false,
+    groups: { ads: false, trackers: true, popups: false },
+    lists: { ads: false, 'ads-adguard-base': true, iran: false, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': false, 'popups-adguard': false },
     pausedSites: ['a.com', 'b.ir'],
     blockedSites: ['c.com'],
     allowedSites: ['d.ir'],
@@ -93,9 +91,8 @@ test('allowed addresses are cleaned, deduplicated and sorted like paused sites',
 test('settings saved by 0.1.4 keep every choice and gain the per-list switches', () => {
   assert.deepEqual(normalizeSettings(SAVED_BY_0_1_4), {
     ...SAVED_BY_0_1_4,
-    groups: { ads: true, trackers: false },
+    groups: { ads: true, trackers: false, popups: true },
     lists: { ...ALL_LISTS_ON, iran: false },
-    popups: true,
     allowedSites: [],
     recommendedExceptions: true,
   });
@@ -115,24 +112,55 @@ test('settings saved by 0.2.2 keep every choice and gain HaGeZi, allowed address
     badge: true,
   };
   const normal = normalizeSettings(saved);
+  const { popups, ...rest } = saved;
   assert.deepEqual(normal, {
-    ...saved,
-    lists: { ...saved.lists, 'trackers-hagezi-light': true },
+    ...rest,
+    groups: { ...saved.groups, popups },
+    lists: { ...saved.lists, 'trackers-hagezi-light': true, 'popups-adguard': true },
     allowedSites: [],
     recommendedExceptions: true,
   });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['ads', 'iran', 'cpab-own', 'trackers-hagezi-light']);
 });
 
+// 0.2.3 kept the Popups switch as settings.popups. It becomes the Popups group's switch, and the
+// AdGuard Popups list comes in on.
+test('settings saved by 0.2.3 move the Popups switch onto the Popups group', () => {
+  const saved = {
+    master: true,
+    groups: { ads: true, trackers: true },
+    lists: { ads: true, 'ads-adguard-base': true, iran: true, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': true },
+    popups: false,
+    pausedSites: [],
+    blockedSites: [],
+    allowedSites: [],
+    recommendedExceptions: true,
+    language: 'en',
+    theme: 'dark',
+    badge: true,
+  };
+  const off = normalizeSettings(saved);
+  assert.equal(off.groups.popups, false);
+  assert.equal(off.lists['popups-adguard'], true);
+  assert.ok(!('popups' in off));
+  assert.ok(!wantedRulesets(off, RULESET_IDS).includes('popups-adguard'));
+  assert.deepEqual(normalizeSettings(off), off);
+
+  const on = normalizeSettings({ ...saved, popups: true });
+  assert.equal(on.groups.popups, true);
+  assert.ok(wantedRulesets(on, RULESET_IDS).includes('popups-adguard'));
+  assert.equal(normalizeSettings({ popups: 'yes' }).groups.popups, true);
+});
+
 test('after an update from 0.1.4 a list runs when its group was on', () => {
-  assert.deepEqual(wantedRulesets(normalizeSettings(SAVED_BY_0_1_4), RULESET_IDS), ['ads', 'ads-adguard-base', 'cpab-own']);
+  assert.deepEqual(wantedRulesets(normalizeSettings(SAVED_BY_0_1_4), RULESET_IDS), ['ads', 'ads-adguard-base', 'cpab-own', 'popups-adguard']);
   const adsOff = { ...SAVED_BY_0_1_4, groups: { ads: false, trackers: true, iran: true } };
-  assert.deepEqual(wantedRulesets(normalizeSettings(adsOff), RULESET_IDS), ['iran', 'trackers', 'trackers-hagezi-light']);
+  assert.deepEqual(wantedRulesets(normalizeSettings(adsOff), RULESET_IDS), ['iran', 'trackers', 'trackers-hagezi-light', 'popups-adguard']);
 });
 
 test('a saved 0.1.6 Iran group off becomes the PersianBlocker list off, and the field goes', () => {
   const normal = normalizeSettings({ ...SAVED_BY_0_1_6, groups: { ads: true, trackers: true, iran: false } });
-  assert.deepEqual(normal.groups, { ads: true, trackers: true });
+  assert.deepEqual(normal.groups, { ads: true, trackers: true, popups: true });
   assert.equal(normal.lists.iran, false);
   assert.equal(normal.lists['ads-adguard-base'], false);
   assert.deepEqual(normalizeSettings(normal), normal);
@@ -140,7 +168,7 @@ test('a saved 0.1.6 Iran group off becomes the PersianBlocker list off, and the 
 
 test('a saved 0.1.6 Iran group on changes nothing, and its list keeps its own off', () => {
   assert.equal(normalizeSettings(SAVED_BY_0_1_6).lists.iran, true);
-  assert.deepEqual(normalizeSettings(SAVED_BY_0_1_6).groups, { ads: true, trackers: true });
+  assert.deepEqual(normalizeSettings(SAVED_BY_0_1_6).groups, { ads: true, trackers: true, popups: true });
   const listOff = { ...SAVED_BY_0_1_6, lists: { ...SAVED_BY_0_1_6.lists, iran: false } };
   assert.equal(normalizeSettings(listOff).lists.iran, false);
 });
@@ -149,7 +177,7 @@ test('a saved 0.1.6 with Ads off and Iran on keeps PersianBlocker running and th
   const saved = { ...SAVED_BY_0_1_6, groups: { ads: false, trackers: true, iran: true } };
   const normal = normalizeSettings(saved);
   assert.equal(normal.groups.ads, true);
-  assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['iran', 'trackers', 'trackers-hagezi-light']);
+  assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['iran', 'trackers', 'trackers-hagezi-light', 'popups-adguard']);
   assert.deepEqual(normalizeSettings(normal), normal);
 });
 

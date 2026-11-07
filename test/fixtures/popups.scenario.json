@@ -29,7 +29,8 @@
    "equals": [
     "ads",
     "ads-adguard-base",
-    "iran"
+    "iran",
+    "popups-adguard"
    ]
   },
   {
@@ -471,8 +472,8 @@
    "label": "close what stayed"
   },
   {
-   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"popups\":false}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
-   "label": "settings {\"popups\":false}"
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,popups:false}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings: Popups group off"
   },
   {
    "open": "http://page.fixtures.localhost/popups.html",
@@ -494,8 +495,8 @@
    "label": "close what stayed"
   },
   {
-   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"popups\":true}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
-   "label": "settings {\"popups\":true}"
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,popups:true}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings: Popups group on"
   },
   {
    "open": "http://page.fixtures.localhost/popups.html",
@@ -511,6 +512,37 @@
     "opened": true,
     "closed": true
    }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,lists:{...settings.lists,'popups-adguard':false}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings: AdGuard Popups list off"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "AdGuard Popups list off: the Ads lists' tab rules still close",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,lists:{...settings.lists,'popups-adguard':true}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings: AdGuard Popups list on"
   },
   {
    "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"lists\":{\"ads\":false,\"ads-adguard-base\":true,\"iran\":true,\"cpab-own\":true,\"trackers\":true}}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",

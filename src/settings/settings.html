@@ -80,9 +80,17 @@
             <span class="row-text">
               <span class="row-title" id="popups-title" data-t="groupPopups"></span>
               <span class="row-desc" id="popups-desc" data-t="groupPopupsDesc"></span>
+              <span class="row-meta" data-meta="popups"></span>
+              <span class="row-problem small" data-problem="popups" hidden></span>
             </span>
-            <input id="popups" class="switch" type="checkbox" role="switch" aria-labelledby="popups-title" aria-describedby="popups-desc">
+            <input class="switch" type="checkbox" role="switch" data-group="popups" aria-labelledby="popups-title" aria-describedby="popups-desc">
           </label>
+          <button class="lists-toggle" type="button" data-opens-lists="popups" aria-expanded="false" aria-controls="popups-lists" aria-describedby="popups-title" hidden>
+            <span data-t="listsShow"></span>
+          </button>
+          <div id="popups-lists" class="lists" data-lists="popups" data-lists-always hidden>
+            <p class="lists-note small" data-lists-note="popups" hidden data-t="listsGroupOff"></p>
+          </div>
           <div class="row is-later">
             <span class="row-text">
               <span class="row-title" id="widgets-title" data-t="groupWidgets"></span>

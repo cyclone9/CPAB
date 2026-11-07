@@ -61,6 +61,17 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.
 - **Snapshot:** 2026-11-07, version 2026.1107.0909.37, commit 22c1f1b0774e88f94621f1eb01526350de1f7e53
 - **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
+
+## AdGuard Popups filter
+
+- **Title:** AdGuard Popups filter
+- **Attribution:** AdGuard (https://github.com/AdguardTeam/AdguardFilters)
+- **Homepage:** https://github.com/AdguardTeam/AdguardFilters
+- **Source:** https://filters.adtidy.org/extension/ublock/filters/19.txt
+- **Licence of the converted file:** GPL-3.0-only, SPDX `GPL-3.0-only`, https://www.gnu.org/licenses/gpl-3.0.html
+- **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.
+- **Snapshot:** 2026-11-07, version 2.0.87.25, commit 360326836b0f101549f538ed4668d6c4884133bc
+- **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
 <!-- lists:end -->
 
 ## Vazirmatn

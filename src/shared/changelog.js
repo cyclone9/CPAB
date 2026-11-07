@@ -6,6 +6,18 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.4',
+    date: '2026-11-07',
+    en: [
+      'Pop-ups, overlays and newsletter or notification prompts inside pages are now hidden, using the AdGuard Popups list. It has its own switch under Popups.',
+      'On sites the list names, scrolling that an overlay locked is given back.',
+    ],
+    fa: [
+      'پاپ‌آپ‌ها، لایه‌های روی صفحه و درخواست‌های خبرنامه یا اعلان درون صفحه‌ها حالا پنهان می‌شوند. این کار با فهرست AdGuard Popups انجام می‌شود و زیر پاپ‌آپ‌ها کلید جداگانه دارد.',
+      'در سایت‌هایی که فهرست نامشان را برده، اسکرولی که یک لایه قفل کرده بود آزاد می‌شود.',
+    ],
+  },
+  {
     version: '0.2.3',
     date: '2026-11-07',
     en: [

@@ -77,7 +77,7 @@ function convertInto(rulesDir, list, css, cancelledPopups) {
 
 // Read before writing, because an exception in one list can name a selector from another.
 function convertCss(lists) {
-  const read = new Map(lists.map((list) => [list, readCss(readFileSync(join(root, 'lists', list.listFile), 'utf8'), { ownFormat: list.ownFormat })]));
+  const read = new Map(lists.map((list) => [list, readCss(readFileSync(join(root, 'lists', list.listFile), 'utf8'), { ownFormat: list.ownFormat, styles: list.cssStyles })]));
   const excepted = exceptedSelectors([...read.values()]);
   const selectors = (css) => [...css.generic, ...[...css.site.values()].flatMap((set) => [...set])];
   const hiddenBy = new Map(lists.map((list) => [list, new Set(selectors(read.get(list)))]));

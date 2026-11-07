@@ -87,6 +87,7 @@ export function allowedRules(settings, exceptions) {
 export const BLOCK_GROUPS = Object.freeze([
   Object.freeze({ label: 'groupAds', rulesets: GROUP_RULESETS.ads }),
   Object.freeze({ label: 'groupTrackers', rulesets: GROUP_RULESETS.trackers }),
+  Object.freeze({ label: 'groupPopups', rulesets: GROUP_RULESETS.popups }),
   Object.freeze({ label: 'groupYourSites', rulesets: Object.freeze([DYNAMIC_RULESET]) }),
 ]);
 

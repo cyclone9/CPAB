@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CPAB overlay fixture</title>
+<style>
+  /* What a page does while an overlay is open: the page can't scroll, and the scrollbar's room is padded. */
+  body.swal2-shown { overflow: hidden; padding-right: 15px; }
+  #wbounce-modal, .swal2-container { position: fixed; inset: 0; display: block; }
+  #content { display: block; height: 3000px; }
+</style>
+</head>
+<body class="swal2-shown">
+<p>Served as 072project.com for overlay.scenario.json, through --host-resolver-rules. #wbounce-modal is a generic rule
+of AdGuard Popups, .swal2-container and body.swal2-shown:style() are its 072project.com rules, and 7pisem.com is one
+of its network rules.</p>
+<div id="content">Content</div>
+<div id="wbounce-modal">Generic overlay</div>
+<div class="swal2-container">Site overlay</div>
+<script>
+  // A new path for each step, so one step's request can't answer for another's.
+  const script = document.createElement('script');
+  script.src = `http://7pisem.com/push-${new URLSearchParams(location.search).get('step') ?? 'none'}.js`;
+  document.body.append(script);
+</script>
+</body>
+</html>

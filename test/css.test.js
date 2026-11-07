@@ -9,6 +9,7 @@ import {
   finishCss,
   formatCssReport,
   hideCss,
+  parseDeclarations,
   parseHidingDomains,
   parseHidingLine,
   readCss,
@@ -346,10 +347,15 @@ test('the content script never logs and runs nothing from a list', () => {
 test('the real lists give selectors that all pass the check, and the own list hides the kojaro banner', () => {
   const available = LISTS.filter((list) => existsSync(new URL(`../lists/${list.listFile}`, import.meta.url)));
   for (const list of available) {
-    const css = readCss(readFileSync(new URL(`../lists/${list.listFile}`, import.meta.url), 'utf8'), { ownFormat: list.ownFormat });
+    const css = readCss(readFileSync(new URL(`../lists/${list.listFile}`, import.meta.url), 'utf8'), { ownFormat: list.ownFormat, styles: list.cssStyles });
     const dropped = Object.values(css.dropped).reduce((sum, count) => sum + count, 0);
     assert.equal(css.read, css.converted + dropped, list.title);
     for (const selector of css.generic) assert.equal(selectorProblem(selector), null, selector);
+    if (!list.cssStyles) assert.equal(css.styled.size, 0, list.title);
+    for (const rule of [...css.styled.values()].flatMap((rules) => [...rules])) {
+      assert.equal(rule.match(/[{}]/g).join(''), '{}', rule);
+      assert.doesNotMatch(rule.slice(rule.indexOf('{')), /url\(|["'\\@]|--|\/\*/, rule);
+    }
   }
   const own = finishCss(readCss(readFileSync(new URL('../lists/cpab-own.txt', import.meta.url), 'utf8'), { ownFormat: true }), new Set(), new Set());
   assert.deepEqual(own.stats.dropped, {});
@@ -391,4 +397,53 @@ test('only the own list can move a box offscreen, only on a named site, and the 
   const other = readCss(line);
   assert.deepEqual(other.dropped, { 'unsupported :cpab-offscreen': 1 });
   assert.deepEqual(finishCss(other, new Set(), new Set()).sites, {});
+});
+
+test('a :style() body passes only as plain declarations that can\'t fetch or lift anything', () => {
+  assert.deepEqual(parseDeclarations('overflow: auto !important;', false), { style: 'overflow:auto!important' });
+  assert.deepEqual(parseDeclarations('Height:0!important; width: calc(100% - 2px)', false), { style: 'height:0!important;width:calc(100% - 2px)' });
+  assert.deepEqual(parseDeclarations('filter: blur(0) !important; color: #fff', false), { style: 'filter:blur(0)!important;color:#fff' });
+  assert.equal(parseDeclarations('background: url(https://x.com/a.png)', false).dropped, 'refused: url(');
+  assert.equal(parseDeclarations('background: image-set(a 1x)', false).dropped, 'style: function');
+  assert.equal(parseDeclarations('background-image: src(x)', false).dropped, 'style: function');
+  assert.equal(parseDeclarations('content: "x"', false).dropped, 'style: invalid character');
+  assert.equal(parseDeclarations('background: u\\72l(x)', false).dropped, 'style: invalid character');
+  assert.equal(parseDeclarations('--cpab-allow-0123456789ab: 1', false).dropped, 'style: invalid declaration');
+  assert.equal(parseDeclarations('color: red} body{display:none', false).dropped, 'refused: brace');
+  assert.equal(parseDeclarations('width: calc(1px', false).dropped, 'style: invalid declaration');
+  assert.equal(parseDeclarations('width: 1px)', false).dropped, 'style: invalid declaration');
+  assert.equal(parseDeclarations('', false).dropped, 'style: invalid declaration');
+});
+
+test('on html or body a :style() rule may only give back scrolling', () => {
+  assert.deepEqual(parseDeclarations('overflow: visible !important; padding-right: 0 !important', true), { style: 'overflow:visible!important;padding-right:0!important' });
+  assert.deepEqual(parseDeclarations('position: static!important; top: auto', true), { style: 'position:static!important;top:auto' });
+  for (const body of ['display: none', 'visibility: hidden', 'opacity: 0', 'position: fixed', 'height: 0', 'background-color: inherit', 'overflow: hidden']) {
+    assert.equal(parseDeclarations(body, true).dropped, 'style: not allowed on the whole page', body);
+  }
+});
+
+test('a :style() rule is converted only for a list that asks, only on named sites, never as an exception', () => {
+  assert.deepEqual(parseHidingLine('a.com##body:style(overflow: auto !important;)'), { dropped: 'procedural :style', allow: false });
+  assert.deepEqual(parseHidingLine('a.com,b.com##html, body:style(overflow: auto !important;)', false, true), {
+    allow: false, selector: 'html, body', style: 'overflow:auto!important', included: ['a.com', 'b.com'], excluded: [], partly: false,
+  });
+  assert.deepEqual(parseHidingLine('##body:style(overflow: auto)', false, true), { dropped: 'style needs a site', allow: false });
+  assert.deepEqual(parseHidingLine('a.com#@#body:style(overflow: auto)', false, true), { dropped: 'style exception', allow: true });
+  assert.equal(parseHidingLine('a.com##body:style(display: none)', false, true).dropped, 'style: not allowed on the whole page');
+  assert.equal(parseHidingLine('a.com##.x:has-text(Ad):style(display: none)', false, true).dropped, 'procedural :has-text');
+  assert.equal(parseHidingLine('a.com,~b.a.com##.x:style(display: none)', false, true).dropped, 'style with a site left out');
+  assert.equal(parseHidingLine('a.com,~b.com##.x:style(display: none)', false, true).style, 'display:none');
+  // A hiding rule in the same list still hides.
+  assert.deepEqual(parseHidingLine('a.com##.modal', false, true).selector, '.modal');
+});
+
+test('style rules join their sites\' stored CSS after the hiding rules, and $specifichide removes them', () => {
+  const text = 'a.com##.modal\na.com##body.locked:style(overflow: auto !important)\nb.com##html:style(overflow-y: visible)\n@@||b.com^$specifichide\n';
+  const css = readCss(text, { styles: true });
+  const output = finishCss(css, new Set(), exceptedSelectors([css]));
+  assert.deepEqual(output.sites, { 'a.com': `.modal${HIDE}body.locked{overflow:auto!important}` });
+  assert.equal(output.genericCss, '');
+  assert.equal(output.stats.styles, 1);
+  assert.match(formatCssReport('List', output), /1 style rules on 1 domains/);
 });

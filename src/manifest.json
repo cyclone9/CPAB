@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmRFbVb3477JFCY8umwkpt45NFNhIj0hnPjpu3PnaJf4GfUanH/Oh6g1TdH1jyeLLk5UKKwLkuZlZyQBeoEfHRoj97adoAjMqPQzDGk8LroCSRPYg+7OtY8BzTp7EWKxd4JYzqXFVKfY1LmGHPza54RpAp20q69fGz4YgCpm1tAI1lZdUfyzSFxC9z760t3nfQVvSBY8JZyc0GG1GrYzm6GpuxfkfFQQta9+8iPFXGRfQCk4DIhYSUnjqWYdSlpGt9/NtJQK+dYuHN3O31FD7h7SfUKll/Bee5h+dgjJQ/yYVZiEKDNy6vBjohgwa87R+NRixOtT7WHmdBI0NnriucwIDAQAB",
   "description": "__MSG_description_short__",
   "default_locale": "en",
@@ -22,7 +22,8 @@
       { "id": "iran", "enabled": true, "path": "rules/iran-persianblocker.json" },
       { "id": "cpab-own", "enabled": true, "path": "rules/ads-cpab-own.json" },
       { "id": "trackers", "enabled": true, "path": "rules/trackers-easyprivacy.json" },
-      { "id": "trackers-hagezi-light", "enabled": true, "path": "rules/trackers-hagezi-light.json" }
+      { "id": "trackers-hagezi-light", "enabled": true, "path": "rules/trackers-hagezi-light.json" },
+      { "id": "popups-adguard", "enabled": true, "path": "rules/popups-adguard.json" }
     ]
   },
   "icons": {

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Popups now also hides pop-ups and overlays inside pages, using the AdGuard Popups filter as its source list with its own switch, and gives back scrolling on sites the list names.
+- `:style()` rules are converted as plain CSS for AdGuard Popups only, with checks on every declaration; scriptlets are still never converted.
 - HaGeZi Multi Light (GPL-3.0-only) is a second list under Trackers, with its own switch.
 - A new Allowed addresses section in Settings: requests to those addresses and their subdomains are never blocked by the lists, on any site.
 - An Exceptions for Iranian sites switch, on by default, allows the addresses in `lists/cpab-exceptions.txt`; the addresses you added yourself stay when it is off.

@@ -126,7 +126,8 @@ export function isAllowedTarget(allowed, targetUrl) {
   return Boolean(target?.host) && allowed.some((domain) => isUnder(target.host, domain));
 }
 
-// The lists to check, as ids: the same master, group and list switches as the rulesets, under the Popups switch.
+// The lists to check, as ids: the same master, group and list switches as the rulesets, under the Popups
+// switch, which closes ad tabs for every list's $popup rules.
 export function popupLists(settings, index) {
-  return settings.popups ? wantedRulesets(settings, index.lists.map(({ id }) => id)) : [];
+  return settings.groups.popups ? wantedRulesets(settings, index.lists.map(({ id }) => id)) : [];
 }

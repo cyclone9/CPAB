@@ -133,6 +133,11 @@ function renderSiteList(sites) {
 const inGroup = (group) => (lists ?? []).filter((list) => list.group === group);
 const listsOf = (group) => inGroup(group).filter((list) => list.listed !== false);
 
+// A group with one list shows it only when the group's switch does more than the list's: the Popups
+// switch also closes ad tabs for the Ads lists.
+const showsLists = (group) => listsOf(group).length > 1
+  || (listsOf(group).length === 1 && Boolean(document.querySelector(`[data-lists="${group}"][data-lists-always]`)));
+
 function fillMeta(element, parts) {
   element.replaceChildren(...parts.map((text) => Object.assign(document.createElement('span'), { textContent: text })));
 }
@@ -161,7 +166,7 @@ function renderProblems(group, members) {
   problem.hidden = !refused.length;
   problem.replaceChildren(...refused.map((list) => {
     const line = document.createElement('span');
-    fillWithDomains(line, t(language, members.length > 1 ? 'rulesetRefusedNamed' : 'rulesetRefused'), {
+    fillWithDomains(line, t(language, showsLists(group) ? 'rulesetRefusedNamed' : 'rulesetRefused'), {
       list: list.title,
       count: formatNumber(language, list.converted),
       reason: problems[list.ruleset],
@@ -176,7 +181,7 @@ function renderGroups() {
     if (!members.length) continue;
     const anyAvailable = members.some((list) => list.available);
     const toggle = document.querySelector(`[data-group="${group}"]`);
-    fillMeta(document.querySelector(`[data-meta="${group}"]`), members.length > 1 ? groupFacts(group, members) : listFacts(members[0]));
+    fillMeta(document.querySelector(`[data-meta="${group}"]`), showsLists(group) ? groupFacts(group, members) : listFacts(members[0]));
     toggle.disabled = !anyAvailable;
     if (!anyAvailable) toggle.checked = false;
     toggle.closest('.row').classList.toggle('is-later', !anyAvailable);
@@ -215,7 +220,7 @@ function listRow(list) {
 function buildListRows() {
   for (const panel of document.querySelectorAll('[data-lists]')) {
     const members = listsOf(panel.dataset.lists);
-    if (members.length < 2) continue;
+    if (!showsLists(panel.dataset.lists)) continue;
     panel.append(...members.map(listRow));
     document.querySelector(`[data-opens-lists="${panel.dataset.lists}"]`).hidden = false;
   }
@@ -313,7 +318,6 @@ function render() {
   byId('master').checked = settings.master;
   byId('master-note').hidden = settings.master;
   byId('badge').checked = settings.badge;
-  byId('popups').checked = settings.popups;
   byId('recommended-exceptions').checked = settings.recommendedExceptions;
   for (const toggle of document.querySelectorAll('[data-group]')) {
     toggle.checked = settings.groups[toggle.dataset.group];
@@ -344,7 +348,6 @@ async function save(change) {
 
 byId('master').addEventListener('change', (event) => save({ master: event.target.checked }));
 byId('badge').addEventListener('change', (event) => save({ badge: event.target.checked }));
-byId('popups').addEventListener('change', (event) => save({ popups: event.target.checked }));
 byId('recommended-exceptions').addEventListener('change', (event) => save({ recommendedExceptions: event.target.checked }));
 
 for (const toggle of document.querySelectorAll('[data-group]')) {

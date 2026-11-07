@@ -53,7 +53,8 @@ export const STRINGS = {
     rulesetRefused: 'Chrome wouldn\'t load this list, so {count} rules are off. Chrome says: {reason}',
     rulesetRefusedNamed: 'Chrome wouldn\'t load {list}, so {count} rules are off. Chrome says: {reason}',
     groupPopups: 'Popups',
-    groupPopupsDesc: 'Ad tabs and windows that open by themselves.',
+    groupPopupsDesc: 'Ad tabs and windows that open by themselves, and pop-ups inside pages.',
+    listPopupsAdguardDesc: 'Pop-ups, overlays and newsletter or notification prompts inside pages.',
     groupWidgets: 'Widgets',
     groupWidgetsDesc: 'Recommendation boxes, sticky bars, chat and social media boxes.',
 
@@ -178,7 +179,8 @@ export const STRINGS = {
     rulesetRefused: 'کروم این فهرست را نپذیرفت، پس {count} قانون فعال نیست. پیام کروم: {reason}',
     rulesetRefusedNamed: 'کروم فهرست {list} را نپذیرفت، پس {count} قانون فعال نیست. پیام کروم: {reason}',
     groupPopups: 'پاپ‌آپ‌ها',
-    groupPopupsDesc: 'زبانه‌ها و پنجره‌های تبلیغی که خودشان باز می‌شوند.',
+    groupPopupsDesc: 'زبانه‌ها و پنجره‌های تبلیغی که خودشان باز می‌شوند، و پاپ‌آپ‌های درون صفحه.',
+    listPopupsAdguardDesc: 'پاپ‌آپ‌ها، لایه‌های روی صفحه و درخواست‌های خبرنامه یا اعلان درون صفحه‌ها.',
     groupWidgets: 'کادرهای مزاحم',
     groupWidgetsDesc: 'کادرهای پیشنهاد، نوارهای ثابت، گفتگو و شبکه‌های اجتماعی.',
 

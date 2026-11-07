@@ -185,15 +185,16 @@ test('a paused site is judged on the opening page, subdomains included', () => {
 });
 
 test('the switches follow the rulesets, under Popups', () => {
-  const index = { lists: [{ id: 'ads' }, { id: 'ads-adguard-base' }, { id: 'iran' }] };
+  const index = { lists: [{ id: 'ads' }, { id: 'ads-adguard-base' }, { id: 'iran' }, { id: 'popups-adguard' }] };
   const on = (value) => popupLists(normalizeSettings(value), index);
-  assert.deepEqual(on({}), ['ads', 'ads-adguard-base', 'iran']);
-  assert.deepEqual(on({ popups: false }), []);
+  assert.deepEqual(on({}), ['ads', 'ads-adguard-base', 'iran', 'popups-adguard']);
+  assert.deepEqual(on({ groups: { popups: false } }), []);
+  assert.deepEqual(on({ popups: false }), [], 'the switch saved by 0.2.3');
   assert.deepEqual(on({ master: false }), []);
-  assert.deepEqual(on({ groups: { ads: false } }), []);
-  assert.deepEqual(on({ lists: { 'ads-adguard-base': false } }), ['ads', 'iran']);
-  assert.equal(normalizeSettings({}).popups, true);
-  assert.equal(normalizeSettings({ popups: 'yes' }).popups, true);
+  assert.deepEqual(on({ groups: { ads: false } }), ['popups-adguard']);
+  assert.deepEqual(on({ lists: { 'ads-adguard-base': false } }), ['ads', 'iran', 'popups-adguard']);
+  assert.deepEqual(on({ lists: { 'popups-adguard': false } }), ['ads', 'ads-adguard-base', 'iran'], 'the list switch leaves Ads tab closing on');
+  assert.equal(normalizeSettings({}).groups.popups, true);
 });
 
 test('a tab sent to an allowed address or its subdomain is never closed', () => {

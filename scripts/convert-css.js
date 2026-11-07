@@ -56,6 +56,32 @@ export const OFFSCREEN_MARK = ':cpab-offscreen';
 const OFFSCREEN = 'position:absolute!important;top:-100000px!important;bottom:auto!important;left:auto!important;right:0!important;interactivity:inert!important';
 const MARKS = new Map([[COLLAPSE_MARK, COLLAPSE], [OFFSCREEN_MARK, OFFSCREEN]]);
 
+// selector:style(declarations), only from a list whose config sets cssStyles. Declarations are checked
+// as strictly as selectors: no strings, escapes or url(), so nothing can make a request, and no custom
+// properties, so a rule can't set the --cpab-allow-* names that lift another list's hiding.
+const STYLE = ':style(';
+const STYLE_CHARACTERS = /^[\w\s.,%#!+*/():;-]*$/;
+const DECLARATION = /^(-?[a-z][a-z-]*)\s*:\s*([^:!]+?)\s*(!\s*important)?$/i;
+const STYLE_FUNCTIONS = new Set(['calc', 'min', 'max', 'clamp', 'rgb', 'rgba', 'hsl', 'hsla', 'blur']);
+// On html or body a style rule may only give the page back its scrolling and its place: nothing that
+// could blank or cover it.
+const LENGTH = /^(?:0|auto|-?\d*\.?\d+(?:px|em|rem|%|vh|vw))$/i;
+const UNLOCK = new Map([
+  ['overflow', /^(?:auto|visible|scroll|unset|initial)$/i],
+  ['overflow-x', /^(?:auto|visible|scroll|unset|initial)$/i],
+  ['overflow-y', /^(?:auto|visible|scroll|unset|initial)$/i],
+  ['position', /^(?:static|relative|unset|initial|inherit)$/i],
+  ['top', LENGTH],
+  ['padding-right', LENGTH],
+  ['padding-top', LENGTH],
+  ['margin-right', LENGTH],
+  ['margin-top', LENGTH],
+  ['height', /^auto$/i],
+  ['width', /^auto$/i],
+  ['touch-action', /^(?:auto|unset)$/i],
+  ['pointer-events', /^auto$/i],
+]);
+
 // Hiding one of these blanks the whole page.
 const WHOLE_PAGE = /^(?:\*|html|body|:root)$/i;
 
@@ -158,7 +184,7 @@ export function parseHidingDomains(text) {
 
 // One line of a list, if it is an element hiding rule: null if it isn't, and a dropped reason if it
 // is one that can't ship.
-export function parseHidingLine(line, ownFormat = false) {
+export function parseHidingLine(line, ownFormat = false, styles = false) {
   if (SCRIPTLET.test(line)) return { dropped: 'scriptlet' };
   if (CSS_INJECTION.test(line)) return { dropped: 'CSS injection' };
   if (HTML_FILTER.test(line)) return { dropped: 'HTML filter' };
@@ -167,6 +193,7 @@ export function parseHidingLine(line, ownFormat = false) {
   const [, domains, at, raw] = match;
   const allow = at === '@';
   const written = raw.trim();
+  if (styles && written.endsWith(')') && written.includes(STYLE)) return parseStyleRule(domains, allow, written);
   const mark = ownFormat ? [...MARKS.keys()].find((name) => written.endsWith(name)) : undefined;
   const selector = mark ? written.slice(0, -mark.length) : written;
   const problem = selectorProblem(selector);
@@ -205,12 +232,60 @@ export function parseHideOption(parsed) {
   return { generic, specific, domains };
 }
 
+// Why a :style() body can't go into a stylesheet, or its declarations rewritten in one plain form.
+export function parseDeclarations(text, wholePage) {
+  for (const [pattern, reason] of FORBIDDEN) {
+    if (pattern.test(text)) return { dropped: reason };
+  }
+  if (!STYLE_CHARACTERS.test(text)) return { dropped: 'style: invalid character' };
+  const declarations = [];
+  for (const part of text.split(';').map((entry) => entry.trim()).filter(Boolean)) {
+    const [, rawProperty, value, important] = part.match(DECLARATION) ?? [];
+    if (!rawProperty) return { dropped: 'style: invalid declaration' };
+    const property = rawProperty.toLowerCase();
+    let depth = 0;
+    for (const [, name, close] of value.matchAll(/([a-z-]*)\(|(\))/gi)) {
+      if (close) depth -= 1;
+      else if (STYLE_FUNCTIONS.has(name.toLowerCase())) depth += 1;
+      else return { dropped: 'style: function' };
+      if (depth < 0) return { dropped: 'style: invalid declaration' };
+    }
+    if (depth) return { dropped: 'style: invalid declaration' };
+    if (wholePage && !UNLOCK.get(property)?.test(value)) return { dropped: 'style: not allowed on the whole page' };
+    declarations.push(`${property}:${value}${important ? '!important' : ''}`);
+  }
+  if (!declarations.length) return { dropped: 'style: invalid declaration' };
+  return { style: declarations.join(';') };
+}
+
+const isUnder = (domain, parent) => domain === parent || domain.endsWith(`.${parent}`);
+
+// A style rule applies on the sites it names and nowhere else, so it never joins the generic sheet.
+function parseStyleRule(domainText, allow, written) {
+  const at = written.lastIndexOf(STYLE);
+  const selector = written.slice(0, at).trim();
+  const problem = selectorProblem(selector);
+  const wholePage = problem === 'hides the whole page';
+  if (problem && !wholePage) return { dropped: problem, allow };
+  if (allow) return { dropped: 'style exception', allow };
+  const declarations = parseDeclarations(written.slice(at + STYLE.length, -1), wholePage);
+  if (declarations.dropped) return { dropped: declarations.dropped, allow };
+  const parsed = parseHidingDomains(domainText);
+  if (parsed.dropped) return { dropped: parsed.dropped, allow };
+  if (!parsed.included.length) return { dropped: 'style needs a site', allow };
+  if (parsed.excluded.some((domain) => parsed.included.some((parent) => isUnder(domain, parent)))) {
+    return { dropped: 'style with a site left out', allow };
+  }
+  return { allow, selector, style: declarations.style, included: parsed.included, excluded: [], partly: parsed.partly };
+}
+
 // Everything hiding-related in one list, before exceptions are settled. Those can name a selector
 // from another list, so they wait until every list has been read.
-export function readCss(text, { ownFormat = false } = {}) {
+export function readCss(text, { ownFormat = false, styles = false } = {}) {
   const css = {
     generic: new Set(),
     site: new Map(),
+    styled: new Map(),
     marked: new Map(),
     exceptions: [],
     excludedFrom: [],
@@ -246,7 +321,7 @@ export function readCss(text, { ownFormat = false } = {}) {
   }
 
   for (const line of lines) {
-    const rule = parseHidingLine(line, ownFormat);
+    const rule = parseHidingLine(line, ownFormat, styles);
     if (!rule) continue;
     css.read += 1;
     if (rule.dropped) {
@@ -255,6 +330,13 @@ export function readCss(text, { ownFormat = false } = {}) {
     }
     css.converted += 1;
     if (rule.partly) css.partly += 1;
+    if (rule.style) {
+      for (const domain of rule.included) {
+        if (!css.styled.has(domain)) css.styled.set(domain, new Set());
+        css.styled.get(domain).add(`${rule.selector}{${rule.style}}`);
+      }
+      continue;
+    }
     const { allow, selector, mark, included, excluded } = rule;
     if (mark) css.marked.set(selector, MARKS.get(mark));
     if (allow) {
@@ -292,8 +374,6 @@ export function exceptedSelectors(lists) {
   ]));
 }
 
-const isUnder = (domain, parent) => domain === parent || domain.endsWith(`.${parent}`);
-
 function parents(domain) {
   const labels = domain.split('.');
   return labels.slice(1, -1).map((_, index) => labels.slice(index + 1).join('.'));
@@ -302,7 +382,7 @@ function parents(domain) {
 // Settles a list's exceptions and writes its output. `others` is what the other lists hide, because
 // an exception here can lift a rule there, and each list's output holds only its own lines.
 export function finishCss(css, others, excepted) {
-  const { generic, site, marked } = css;
+  const { generic, site, marked, styled } = css;
   const allowed = new Map();
   const allowOn = (domain, selector) => {
     if (!allowed.has(domain)) allowed.set(domain, new Set());
@@ -333,14 +413,18 @@ export function finishCss(css, others, excepted) {
     if (!lifted) stats.unmatched += 1;
   }
 
-  for (const domain of site.keys()) {
-    if ([...css.specificOff].some((off) => isUnder(domain, off))) site.delete(domain);
+  for (const map of [site, styled]) {
+    for (const domain of map.keys()) {
+      if ([...css.specificOff].some((off) => isUnder(domain, off))) map.delete(domain);
+    }
   }
 
-  const domains = [...new Set([...site.keys(), ...allowed.keys()])].sort();
+  const domains = [...new Set([...site.keys(), ...allowed.keys(), ...styled.keys()])].sort();
   const sites = {};
   for (const domain of domains) {
-    const css = [...(site.get(domain) ?? [])].map((selector) => hideCss(selector, excepted, marked)).join('') + allowCss([...(allowed.get(domain) ?? [])]);
+    const css = [...(site.get(domain) ?? [])].map((selector) => hideCss(selector, excepted, marked)).join('')
+      + allowCss([...(allowed.get(domain) ?? [])])
+      + [...(styled.get(domain) ?? [])].join('');
     if (css) sites[domain] = css;
   }
 
@@ -357,6 +441,8 @@ export function finishCss(css, others, excepted) {
       generic: generic.size,
       siteDomains: Object.keys(sites).length,
       siteSelectors: [...site.values()].reduce((total, selectors) => total + selectors.size, 0),
+      styles: [...styled.values()].reduce((total, rules) => total + rules.size, 0),
+      styleDomains: styled.size,
       allows: [...allowed.values()].reduce((total, selectors) => total + selectors.size, 0),
       genericOff: css.genericOff.size,
     },
@@ -370,7 +456,7 @@ export function formatCssReport(title, { stats }) {
   const total = Object.values(stats.dropped).reduce((sum, count) => sum + count, 0);
   return [
     `${title} CSS: read ${stats.read}, converted ${stats.converted}, dropped ${total}, output ${stats.generic} generic selectors, ${stats.siteSelectors} site selectors on ${stats.siteDomains} domains, ${stats.allows} stored exceptions, generic hiding off on ${stats.genericOff} domains`,
-    `    ${stats.partly} rules kept with some domains left out, ${stats.unmatched} exceptions matched no rule in any list`,
+    `    ${stats.partly} rules kept with some domains left out, ${stats.unmatched} exceptions matched no rule in any list, ${stats.styles} style rules on ${stats.styleDomains} domains`,
     ...reasons,
   ].join('\n');
 }

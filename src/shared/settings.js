@@ -11,6 +11,7 @@ const THEMES = ['dark', 'light'];
 export const GROUP_RULESETS = Object.freeze({
   ads: Object.freeze(['ads', 'ads-adguard-base', 'iran', 'cpab-own']),
   trackers: Object.freeze(['trackers', 'trackers-hagezi-light']),
+  popups: Object.freeze(['popups-adguard']),
 });
 
 export const GROUP_IDS = Object.freeze(Object.keys(GROUP_RULESETS));
@@ -18,9 +19,8 @@ export const RULESET_IDS = Object.freeze(Object.values(GROUP_RULESETS).flat());
 
 export const DEFAULTS = Object.freeze({
   master: true,
-  groups: Object.freeze({ ads: true, trackers: true }),
+  groups: Object.freeze({ ads: true, trackers: true, popups: true }),
   lists: Object.freeze(Object.fromEntries(RULESET_IDS.map((id) => [id, true]))),
-  popups: true,
   pausedSites: Object.freeze([]),
   blockedSites: Object.freeze([]),
   allowedSites: Object.freeze([]),
@@ -48,15 +48,22 @@ function withoutIranGroup(value) {
   return { ...value, groups, lists };
 }
 
+// Up to 0.2.3 the Popups switch was settings.popups, closing ad tabs only. It is now the group's switch.
+// Only 0.2.3 wrote that field, so where it is still stored it is the person's last choice.
+function withPopupsGroup(value) {
+  if (typeof value.popups !== 'boolean') return value;
+  const { popups, ...rest } = value;
+  return { ...rest, groups: { ...rest.groups, popups } };
+}
+
 // Stored data can come from an older version, so nothing in it is trusted to have the current shape.
 export function normalizeSettings(stored) {
-  const value = withoutIranGroup(stored && typeof stored === 'object' ? stored : {});
+  const value = withPopupsGroup(withoutIranGroup(stored && typeof stored === 'object' ? stored : {}));
   const siteList = (sites) => [...new Set((Array.isArray(sites) ? sites : []).map(normalizeDomain).filter(Boolean))].sort();
   return {
     master: flag(value.master, DEFAULTS.master),
     groups: Object.fromEntries(GROUP_IDS.map((id) => [id, flag(value.groups?.[id], DEFAULTS.groups[id])])),
     lists: Object.fromEntries(RULESET_IDS.map((id) => [id, flag(value.lists?.[id], DEFAULTS.lists[id])])),
-    popups: flag(value.popups, DEFAULTS.popups),
     pausedSites: siteList(value.pausedSites),
     blockedSites: siteList(value.blockedSites),
     allowedSites: siteList(value.allowedSites),

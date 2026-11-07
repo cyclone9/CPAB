@@ -80,7 +80,7 @@ async function downloadList(list) {
 }
 
 function record(list, { text, commit, files }, snapshotDate) {
-  const { name, group, ruleset, listFile, rulesFile, metaFile, required, url, repository, commitApi, pinned, fileTitle, ...details } = list;
+  const { name, group, ruleset, listFile, rulesFile, metaFile, required, url, repository, commitApi, pinned, fileTitle, cssStyles, ...details } = list;
   return {
     name,
     group,

@@ -13,6 +13,7 @@
     "generic-css-ads",
     "generic-css-ads-adguard-base",
     "generic-css-iran",
+    "generic-css-popups-adguard",
     "generic-css-trackers"
    ]
   },
@@ -212,6 +213,7 @@
     "generic-css-ads",
     "generic-css-ads-adguard-base",
     "generic-css-iran",
+    "generic-css-popups-adguard",
     "generic-css-trackers"
    ]
   },
@@ -284,6 +286,7 @@
    "equals": [
     "generic-css-ads-adguard-base",
     "generic-css-iran",
+    "generic-css-popups-adguard",
     "generic-css-trackers"
    ]
   },

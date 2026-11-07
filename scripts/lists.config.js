@@ -216,6 +216,45 @@ export const LISTS = [
       },
     },
   },
+  {
+    name: 'adguard-popups',
+    group: 'popups',
+    descriptionKey: 'listPopupsAdguardDesc',
+    ruleset: 'popups-adguard',
+    listFile: 'adguard-popups.txt',
+    metaFile: 'adguard-popups.meta.json',
+    rulesFile: 'popups-adguard.json',
+    required: true,
+    // Its :style() rules are what give a page back its scrolling once an overlay is hidden.
+    cssStyles: true,
+    title: 'AdGuard Popups filter',
+    // Filter 19 in AdGuard's FiltersRegistry, in the same compiled form as the Base filter. It isn't in
+    // the repository, so the commit below is the repository's head when the file was fetched.
+    url: 'https://filters.adtidy.org/extension/ublock/filters/19.txt',
+    commitApi: 'https://api.github.com/repos/AdguardTeam/AdguardFilters/commits/master',
+    homepage: 'https://github.com/AdguardTeam/AdguardFilters',
+    sourceLink: 'https://github.com/AdguardTeam/AdguardFilters',
+    attribution: 'AdGuard (https://github.com/AdguardTeam/AdguardFilters)',
+    licence: {
+      name: 'GPL-3.0-only',
+      spdx: 'GPL-3.0-only',
+      url: 'https://www.gnu.org/licenses/gpl-3.0.html',
+      source: 'The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.',
+    },
+    admission: {
+      reviewed: '2026-11-07',
+      result: 'admitted',
+      checks: {
+        licenceStated: 'Admitted in the licence review of 2026-11-04 (section 8). Rechecked on 2026-11-07: the list header "License:" points to https://github.com/AdguardTeam/AdguardFilters/blob/master/LICENSE, and that file is the GPLv3 text, byte-identical to CPAB\'s own LICENSE (SHA-256 3972dc97...b36986).',
+        licenceAccepted: 'GPL-3.0 is on the accepted set, only or later.',
+        notRefused: 'No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.',
+        attribution: 'AdGuard (https://github.com/AdguardTeam/AdguardFilters), shown in settings and THIRD-PARTY-NOTICES.md.',
+        aggregated: 'AdGuard\'s own work. The FiltersRegistry template for filter 19 (filters/filter_19_Annoyances_Popups/template.txt, read on 2026-11-07) includes only sections of AdGuard\'s own repository, under AnnoyancesFilter/Popups/sections/, and the fetched file has no !#include line.',
+        ownFile: 'The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.',
+        retrievable: 'A stable URL, a dated snapshot with its SHA-256 and the list\'s own Version line. The recorded commit is the head of AdguardFilters just after the download, so the file was built from that commit or an earlier one; the snapshot in lists/ is the exact copy used.',
+      },
+    },
+  },
 ];
 
 // Stored under this name beside the rule file, because AGPLv3 needs the text with the work.

@@ -1,0 +1,198 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.includes('popups-adguard'))",
+   "label": "AdGuard Popups ruleset on at install",
+   "equals": true
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>s.some(x=>x.id==='generic-css-popups-adguard'))",
+   "label": "its generic sheet registered",
+   "equals": true
+  },
+  {
+   "sw": "chrome.storage.local.get('css:popups-adguard:072project.com').then(s=>s['css:popups-adguard:072project.com'])",
+   "label": "site CSS stored, with the style rule after the hiding rule",
+   "equals": ".swal2-container{display:none!important}body.swal2-shown{overflow:auto!important;padding-right:0!important}"
+  },
+  {
+   "open": "http://072project.com/overlay.html?step=on",
+   "settle": 700
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector('#wbounce-modal')).display,site:getComputedStyle(document.querySelector('.swal2-container')).display,overflow:getComputedStyle(document.body).overflow,padding:getComputedStyle(document.body).paddingRight,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "all on: both overlays hidden, scrolling back, script blocked",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "overflow": "auto",
+    "padding": "0px",
+    "content": "block"
+   }
+  },
+  {
+   "expectBlocked": "7pisem.com/push-on.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,ads:false,trackers:false}}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "Ads and Trackers off, Popups on"
+  },
+  {
+   "open": "http://072project.com/overlay.html?step=adsoff",
+   "settle": 700
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector('#wbounce-modal')).display,site:getComputedStyle(document.querySelector('.swal2-container')).display,overflow:getComputedStyle(document.body).overflow,padding:getComputedStyle(document.body).paddingRight,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "Ads and Trackers off: Popups still hides and blocks",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "overflow": "auto",
+    "padding": "0px",
+    "content": "block"
+   }
+  },
+  {
+   "expectBlocked": "7pisem.com/push-adsoff.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,ads:true,trackers:true,popups:false}}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "Popups group off"
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>s.some(x=>x.id==='generic-css-popups-adguard'))",
+   "label": "Popups off: generic sheet gone",
+   "equals": false
+  },
+  {
+   "open": "http://072project.com/overlay.html?step=groupoff",
+   "settle": 700
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector('#wbounce-modal')).display,site:getComputedStyle(document.querySelector('.swal2-container')).display,overflow:getComputedStyle(document.body).overflow,padding:getComputedStyle(document.body).paddingRight,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "Popups group off: overlays shown, page locked as the page wants, script loads",
+   "equals": {
+    "generic": "block",
+    "site": "block",
+    "overflow": "hidden",
+    "padding": "15px",
+    "content": "block"
+   }
+  },
+  {
+   "expectLoaded": "7pisem.com/push-groupoff.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,popups:true},lists:{...settings.lists,'popups-adguard':false}}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "Popups on, AdGuard Popups list off"
+  },
+  {
+   "open": "http://072project.com/overlay.html?step=listoff",
+   "settle": 700
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector('#wbounce-modal')).display,site:getComputedStyle(document.querySelector('.swal2-container')).display,overflow:getComputedStyle(document.body).overflow,padding:getComputedStyle(document.body).paddingRight,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "list off: overlays shown, script loads",
+   "equals": {
+    "generic": "block",
+    "site": "block",
+    "overflow": "hidden",
+    "padding": "15px",
+    "content": "block"
+   }
+  },
+  {
+   "expectLoaded": "7pisem.com/push-listoff.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,lists:{...settings.lists,'popups-adguard':true},pausedSites:['072project.com']}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "list on, 072project.com paused"
+  },
+  {
+   "open": "http://072project.com/overlay.html?step=paused",
+   "settle": 700
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector('#wbounce-modal')).display,site:getComputedStyle(document.querySelector('.swal2-container')).display,overflow:getComputedStyle(document.body).overflow,padding:getComputedStyle(document.body).paddingRight,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "site paused: overlays shown, script loads",
+   "equals": {
+    "generic": "block",
+    "site": "block",
+    "overflow": "hidden",
+    "padding": "15px",
+    "content": "block"
+   }
+  },
+  {
+   "expectLoaded": "7pisem.com/push-paused.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,pausedSites:[],master:false}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "pause lifted, master off"
+  },
+  {
+   "open": "http://072project.com/overlay.html?step=masteroff",
+   "settle": 700
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector('#wbounce-modal')).display,site:getComputedStyle(document.querySelector('.swal2-container')).display,overflow:getComputedStyle(document.body).overflow,padding:getComputedStyle(document.body).paddingRight,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "master off: overlays shown, script loads",
+   "equals": {
+    "generic": "block",
+    "site": "block",
+    "overflow": "hidden",
+    "padding": "15px",
+    "content": "block"
+   }
+  },
+  {
+   "expectLoaded": "7pisem.com/push-masteroff.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,master:true}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "master on"
+  },
+  {
+   "open": "http://072project.com/overlay.html?step=back",
+   "settle": 700
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector('#wbounce-modal')).display,site:getComputedStyle(document.querySelector('.swal2-container')).display,overflow:getComputedStyle(document.body).overflow,padding:getComputedStyle(document.body).paddingRight,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "all back on: hidden and blocked again",
+   "equals": {
+    "generic": "none",
+    "site": "none",
+    "overflow": "auto",
+    "padding": "0px",
+    "content": "block"
+   }
+  },
+  {
+   "expectBlocked": "7pisem.com/push-back.js"
+  },
+  {
+   "open": "http://other.fixtures.localhost/overlay.html?step=other",
+   "settle": 700
+  },
+  {
+   "eval": "({generic:getComputedStyle(document.querySelector('#wbounce-modal')).display,site:getComputedStyle(document.querySelector('.swal2-container')).display,overflow:getComputedStyle(document.body).overflow,padding:getComputedStyle(document.body).paddingRight,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "another site: the generic rule only, the site rules stay on their site",
+   "equals": {
+    "generic": "none",
+    "site": "block",
+    "overflow": "hidden",
+    "padding": "15px",
+    "content": "block"
+   }
+  },
+  {
+   "expectBlocked": "7pisem.com/push-other.js"
+  }
+ ]
+}
