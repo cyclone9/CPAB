@@ -47,7 +47,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "all on: generic and site hidden, content stays",
    "equals": {
     "generic": "none",
@@ -61,7 +61,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "strict page CSP: stored CSS still lands",
    "equals": {
     "generic": "none",
@@ -75,7 +75,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "another site: generic only, and no style element",
    "equals": {
     "generic": "none",
@@ -89,7 +89,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "exception site: other rules stay",
    "equals": {
     "generic": "none",
@@ -135,7 +135,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "generichide site: no generic rule applies",
    "equals": {
     "generic": "block",
@@ -189,7 +189,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "master off: nothing hidden, no style",
    "equals": {
     "generic": "block",
@@ -220,7 +220,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "master on: hidden again",
    "equals": {
     "generic": "none",
@@ -241,7 +241,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "ads group off: all three lists stop hiding",
    "equals": {
     "generic": "block",
@@ -262,7 +262,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "trackers group off: Ads hiding stays",
    "equals": {
     "generic": "none",
@@ -292,7 +292,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "EasyList off: its generic rule gone",
    "equals": {
     "generic": "block",
@@ -313,7 +313,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "Iran list off: its site rule gone",
    "equals": {
     "generic": "none",
@@ -362,7 +362,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "paused: nothing hidden, no style",
    "equals": {
     "generic": "block",
@@ -376,7 +376,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "paused: subdomain too",
    "equals": {
     "generic": "block",
@@ -390,7 +390,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "paused: other sites keep hiding",
    "equals": {
     "generic": "none",
@@ -411,7 +411,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "unpaused: hidden again",
    "equals": {
     "generic": "none",
@@ -432,7 +432,7 @@
    "settle": 500
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "worker stopped: hidden, nothing needed the worker",
    "equals": {
     "generic": "none",
@@ -466,7 +466,7 @@
    "wait": 700
   },
   {
-   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length})",
+   "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
    "label": "after reload",
    "equals": {
     "generic": "none",
@@ -481,9 +481,12 @@
    "equals": 0
   },
   {
-   "eval": "document.querySelector('style').textContent.includes('url(')",
-   "label": "the added style holds no url(",
-   "equals": false
+   "eval": "({sheets:document.adoptedStyleSheets.length,url:document.adoptedStyleSheets.flatMap(s=>[...s.cssRules]).map(r=>r.cssText).join('').includes('url(')})",
+   "label": "the adopted sheet holds no url(",
+   "equals": {
+    "sheets": 1,
+    "url": false
+   }
   }
  ]
 }

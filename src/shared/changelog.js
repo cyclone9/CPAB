@@ -6,6 +6,20 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.2',
+    date: '2026-11-07',
+    en: [
+      'soft98.ir no longer shows its "ad blocker detected" warning. Its ads also stay hidden after the page loads, instead of coming back a second later.',
+      'Blocked sites and Paused sites in Settings have a search box.',
+      'Both lists show 50 sites at a time, with a "Show 50 more" button and a count.',
+    ],
+    fa: [
+      'soft98.ir دیگر هشدار «مسدودکنندهٔ تبلیغ شناسایی شد» را نشان نمی‌دهد. تبلیغ‌هایش هم پس از بازشدن صفحه پنهان می‌مانند و یک ثانیه بعد برنمی‌گردند.',
+      'سایت‌های مسدودشده و سایت‌های متوقف‌شده در تنظیمات کادر جست‌وجو دارند.',
+      'هر دو فهرست هر بار ۵۰ سایت را نشان می‌دهند، با دکمهٔ «نمایش ۵۰ سایت دیگر» و شمارنده.',
+    ],
+  },
+  {
     version: '0.2.1',
     date: '2026-11-07',
     en: [

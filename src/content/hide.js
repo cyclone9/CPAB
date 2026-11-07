@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Runs on every page, so it stays this small: one storage read and at most one <style>. Everything it
-// adds is CSS the build checked. It reads the switches itself, so it needs no service worker.
+// Runs on every page, so it stays this small: one storage read and at most one adopted style sheet.
+// Everything it adds is CSS the build checked. It reads the switches itself, so it needs no service worker.
 {
   // Each list and its group, as in GROUP_RULESETS: a content script can't import, and
   // test/css.test.js fails if the two differ.
@@ -26,9 +26,11 @@
         .flatMap((list) => hosts.map((host) => stored[keyFor(list, host)] ?? ''))
         .join('');
       if (!css) return;
-      const style = document.createElement('style');
-      style.textContent = css;
-      (document.head ?? document.documentElement)?.append(style);
+      // Adopted, not a <style> element: a page's script can find and remove those, and soft98.ir
+      // removes every <style> whose text holds "important".
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(css);
+      document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
     }).catch(() => {});
   }
 }

@@ -129,7 +129,15 @@
             <p id="site-error" class="error" role="alert" hidden></p>
           </form>
 
+          <div class="search" hidden>
+            <input id="paused-search" class="field" type="search" dir="ltr" autocomplete="off" spellcheck="false">
+          </div>
           <ul id="paused-list" class="paused-list"></ul>
+          <p id="paused-none" class="search-none muted" role="status" data-t="searchNoMatches" hidden></p>
+          <div id="paused-more" class="search-footer" hidden>
+            <p id="paused-count" class="small muted" role="status"></p>
+            <button id="paused-show-more" class="button button-quiet" type="button" hidden></button>
+          </div>
           <div id="paused-empty" class="empty">
             <p class="empty-title" data-t="pausedEmptyTitle"></p>
             <p class="small muted" data-t="pausedEmptyHint"></p>
@@ -151,7 +159,15 @@
             <p id="blocked-site-error" class="error" role="alert" hidden></p>
           </form>
 
+          <div class="search" hidden>
+            <input id="blocked-site-search" class="field" type="search" dir="ltr" autocomplete="off" spellcheck="false">
+          </div>
           <ul id="blocked-site-list" class="paused-list"></ul>
+          <p id="blocked-site-none" class="search-none muted" role="status" data-t="searchNoMatches" hidden></p>
+          <div id="blocked-site-more" class="search-footer" hidden>
+            <p id="blocked-site-count" class="small muted" role="status"></p>
+            <button id="blocked-site-show-more" class="button button-quiet" type="button" hidden></button>
+          </div>
           <div id="blocked-site-empty" class="empty">
             <p class="empty-title" data-t="blockedSitesEmptyTitle"></p>
             <p class="small muted" data-t="blockedSitesEmptyHint"></p>

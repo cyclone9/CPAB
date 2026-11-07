@@ -7,23 +7,26 @@
    "wait": 2500
   },
   {
+   "viewport": [
+    800,
+    600
+   ]
+  },
+  {
    "open": "http://soft98.ir/soft98.html",
-   "settle": 1200
+   "settle": 1500
   },
   {
-   "expectBlocked": "img.soft98.ir/1/ircd10.gif"
+   "expectLoaded": "img.soft98.ir/1/ircd10.gif"
   },
   {
-   "expectBlocked": "file3.soft98.ir/ircd10.gif"
+   "expectLoaded": "img.soft98.ir/1/Faradars_wide.gif"
   },
   {
-   "expectBlocked": "img.soft98.ir/1/wide.gif"
+   "expectLoaded": "img.soft98.ir/1/faradars1_1.gif"
   },
   {
-   "expectBlocked": "img.soft98.ir/1/side.gif"
-  },
-  {
-   "expectBlocked": "img.soft98.ir/1/box.gif"
+   "expectLoaded": "img.soft98.ir/1/asia8.gif"
   },
   {
    "expectLoaded": "img.soft98.ir/1/300x250.png"
@@ -32,38 +35,77 @@
    "expectLoaded": "cdn.soft98.ir/icons/winrar.png"
   },
   {
-   "eval": "document.fonts.ready.then(()=>({top:document.querySelector('#top-box').getBoundingClientRect().height,wide:document.querySelector('#wide-box').getBoundingClientRect().height,side:document.querySelector('#sbds').getBoundingClientRect().height,adBox:document.querySelector('#ad-box').getBoundingClientRect().height,rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,labels:[...document.querySelectorAll('.abddp')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(document.querySelector('#tbdl')).display,listShown:document.querySelector('#tbdl').getBoundingClientRect().height>0&&document.querySelector('.tbdll').getBoundingClientRect().height>0,sidebarShown:document.querySelector('#sbd').getBoundingClientRect().height>0,inline:document.querySelector('#abddh').style.getPropertyPriority('display'),timer:window.forced>1}))",
-   "label": "ad boxes at zero height, software list stays",
+   "eval": "new Promise(r=>{const t=()=>window.checked?r():setTimeout(t,50);t()}).then(()=>{const q=s=>document.querySelector(s),rect=s=>q(s).getBoundingClientRect(),de=document.documentElement,ads=[...document.querySelectorAll('#top-box,#wide-box,#sbds,#ad-box,.abddp,.abddi')],link=q('#abddh .abddl');link.focus();return{detected:window.detected,above:ads.length===11&&ads.every(e=>e.getBoundingClientRect().bottom<0),sized:ads.every(e=>e.offsetWidth>0&&e.offsetHeight>0&&e.offsetParent!==null),imagesLoaded:[...document.querySelectorAll('img[data-backup]')].every(i=>i.complete&&i.naturalWidth>0),rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(q('#tbdl')).display,listShown:rect('#tbdl').height>0&&rect('#tbdl').top>=0&&rect('#tbdl').bottom<=innerHeight&&rect('.tbdll').height>0,topGap:Math.round(rect('#sbd').top-document.body.getBoundingClientRect().top),tailGap:Math.round(rect('#sbd').bottom-rect('#tbdl').bottom),noScrollX:de.scrollWidth<=de.clientWidth,noScrollY:de.scrollHeight<=de.clientHeight,focusable:document.activeElement===link,dir:getComputedStyle(de).direction,inline:q('#abddh').style.getPropertyPriority('display'),timer:window.forced>1}})",
+   "label": "RTL: ad boxes above the view at full size, images loaded, no detector fires, software list stays",
    "equals": {
-    "top": 0,
-    "wide": 0,
-    "side": 0,
-    "adBox": 0,
+    "detected": [],
+    "above": true,
+    "sized": true,
+    "imagesLoaded": true,
     "rules": 0,
-    "labels": 0,
     "list": "flex",
     "listShown": true,
-    "sidebarShown": true,
+    "topGap": 0,
+    "tailGap": 0,
+    "noScrollX": true,
+    "noScrollY": true,
+    "focusable": false,
+    "dir": "rtl",
     "inline": "important",
     "timer": true
    }
   },
   {
-   "eval": "new Promise(r=>setTimeout(r,1500)).then(()=>({top:document.querySelector('#top-box').getBoundingClientRect().height,wide:document.querySelector('#wide-box').getBoundingClientRect().height,side:document.querySelector('#sbds').getBoundingClientRect().height,adBox:document.querySelector('#ad-box').getBoundingClientRect().height,rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,labels:[...document.querySelectorAll('.abddp')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(document.querySelector('#tbdl')).display,listShown:document.querySelector('#tbdl').getBoundingClientRect().height>0&&document.querySelector('.tbdll').getBoundingClientRect().height>0,sidebarShown:document.querySelector('#sbd').getBoundingClientRect().height>0,inline:document.querySelector('#abddh').style.getPropertyPriority('display'),timer:window.forced>1}))",
+   "eval": "new Promise(r=>setTimeout(r,1500)).then(()=>new Promise(r=>{const t=()=>window.checked?r():setTimeout(t,50);t()}).then(()=>{const q=s=>document.querySelector(s),rect=s=>q(s).getBoundingClientRect(),de=document.documentElement,ads=[...document.querySelectorAll('#top-box,#wide-box,#sbds,#ad-box,.abddp,.abddi')],link=q('#abddh .abddl');link.focus();return{detected:window.detected,above:ads.length===11&&ads.every(e=>e.getBoundingClientRect().bottom<0),sized:ads.every(e=>e.offsetWidth>0&&e.offsetHeight>0&&e.offsetParent!==null),imagesLoaded:[...document.querySelectorAll('img[data-backup]')].every(i=>i.complete&&i.naturalWidth>0),rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(q('#tbdl')).display,listShown:rect('#tbdl').height>0&&rect('#tbdl').top>=0&&rect('#tbdl').bottom<=innerHeight&&rect('.tbdll').height>0,topGap:Math.round(rect('#sbd').top-document.body.getBoundingClientRect().top),tailGap:Math.round(rect('#sbd').bottom-rect('#tbdl').bottom),noScrollX:de.scrollWidth<=de.clientWidth,noScrollY:de.scrollHeight<=de.clientHeight,focusable:document.activeElement===link,dir:getComputedStyle(de).direction,inline:q('#abddh').style.getPropertyPriority('display'),timer:window.forced>1}}))",
    "label": "still so after 1.5 s of the page re-applying its styles",
    "equals": {
-    "top": 0,
-    "wide": 0,
-    "side": 0,
-    "adBox": 0,
+    "detected": [],
+    "above": true,
+    "sized": true,
+    "imagesLoaded": true,
     "rules": 0,
-    "labels": 0,
     "list": "flex",
     "listShown": true,
-    "sidebarShown": true,
+    "topGap": 0,
+    "tailGap": 0,
+    "noScrollX": true,
+    "noScrollY": true,
+    "focusable": false,
+    "dir": "rtl",
     "inline": "important",
     "timer": true
    }
+  },
+  {
+   "eval": "new Promise(r=>setTimeout(r,3000)).then(()=>new Promise(r=>{const t=()=>window.checked?r():setTimeout(t,50);t()}).then(()=>{const q=s=>document.querySelector(s),rect=s=>q(s).getBoundingClientRect(),de=document.documentElement,ads=[...document.querySelectorAll('#top-box,#wide-box,#sbds,#ad-box,.abddp,.abddi')],link=q('#abddh .abddl');link.focus();return{detected:window.detected,above:ads.length===11&&ads.every(e=>e.getBoundingClientRect().bottom<0),sized:ads.every(e=>e.offsetWidth>0&&e.offsetHeight>0&&e.offsetParent!==null),imagesLoaded:[...document.querySelectorAll('img[data-backup]')].every(i=>i.complete&&i.naturalWidth>0),rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(q('#tbdl')).display,listShown:rect('#tbdl').height>0&&rect('#tbdl').top>=0&&rect('#tbdl').bottom<=innerHeight&&rect('.tbdll').height>0,topGap:Math.round(rect('#sbd').top-document.body.getBoundingClientRect().top),tailGap:Math.round(rect('#sbd').bottom-rect('#tbdl').bottom),noScrollX:de.scrollWidth<=de.clientWidth,noScrollY:de.scrollHeight<=de.clientHeight,focusable:document.activeElement===link,dir:getComputedStyle(de).direction,inline:q('#abddh').style.getPropertyPriority('display'),timer:window.forced>1}}))",
+   "label": "still so after 3 s of the site's loop removing every <style> that holds \"important\"",
+   "equals": {
+    "detected": [],
+    "above": true,
+    "sized": true,
+    "imagesLoaded": true,
+    "rules": 0,
+    "list": "flex",
+    "listShown": true,
+    "topGap": 0,
+    "tailGap": 0,
+    "noScrollX": true,
+    "noScrollY": true,
+    "focusable": false,
+    "dir": "rtl",
+    "inline": "important",
+    "timer": true
+   }
+  },
+  {
+   "eval": "window.stripped>=3",
+   "label": "that loop ran",
+   "equals": true
+  },
+  {
+   "eval": "performance.getEntriesByType('resource').filter(e=>e.name.includes('file3.soft98.ir')).length",
+   "label": "no backup image was needed",
+   "equals": 0
   },
   {
    "eval": "(()=>{const s=document.createElement('style');s.textContent='#abddh{display:none!important}';document.head.append(s);const d=getComputedStyle(document.querySelector('#abddh')).display;s.remove();return d})()",
@@ -76,44 +118,83 @@
    "equals": "none"
   },
   {
-   "open": "http://www.soft98.ir/soft98.html",
-   "settle": 1000
+   "open": "http://soft98.ir/soft98.html?strip=all",
+   "settle": 1500
   },
   {
-   "eval": "({top:document.querySelector('#top-box').getBoundingClientRect().height,wide:document.querySelector('#wide-box').getBoundingClientRect().height,side:document.querySelector('#sbds').getBoundingClientRect().height,adBox:document.querySelector('#ad-box').getBoundingClientRect().height,rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,labels:[...document.querySelectorAll('.abddp')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(document.querySelector('#tbdl')).display,listShown:document.querySelector('#tbdl').getBoundingClientRect().height>0&&document.querySelector('.tbdll').getBoundingClientRect().height>0,sidebarShown:document.querySelector('#sbd').getBoundingClientRect().height>0,inline:document.querySelector('#abddh').style.getPropertyPriority('display'),timer:window.forced>1})",
-   "label": "www works the same",
+   "eval": "new Promise(r=>setTimeout(r,3000)).then(()=>new Promise(r=>{const t=()=>window.checked?r():setTimeout(t,50);t()})).then(()=>{const q=s=>document.querySelector(s),rect=q('#tbdl').getBoundingClientRect(),ads=[...document.querySelectorAll('#top-box,#wide-box,#sbds,#ad-box,.abddp,.abddi')];return{detected:window.detected,above:ads.length===11&&ads.every(e=>e.getBoundingClientRect().bottom<0),sized:ads.every(e=>e.offsetWidth>0&&e.offsetHeight>0&&e.offsetParent!==null),listShown:getComputedStyle(q('#tbdl')).display!=='none'&&rect.height>0&&rect.top>=0&&rect.top<innerHeight,styles:document.querySelectorAll('style').length,stripped:window.stripped>=3}})",
+   "label": "a loop that removes every <style>: after 3 s the boxes are still above the view at full size, no detector fires, the list stays",
    "equals": {
-    "top": 0,
-    "wide": 0,
-    "side": 0,
-    "adBox": 0,
+    "detected": [],
+    "above": true,
+    "sized": true,
+    "listShown": true,
+    "styles": 0,
+    "stripped": true
+   }
+  },
+  {
+   "open": "http://www.soft98.ir/soft98.html#ltr",
+   "settle": 1500
+  },
+  {
+   "eval": "new Promise(r=>{const t=()=>window.checked?r():setTimeout(t,50);t()}).then(()=>{const q=s=>document.querySelector(s),rect=s=>q(s).getBoundingClientRect(),de=document.documentElement,ads=[...document.querySelectorAll('#top-box,#wide-box,#sbds,#ad-box,.abddp,.abddi')],link=q('#abddh .abddl');link.focus();return{detected:window.detected,above:ads.length===11&&ads.every(e=>e.getBoundingClientRect().bottom<0),sized:ads.every(e=>e.offsetWidth>0&&e.offsetHeight>0&&e.offsetParent!==null),imagesLoaded:[...document.querySelectorAll('img[data-backup]')].every(i=>i.complete&&i.naturalWidth>0),rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(q('#tbdl')).display,listShown:rect('#tbdl').height>0&&rect('#tbdl').top>=0&&rect('#tbdl').bottom<=innerHeight&&rect('.tbdll').height>0,topGap:Math.round(rect('#sbd').top-document.body.getBoundingClientRect().top),tailGap:Math.round(rect('#sbd').bottom-rect('#tbdl').bottom),noScrollX:de.scrollWidth<=de.clientWidth,noScrollY:de.scrollHeight<=de.clientHeight,focusable:document.activeElement===link,dir:getComputedStyle(de).direction,inline:q('#abddh').style.getPropertyPriority('display'),timer:window.forced>1}})",
+   "label": "www, left to right: the same",
+   "equals": {
+    "detected": [],
+    "above": true,
+    "sized": true,
+    "imagesLoaded": true,
     "rules": 0,
-    "labels": 0,
     "list": "flex",
     "listShown": true,
-    "sidebarShown": true,
+    "topGap": 0,
+    "tailGap": 0,
+    "noScrollX": true,
+    "noScrollY": true,
+    "focusable": false,
+    "dir": "ltr",
     "inline": "important",
     "timer": true
    }
   },
   {
    "open": "http://forum.soft98.ir/soft98.html",
-   "settle": 1000
+   "settle": 1500
   },
   {
-   "expectLoaded": "img.soft98.ir/1/ircd10.gif"
+   "eval": "new Promise(r=>{const t=()=>window.checked?r():setTimeout(t,50);t()}).then(()=>{const q=s=>document.querySelector(s),rect=s=>q(s).getBoundingClientRect(),de=document.documentElement,ads=[...document.querySelectorAll('#top-box,#wide-box,#sbds,#ad-box,.abddp,.abddi')],link=q('#abddh .abddl');link.focus();return{detected:window.detected,above:ads.length===11&&ads.every(e=>e.getBoundingClientRect().bottom<0),sized:ads.every(e=>e.offsetWidth>0&&e.offsetHeight>0&&e.offsetParent!==null),imagesLoaded:[...document.querySelectorAll('img[data-backup]')].every(i=>i.complete&&i.naturalWidth>0),rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(q('#tbdl')).display,listShown:rect('#tbdl').height>0&&rect('#tbdl').top>=0&&rect('#tbdl').bottom<=innerHeight&&rect('.tbdll').height>0,topGap:Math.round(rect('#sbd').top-document.body.getBoundingClientRect().top),tailGap:Math.round(rect('#sbd').bottom-rect('#tbdl').bottom),noScrollX:de.scrollWidth<=de.clientWidth,noScrollY:de.scrollHeight<=de.clientHeight,focusable:document.activeElement===link,dir:getComputedStyle(de).direction,inline:q('#abddh').style.getPropertyPriority('display'),timer:window.forced>1}})",
+   "label": "forum: the CSS covers it as in 0.2.1",
+   "equals": {
+    "detected": [],
+    "above": true,
+    "sized": true,
+    "imagesLoaded": true,
+    "rules": 0,
+    "list": "flex",
+    "listShown": true,
+    "topGap": 0,
+    "tailGap": 0,
+    "noScrollX": true,
+    "noScrollY": true,
+    "focusable": false,
+    "dir": "rtl",
+    "inline": "important",
+    "timer": true
+   }
   },
   {
    "open": "http://page.fixtures.localhost/soft98.html",
-   "settle": 1000
+   "settle": 1500
   },
   {
-   "expectLoaded": "img.soft98.ir/1/ircd10.gif"
-  },
-  {
-   "eval": "document.querySelector('#top-box').getBoundingClientRect().height>0",
-   "label": "another site: rules do not apply",
-   "equals": true
+   "eval": "new Promise(r=>{const t=()=>window.checked?r():setTimeout(t,50);t()}).then(()=>({detected:window.detected,inPlace:document.querySelector('#top-box').getBoundingClientRect().top>=0&&document.querySelector('#top-box').getBoundingClientRect().height>0,noScrollX:document.documentElement.scrollWidth<=document.documentElement.clientWidth}))",
+   "label": "another site: boxes stay in place, and the wide banner does scroll the page there",
+   "equals": {
+    "detected": [],
+    "inPlace": true,
+    "noScrollX": false
+   }
   },
   {
    "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,lists:{...settings.lists,'cpab-own':false}}}))",
@@ -121,15 +202,16 @@
   },
   {
    "open": "http://soft98.ir/soft98.html",
-   "settle": 1000
+   "settle": 1500
   },
   {
-   "expectLoaded": "img.soft98.ir/1/ircd10.gif"
-  },
-  {
-   "eval": "document.querySelector('#top-box').getBoundingClientRect().height>0",
-   "label": "own list off: nothing collapses",
-   "equals": true
+   "eval": "new Promise(r=>{const t=()=>window.checked?r():setTimeout(t,50);t()}).then(()=>({detected:window.detected,inPlace:document.querySelector('#top-box').getBoundingClientRect().top>=0&&document.querySelector('#top-box').getBoundingClientRect().height>0,noScrollX:document.documentElement.scrollWidth<=document.documentElement.clientWidth}))",
+   "label": "own list off: nothing moves",
+   "equals": {
+    "detected": [],
+    "inPlace": true,
+    "noScrollX": false
+   }
   },
   {
    "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,lists:{...settings.lists,'cpab-own':true},pausedSites:['soft98.ir']}}))",
@@ -140,15 +222,16 @@
   },
   {
    "open": "http://soft98.ir/soft98.html",
-   "settle": 1000
+   "settle": 1500
   },
   {
-   "expectLoaded": "img.soft98.ir/1/ircd10.gif"
-  },
-  {
-   "eval": "document.querySelector('#top-box').getBoundingClientRect().height>0",
-   "label": "paused: nothing collapses",
-   "equals": true
+   "eval": "new Promise(r=>{const t=()=>window.checked?r():setTimeout(t,50);t()}).then(()=>({detected:window.detected,inPlace:document.querySelector('#top-box').getBoundingClientRect().top>=0&&document.querySelector('#top-box').getBoundingClientRect().height>0,noScrollX:document.documentElement.scrollWidth<=document.documentElement.clientWidth}))",
+   "label": "paused: nothing moves",
+   "equals": {
+    "detected": [],
+    "inPlace": true,
+    "noScrollX": false
+   }
   }
  ]
 }

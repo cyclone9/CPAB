@@ -3,6 +3,7 @@ import { format, formatDate, formatNumber, t } from '../i18n/i18n.js';
 import { recentChangelog } from '../shared/changelog.js';
 import { addSite, findOverlap, normalizeDomain } from '../shared/domains.js';
 import { applyPage, fillWithDomains, fillWithLatin } from '../shared/page.js';
+import { PAGE_SIZE, searchSites } from '../shared/site-search.js';
 import {
   GROUP_IDS,
   loadRulesetProblems,
@@ -28,6 +29,13 @@ const SITE_LISTS = [
     errorLine: byId('site-error'),
     list: byId('paused-list'),
     empty: byId('paused-empty'),
+    search: byId('paused-search'),
+    searchLabel: 'searchPausedLabel',
+    none: byId('paused-none'),
+    more: byId('paused-more'),
+    count: byId('paused-count'),
+    showMore: byId('paused-show-more'),
+    limit: PAGE_SIZE,
     duplicate: 'errorDuplicate',
     conflict: 'errorConflictBlocked',
     error: null,
@@ -40,6 +48,13 @@ const SITE_LISTS = [
     errorLine: byId('blocked-site-error'),
     list: byId('blocked-site-list'),
     empty: byId('blocked-site-empty'),
+    search: byId('blocked-site-search'),
+    searchLabel: 'searchBlockedLabel',
+    none: byId('blocked-site-none'),
+    more: byId('blocked-site-more'),
+    count: byId('blocked-site-count'),
+    showMore: byId('blocked-site-show-more'),
+    limit: PAGE_SIZE,
     duplicate: 'errorDuplicateBlocked',
     conflict: 'errorConflictPaused',
     error: null,
@@ -67,7 +82,8 @@ function setError(sites, key, params = {}) {
 
 function renderSiteList(sites) {
   const domains = settings[sites.key];
-  sites.list.replaceChildren(...domains.map((domain) => {
+  const { shown, matched, total, more } = searchSites(domains, sites.search.value, sites.limit);
+  sites.list.replaceChildren(...shown.map((domain) => {
     const item = document.createElement('li');
     const name = document.createElement('bdi');
     name.dir = 'ltr';
@@ -84,7 +100,15 @@ function renderSiteList(sites) {
     item.append(name, actions);
     return item;
   }));
-  sites.empty.hidden = domains.length > 0;
+  sites.empty.hidden = total > 0;
+  sites.search.closest('.search').hidden = total === 0;
+  sites.search.setAttribute('aria-label', t(language, sites.searchLabel));
+  sites.search.placeholder = t(language, 'searchPlaceholder');
+  sites.none.hidden = total === 0 || matched > 0;
+  sites.more.hidden = shown.length === total || matched === 0;
+  sites.count.textContent = format(language, 'searchCount', { shown: formatNumber(language, shown.length), total: formatNumber(language, total) });
+  sites.showMore.hidden = more === 0;
+  sites.showMore.textContent = format(language, 'searchShowMore', { count: formatNumber(language, more) });
 }
 
 const inGroup = (group) => (lists ?? []).filter((list) => list.group === group);
@@ -311,7 +335,26 @@ for (const radio of document.querySelectorAll('input[type="radio"]')) {
 }
 
 for (const sites of SITE_LISTS) {
-  const { key, other, form, input, list, duplicate, conflict } = sites;
+  const { key, other, form, input, list, duplicate, conflict, search, showMore } = sites;
+
+  search.addEventListener('input', () => {
+    sites.limit = PAGE_SIZE;
+    renderSiteList(sites);
+  });
+  search.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !search.value) return;
+    event.preventDefault();
+    search.value = '';
+    sites.limit = PAGE_SIZE;
+    renderSiteList(sites);
+  });
+  showMore.addEventListener('click', () => {
+    const before = list.children.length;
+    sites.limit += PAGE_SIZE;
+    renderSiteList(sites);
+    // Focus goes to the first new row, so the next Tab doesn't jump back over the page just added.
+    list.children[before]?.querySelector('button')?.focus();
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -336,11 +379,11 @@ for (const sites of SITE_LISTS) {
     const button = event.target.closest('button[data-domain]');
     if (!button) return;
     const { domain } = button.dataset;
-    const index = settings[key].indexOf(domain);
+    const index = [...list.querySelectorAll('button')].indexOf(button);
     await save((current) => ({ [key]: current[key].filter((entry) => entry !== domain) }));
     // The pressed button is gone, so keyboard focus moves to its neighbour or back to the field.
     const buttons = list.querySelectorAll('button');
-    (buttons[Math.min(index, buttons.length - 1)] ?? input).focus();
+    (buttons[Math.min(index, buttons.length - 1)] ?? (search.closest('.search').hidden ? input : search)).focus();
   });
 }
 

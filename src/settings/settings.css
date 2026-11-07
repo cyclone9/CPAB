@@ -174,8 +174,24 @@ label.row-list.is-later:hover { background: transparent; }
 .paused-list bdi { min-inline-size: 0; overflow-wrap: anywhere; }
 .site-actions { display: flex; flex: none; align-items: center; gap: 0.25rem; }
 
+.search { padding: 0 1.125rem 1rem; }
+.search .field { inline-size: 100%; }
+/* Empty, the box takes the page's direction so a Persian placeholder reads right to left. */
+.search .field:placeholder-shown { direction: inherit; }
+.search-none { padding: 0.75rem 1.125rem; border-block-start: 1px solid var(--line); }
+.search-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.375rem;
+  padding-inline: 1.125rem 0.625rem;
+  border-block-start: 1px solid var(--line);
+}
+.search-footer p { min-block-size: 2rem; display: flex; align-items: center; }
+
 .empty { padding: 1rem 1.125rem; }
-.add + .paused-list + .empty { border-block-start: 1px solid var(--line); }
+.search-footer + .empty { border-block-start: 1px solid var(--line); }
 .empty-title { font-weight: 500; }
 
 /* Choice: native radios, so arrow keys and screen readers work */

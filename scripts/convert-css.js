@@ -44,11 +44,17 @@ const PROCEDURAL = new Set([
 ]);
 
 // A page's script can force display back with an inline !important, which no stylesheet rule of the
-// same strength can beat. These are properties such a script leaves alone. The mark means something
+// same strength can beat. These are properties such a script leaves alone. The marks mean something
 // only in CPAB's own list, and the declarations are fixed here: a line brings a selector, never CSS.
-// Anywhere else the mark is an unsupported pseudo-class, so the rule is dropped.
+// Anywhere else a mark is an unsupported pseudo-class, so the rule is dropped.
 export const COLLAPSE_MARK = ':cpab-collapse';
 const COLLAPSE = 'min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important';
+// For a page that checks its ad boxes: the box leaves the flow and the view, but keeps its size, an
+// offsetParent, a non-zero offsetLeft and its images. Overflow above the page never scrolls, in LTR or
+// RTL. inert keeps keyboard focus out of the links left there; older Chrome ignores the property.
+export const OFFSCREEN_MARK = ':cpab-offscreen';
+const OFFSCREEN = 'position:absolute!important;top:-100000px!important;bottom:auto!important;left:auto!important;right:0!important;interactivity:inert!important';
+const MARKS = new Map([[COLLAPSE_MARK, COLLAPSE], [OFFSCREEN_MARK, OFFSCREEN]]);
 
 // Hiding one of these blanks the whole page.
 const WHOLE_PAGE = /^(?:\*|html|body|:root)$/i;
@@ -161,14 +167,14 @@ export function parseHidingLine(line, ownFormat = false) {
   const [, domains, at, raw] = match;
   const allow = at === '@';
   const written = raw.trim();
-  const collapse = ownFormat && written.endsWith(COLLAPSE_MARK);
-  const selector = collapse ? written.slice(0, -COLLAPSE_MARK.length) : written;
+  const mark = ownFormat ? [...MARKS.keys()].find((name) => written.endsWith(name)) : undefined;
+  const selector = mark ? written.slice(0, -mark.length) : written;
   const problem = selectorProblem(selector);
   if (problem) return { dropped: problem, allow };
   const parsed = parseHidingDomains(domains);
   if (parsed.dropped) return { dropped: parsed.dropped, allow };
-  if (collapse && (allow || !parsed.included.length)) return { dropped: 'collapse needs a site', allow };
-  return { allow, selector, ...(collapse ? { collapse } : {}), ...parsed };
+  if (mark && (allow || !parsed.included.length)) return { dropped: `${mark.slice(':cpab-'.length)} needs a site`, allow };
+  return { allow, selector, ...(mark ? { mark } : {}), ...parsed };
 }
 
 // An exception that switches hiding off on a site, as { generic, specific, domains }, or a dropped
@@ -205,7 +211,7 @@ export function readCss(text, { ownFormat = false } = {}) {
   const css = {
     generic: new Set(),
     site: new Map(),
-    collapsed: new Set(),
+    marked: new Map(),
     exceptions: [],
     excludedFrom: [],
     genericOff: new Set(),
@@ -249,8 +255,8 @@ export function readCss(text, { ownFormat = false } = {}) {
     }
     css.converted += 1;
     if (rule.partly) css.partly += 1;
-    const { allow, selector, collapse, included, excluded } = rule;
-    if (collapse) css.collapsed.add(selector);
+    const { allow, selector, mark, included, excluded } = rule;
+    if (mark) css.marked.set(selector, MARKS.get(mark));
     if (allow) {
       css.exceptions.push({ selector, included });
       continue;
@@ -271,8 +277,8 @@ const allowName = (selector) => `--cpab-allow-${createHash('sha256').update(sele
 // the rule simply doesn't apply there. display:revert would lift it too, but it drops the page's own
 // value as well: a flex box turns into a block, and a box the page hides itself appears. revert-layer
 // does the same under !important in Chrome 156. Every element inherits the property from the root.
-export const hideCss = (selector, excepted, collapsed = new Set()) => {
-  const rule = `${selector}{${collapsed.has(selector) ? COLLAPSE : 'display:none!important'}}`;
+export const hideCss = (selector, excepted, marked = new Map()) => {
+  const rule = `${selector}{${marked.get(selector) ?? 'display:none!important'}}`;
   return excepted.has(selector) ? `@container not style(${allowName(selector)}:1){${rule}}` : rule;
 };
 
@@ -296,7 +302,7 @@ function parents(domain) {
 // Settles a list's exceptions and writes its output. `others` is what the other lists hide, because
 // an exception here can lift a rule there, and each list's output holds only its own lines.
 export function finishCss(css, others, excepted) {
-  const { generic, site, collapsed } = css;
+  const { generic, site, marked } = css;
   const allowed = new Map();
   const allowOn = (domain, selector) => {
     if (!allowed.has(domain)) allowed.set(domain, new Set());
@@ -334,7 +340,7 @@ export function finishCss(css, others, excepted) {
   const domains = [...new Set([...site.keys(), ...allowed.keys()])].sort();
   const sites = {};
   for (const domain of domains) {
-    const css = [...(site.get(domain) ?? [])].map((selector) => hideCss(selector, excepted, collapsed)).join('') + allowCss([...(allowed.get(domain) ?? [])]);
+    const css = [...(site.get(domain) ?? [])].map((selector) => hideCss(selector, excepted, marked)).join('') + allowCss([...(allowed.get(domain) ?? [])]);
     if (css) sites[domain] = css;
   }
 

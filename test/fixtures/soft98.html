@@ -7,6 +7,7 @@
   <style>
     aside { flex-direction: column; }
     .abddi { width: 300px; height: 60px; }
+    #abddw .abddi { width: 900px; }
     .abddp { position: absolute; }
     .abdd, .abddm, .cbd1211, .cbddb { min-height: 60px; }
     hr { margin: 12px 0; }
@@ -27,7 +28,7 @@
     <div class="abddm tbdc" style="display: block !important; clip-path: none !important;">
       <div class="abdd" id="abddw" style="display: block !important; clip-path: none !important;">
         <a href="#" class="abddl" style="display: inline-block !important; clip-path: none !important;">
-          <img class="abddi" src="http://img.soft98.ir/1/wide.gif" data-backup="http://file3.soft98.ir/wide.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
+          <img class="abddi" src="http://img.soft98.ir/1/Faradars_wide.gif" data-backup="http://file3.soft98.ir/Faradars_wide.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
         </a>
       </div>
     </div>
@@ -48,7 +49,7 @@
           <div class="abdds abdd-300-250" style="display: block !important; clip-path: none !important;">
             <a href="#" class="abddl abdd-300-250" rel="nofollow" style="display: inline-block !important; clip-path: none !important;">
               <span class="abddp abddpl" style="display: flex !important; clip-path: none !important;">AD</span>
-              <img class="abddi abdd-300-250" src="http://img.soft98.ir/1/side.gif" data-backup="http://file3.soft98.ir/side.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
+              <img class="abddi abdd-300-250" src="http://img.soft98.ir/1/faradars1_1.gif" data-backup="http://file3.soft98.ir/faradars1_1.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
             </a>
           </div>
         </div>
@@ -60,7 +61,7 @@
       <div class="cbddb tbdc abdd" style="display: block !important; clip-path: none !important;">
         <a class="abddl abdd-240-90" href="#" style="display: inline-block !important; clip-path: none !important;">
           <span class="abddp abddpy" style="display: flex !important; clip-path: none !important;">AD</span>
-          <img class="abddi" src="http://img.soft98.ir/1/box.gif" data-backup="http://file3.soft98.ir/box.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
+          <img class="abddi" src="http://img.soft98.ir/1/asia8.gif" data-backup="http://file3.soft98.ir/asia8.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
         </a>
       </div>
       <a class="abddf" href="" style="display: none !important; clip-path: circle(0px at 50% 50%) !important;"><img src="http://img.soft98.ir/1/300x250.png" data-backup="http://file3.soft98.ir/300x250.png" alt=""></a>
@@ -68,19 +69,50 @@
   </aside>
 
   <script>
+    // #ltr: the same page left to right.
+    if (location.hash === '#ltr') document.documentElement.dir = 'ltr';
     // Stands in for the site's script: puts its inline styles back after load and on a timer.
     const forced = [...document.querySelectorAll('[style]')].map((element) => [element, element.getAttribute('style')]);
     const force = () => {
       for (const [element, style] of forced) element.setAttribute('style', style);
       window.forced = (window.forced ?? 0) + 1;
     };
+    // Two guesses at how the site spots a blocker. Each reason found lands in window.detected.
+    window.detected = [];
     for (const image of document.querySelectorAll('img[data-backup]')) {
       image.addEventListener('error', () => {
+        window.detected.push(`image failed: ${image.src}`);
         if (image.src !== image.dataset.backup) image.src = image.dataset.backup;
       });
     }
-    addEventListener('load', force);
+    const boxes = '#top-box, .abdd, .abddm, .abdd_ibd, #sbds, .abdds, #ad-box, .abddl, .abddi';
+    const check = () => {
+      for (const image of document.querySelectorAll('img[data-backup]')) {
+        if (image.complete && image.naturalWidth === 0) window.detected.push(`image empty: ${image.src}`);
+      }
+      for (const box of document.querySelectorAll(boxes)) {
+        if (box.offsetHeight === 0 || box.offsetWidth === 0 || box.offsetParent === null) {
+          window.detected.push(`box measured empty: ${box.id || box.className}`);
+        }
+      }
+    };
+    addEventListener('load', () => {
+      force();
+      setTimeout(() => {
+        check();
+        window.checked = true;
+      }, 500);
+    });
     setInterval(force, 100);
+    // The site's loop, every second: it removes each <style> whose text holds "important", then checks
+    // again. ?strip=all removes every <style>, the page's own included.
+    const all = new URLSearchParams(location.search).get('strip') === 'all';
+    setInterval(() => {
+      const found = document.evaluate(all ? '//style' : "//style[contains(., 'important')]", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+      for (let index = 0; index < found.snapshotLength; index += 1) found.snapshotItem(index).remove();
+      window.stripped = (window.stripped ?? 0) + 1;
+      check();
+    }, 1000);
   </script>
 </body>
 </html>

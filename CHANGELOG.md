@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Site-specific hiding rules now go in an adopted stylesheet instead of a `<style>` element, so a page script that deletes style elements (as soft98.ir does every second) can no longer bring the ads back.
+- Settings search for Blocked sites and Paused sites: results update as you type, 50 sites show at a time with a Show more button and a count line, and Escape clears the box.
+- soft98.ir: the image block rules are gone and its ad boxes are moved off-screen with `:cpab-offscreen`, because the site detected the blocked images and zero-height boxes.
+- A `:cpab-offscreen` mark for CPAB's own list: it moves a box above the page with no gap and no scroll and keeps its size, for sites that check box size or image errors.
 - Both READMEs now describe 0.2.1: ad tabs and windows that a page opens are closed, and Chrome's "Read your browsing history" warning is expected.
 - Both READMEs now describe 0.2.0: leftover ad boxes are hidden, access to all sites is requested, and PersianBlocker is named as a list under Ads.
 - List snapshots now record their checksum after line endings are normalised, so it matches the stored file.

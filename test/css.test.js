@@ -280,9 +280,7 @@ const hideSource = readFileSync(new URL('../src/content/hide.js', import.meta.ur
 
 // Runs the real content script against a stub page.
 async function runHide(hostname, stored) {
-  const appended = [];
   const requests = [];
-  const element = { append: (node) => appended.push(node) };
   const chrome = {
     storage: {
       local: {
@@ -293,10 +291,15 @@ async function runHide(hostname, stored) {
       },
     },
   };
-  const document = { head: element, documentElement: element, createElement: () => ({}) };
-  vm.runInNewContext(hideSource, { chrome, document, location: { hostname } });
+  class CSSStyleSheet {
+    replaceSync(text) { this.text = text; }
+  }
+  const pageSheet = new CSSStyleSheet();
+  const document = { adoptedStyleSheets: [pageSheet] };
+  vm.runInNewContext(hideSource, { chrome, document, location: { hostname }, CSSStyleSheet });
   await new Promise((done) => setTimeout(done));
-  return { css: appended.map(({ textContent }) => textContent), requests };
+  assert.equal(document.adoptedStyleSheets[0], pageSheet, 'the page\'s own adopted sheets stay');
+  return { css: Array.from(document.adoptedStyleSheets.slice(1), ({ text }) => text), requests };
 }
 
 test('the content script knows every list, in its group', () => {
@@ -306,7 +309,7 @@ test('the content script knows every list, in its group', () => {
   assert.deepEqual({ ...groups }, expected);
 });
 
-test('the content script reads once, and adds one style with the host\'s and its parents\' rules', async () => {
+test('the content script reads once, and adopts one sheet with the host\'s and its parents\' rules', async () => {
   const { css, requests } = await runHide('www.a.com', {
     'css:ads:a.com': '.p{}', 'css:iran:www.a.com': '.q{}', 'css:ads:b.com': '.other{}',
   });
@@ -370,4 +373,22 @@ test('only the own list can collapse a box, only on a named site, and the CSS co
     '.box{min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}.plain{display:none!important}',
   );
   assert.deepEqual(finishCss(readCss(line), new Set(), new Set()).sites, {});
+});
+
+test('only the own list can move a box offscreen, only on a named site, and the CSS comes from here', () => {
+  const line = 'a.com##.box:cpab-offscreen';
+  assert.deepEqual(parseHidingLine(line), { dropped: 'unsupported :cpab-offscreen', allow: false });
+  assert.deepEqual(parseHidingLine('##.box:cpab-offscreen', true), { dropped: 'offscreen needs a site', allow: false });
+  assert.deepEqual(parseHidingLine('a.com#@#.box:cpab-offscreen', true), { dropped: 'offscreen needs a site', allow: true });
+  assert.equal(parseHidingLine('a.com##.box:cpab-offscreen:cpab-collapse', true).dropped, 'unsupported :cpab-offscreen');
+  assert.equal(parseHidingLine('a.com##body:cpab-offscreen', true).dropped, 'hides the whole page');
+
+  const own = finishCss(readCss(`${line}\na.com##.shut:cpab-collapse\na.com##.plain\n`, { ownFormat: true }), new Set(), new Set());
+  const site = own.sites['a.com'];
+  assert.match(site, /^\.box\{position:absolute!important;top:-100000px!important;[^}]*\}\.shut\{min-height:0!important;[^}]*\}\.plain\{display:none!important\}$/);
+  // The page forces these two back, so the box must never depend on them.
+  assert.doesNotMatch(site.match(/^\.box\{[^}]*\}/)[0], /display|clip-path|visibility|height|width/);
+  const other = readCss(line);
+  assert.deepEqual(other.dropped, { 'unsupported :cpab-offscreen': 1 });
+  assert.deepEqual(finishCss(other, new Set(), new Set()).sites, {});
 });
