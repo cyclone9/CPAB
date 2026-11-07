@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { convertList, formatReport } from './convert.js';
 import { exceptedSelectors, finishCss, formatCssReport, readCss } from './convert-css.js';
 import { parseExceptions } from './convert-exceptions.js';
+import { convertHarmful, extensionId, formatHarmfulReport } from './convert-harmful.js';
 import { convertPopups, formatPopupReport, hasPopupRules, popupBadfilters } from './convert-popup.js';
 import { AGPL_TEXT, LISTS } from './lists.config.js';
 import { EXCEPTIONS_FILE } from '../src/shared/blocking.js';
@@ -21,11 +22,16 @@ const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'));
 // rather than leave a seed that fails on someone's machine.
 const SITE_CSS_BUDGET = 9 * 1024 * 1024;
 
+// Chrome's limit on regex rules across the static rulesets.
+const MAX_REGEX_RULES = 1000;
+
 const pkg = readJson(join(root, 'package.json'));
 const manifest = readJson(join(root, 'src/manifest.json'));
 if (manifest.version !== pkg.version) {
   throw new Error(`src/manifest.json says ${manifest.version}, package.json says ${pkg.version}`);
 }
+// The warning rules name the warning page by this ID, which the manifest key keeps stable.
+const ownId = extensionId(manifest.key);
 
 function convertInto(rulesDir, list, css, cancelledPopups) {
   const source = join(root, 'lists', list.listFile);
@@ -37,6 +43,27 @@ function convertInto(rulesDir, list, css, cancelledPopups) {
 
   const meta = readJson(join(root, 'lists', list.metaFile));
   const text = readFileSync(source, 'utf8');
+  const listed = {
+    group: list.group,
+    ruleset: list.ruleset,
+    available: true,
+    listed: list.listed !== false,
+    descriptionKey: list.descriptionKey ?? null,
+    title: meta.title,
+    attribution: meta.attribution,
+    homepage: meta.homepage,
+    sourceLink: list.sourceLink ?? null,
+    licence: { name: meta.licence.name, url: meta.licence.url, copy: meta.licence.copy ?? null },
+    snapshotDate: meta.snapshot.date,
+  };
+
+  if (list.harmful) {
+    const result = convertHarmful(text, { listId: list.ruleset, extensionId: ownId, plainRules: list.plainRules });
+    writeFileSync(join(rulesDir, list.rulesFile), JSON.stringify(result.rules));
+    console.log(formatHarmfulReport(list.title, result));
+    return { ...listed, popupFile: null, read: result.read, converted: result.converted, dropped: result.dropped, rules: result.rules.length, domains: result.converted, rulesList: result.rules };
+  }
+
   const result = convertList(text);
   writeFileSync(join(rulesDir, list.rulesFile), JSON.stringify(result.rules));
   if (meta.licence.copy) cpSync(join(root, 'lists', AGPL_TEXT.file), join(rulesDir, meta.licence.copy));
@@ -53,18 +80,9 @@ function convertInto(rulesDir, list, css, cancelledPopups) {
   console.log(formatPopupReport(list.title, popups));
 
   return {
+    ...listed,
     popupFile: hasPopupRules(popups) ? `rules/${popupFile}` : null,
-    group: list.group,
-    ruleset: list.ruleset,
-    available: true,
-    listed: list.listed !== false,
-    descriptionKey: list.descriptionKey ?? null,
-    title: meta.title,
-    attribution: meta.attribution,
-    homepage: meta.homepage,
-    sourceLink: list.sourceLink ?? null,
-    licence: { name: meta.licence.name, url: meta.licence.url, copy: meta.licence.copy ?? null },
-    snapshotDate: meta.snapshot.date,
+    rulesList: result.rules,
     read: result.read,
     converted: result.converted + css.stats.converted,
     dropped: result.dropped,
@@ -116,12 +134,18 @@ for (const file of ['LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.md']) {
 
 const rulesDir = join(dist, 'rules');
 mkdirSync(rulesDir);
-const present = LISTS.filter((list) => existsSync(join(root, 'lists', list.listFile)));
+// Harmful-sites lists only warn and block whole hosts: their CSS and popup lines are never used.
+const present = LISTS.filter((list) => !list.harmful && existsSync(join(root, 'lists', list.listFile)));
 const css = convertCss(present);
 const cancelledPopups = new Set(present.flatMap((list) => popupBadfilters(readFileSync(join(root, 'lists', list.listFile), 'utf8'))));
 const lists = LISTS.map((list) => convertInto(rulesDir, list, css.get(list), cancelledPopups));
 writeCssIndex(present, css);
-writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists: lists.map(({ popupFile, ...list }) => list) }));
+writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists: lists.map(({ popupFile, rulesList, ...list }) => list) }));
+
+const regexRules = lists.reduce((total, { rulesList = [] }) => total + rulesList.filter(({ condition }) => condition.regexFilter).length, 0);
+const staticRules = lists.reduce((total, { rulesList = [] }) => total + rulesList.length, 0);
+console.log(`static rules: ${staticRules}, of which regex: ${regexRules}`);
+if (regexRules > MAX_REGEX_RULES) throw new Error(`${regexRules} regex rules, over Chrome's ${MAX_REGEX_RULES}`);
 writeFileSync(join(dist, POPUP_INDEX), JSON.stringify({
   lists: lists.filter(({ popupFile }) => popupFile).map(({ ruleset, popupFile }) => ({ id: ruleset, file: popupFile })),
 }));

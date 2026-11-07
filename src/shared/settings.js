@@ -13,14 +13,18 @@ export const GROUP_RULESETS = Object.freeze({
   trackers: Object.freeze(['trackers', 'trackers-hagezi-light']),
   popups: Object.freeze(['popups-adguard']),
   widgets: Object.freeze(['widgets-adguard', 'widgets-fanboy-social']),
+  harmful: Object.freeze(['harmful-hagezi-tif', 'harmful-badware']),
 });
+
+// Groups that neither the master switch nor pausing a site reaches (PRD D10). They have their own switch.
+export const PROTECTION_GROUPS = Object.freeze(['harmful']);
 
 export const GROUP_IDS = Object.freeze(Object.keys(GROUP_RULESETS));
 export const RULESET_IDS = Object.freeze(Object.values(GROUP_RULESETS).flat());
 
 export const DEFAULTS = Object.freeze({
   master: true,
-  groups: Object.freeze({ ads: true, trackers: true, popups: true, widgets: true }),
+  groups: Object.freeze({ ads: true, trackers: true, popups: true, widgets: true, harmful: true }),
   lists: Object.freeze(Object.fromEntries(RULESET_IDS.map((id) => [id, true]))),
   pausedSites: Object.freeze([]),
   blockedSites: Object.freeze([]),

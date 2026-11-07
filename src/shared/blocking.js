@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // What the service worker asks of Chrome, kept free of chrome.* calls so it can be tested.
-import { GROUP_RULESETS } from './settings.js';
+import { GROUP_RULESETS, PROTECTION_GROUPS } from './settings.js';
 
 // chrome.action can't read CSS variables, so these repeat Ink and Citron from tokens.css.
 // test/blocking.test.js fails if the two ever differ.
@@ -20,6 +20,11 @@ export const ALLOWED_RULE_ID = 3;
 export const EXCEPTIONS_RULE_ID = 4;
 const ALLOWED_PRIORITY = 2;
 
+// Harmful sites warn above all of those, so neither a pause nor an allowed address lifts a warning.
+// Continue once is a session rule for one tab, just above the warning.
+export const HARMFUL_PRIORITY = 5;
+export const CONTINUE_PRIORITY = 6;
+
 // The recommended exceptions, as { domains } built from lists/cpab-exceptions.txt.
 export const EXCEPTIONS_FILE = 'rules/cpab-exceptions.json';
 
@@ -33,12 +38,17 @@ const DYNAMIC_RULESET = '_dynamic';
 // Block rule ids stay below this and allow rule ids above it, in every static ruleset.
 export const ALLOW_RULE_ID_BASE = 1000000;
 
-// Enabled rulesets are worth nothing to a person when the master switch is off, however the groups stand.
-// A ruleset runs only with its group and its own list both on.
+// A ruleset runs only with its group and its own list both on. The master switch stops every group
+// except the protection groups, which only their own switches stop.
 export function wantedRulesets(settings, declared) {
-  if (!settings.master) return [];
-  const on = Object.entries(GROUP_RULESETS).flatMap(([group, rulesets]) => (settings.groups[group] ? rulesets : []));
+  const running = (group) => settings.groups[group] && (settings.master || PROTECTION_GROUPS.includes(group));
+  const on = Object.entries(GROUP_RULESETS).flatMap(([group, rulesets]) => (running(group) ? rulesets : []));
   return declared.filter((id) => on.includes(id) && settings.lists[id]);
+}
+
+// True while at least one harmful-sites list is warning, whatever the master switch says.
+export function harmfulRunning(settings) {
+  return wantedRulesets(settings, GROUP_RULESETS.harmful).length > 0;
 }
 
 export function pausedRules(pausedSites) {
@@ -89,6 +99,7 @@ export const BLOCK_GROUPS = Object.freeze([
   Object.freeze({ label: 'groupTrackers', rulesets: GROUP_RULESETS.trackers }),
   Object.freeze({ label: 'groupPopups', rulesets: GROUP_RULESETS.popups }),
   Object.freeze({ label: 'groupWidgets', rulesets: GROUP_RULESETS.widgets }),
+  Object.freeze({ label: 'harmful', rulesets: GROUP_RULESETS.harmful }),
   Object.freeze({ label: 'groupYourSites', rulesets: Object.freeze([DYNAMIC_RULESET]) }),
 ]);
 

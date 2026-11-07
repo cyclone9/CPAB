@@ -1,0 +1,26 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+.warning {
+  display: grid;
+  gap: 1.5rem;
+  max-inline-size: 36rem;
+  margin-inline: auto;
+  padding-block: 3rem;
+  padding-inline: 1rem;
+}
+.logo { block-size: 29px; inline-size: auto; }
+
+.card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  background: var(--cpab-color-surface);
+}
+[data-theme="light"] .card { box-shadow: inset 0 0 0 1px var(--line); }
+
+.eyebrow { color: var(--cpab-color-warning); font-size: var(--size-small); font-weight: 700; }
+.heading { font-size: 1.375rem; font-weight: 700; line-height: 1.35; }
+.domain { font-size: 1.1875rem; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.reason { overflow-wrap: anywhere; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-block-start: 0.5rem; }

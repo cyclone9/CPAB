@@ -17,7 +17,7 @@ import {
 } from '../scripts/convert-css.js';
 import { LISTS } from '../scripts/lists.config.js';
 import { scriptChanges, scriptList, seedEntries, siteKey, staleKeys, storedBytes, wantedScripts } from '../src/shared/css.js';
-import { GROUP_RULESETS, normalizeSettings } from '../src/shared/settings.js';
+import { GROUP_RULESETS, PROTECTION_GROUPS, normalizeSettings } from '../src/shared/settings.js';
 
 const finish = (text, others = new Set()) => {
   const css = readCss(text);
@@ -303,10 +303,12 @@ async function runHide(hostname, stored) {
   return { css: Array.from(document.adoptedStyleSheets.slice(1), ({ text }) => text), requests };
 }
 
-test('the content script knows every list, in its group', () => {
+// Harmful sites never carry CSS, so the content script leaves them out.
+test('the content script knows every list that can carry CSS, in its group', () => {
   const [, table] = hideSource.match(/LIST_GROUPS = (\{[\s\S]*?\});/);
   const groups = vm.runInNewContext(`(${table})`);
-  const expected = Object.fromEntries(Object.entries(GROUP_RULESETS).flatMap(([group, lists]) => lists.map((list) => [list, group])));
+  const expected = Object.fromEntries(Object.entries(GROUP_RULESETS).filter(([group]) => !PROTECTION_GROUPS.includes(group))
+    .flatMap(([group, lists]) => lists.map((list) => [list, group])));
   assert.deepEqual({ ...groups }, expected);
 });
 

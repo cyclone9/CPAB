@@ -52,9 +52,9 @@ test('a group off stops all its lists, and turning it back on restores each list
   assert.deepEqual(wantedRulesets(on, declared), ['ads', 'trackers', 'iran']);
 });
 
-test('the master switch stops every list and loses no list\'s choice', () => {
+test('the master switch stops every list but Harmful sites, and loses no list\'s choice', () => {
   const settings = normalizeSettings({ master: false, lists: { ads: false } });
-  assert.deepEqual(wantedRulesets(settings, RULESET_IDS), []);
+  assert.deepEqual(wantedRulesets(settings, RULESET_IDS), GROUP_RULESETS.harmful);
   assert.equal(settings.lists.ads, false);
   assert.equal(settings.lists['ads-adguard-base'], true);
 });

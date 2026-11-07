@@ -34,7 +34,7 @@ test('English avoids the forms the naming rule forbids', () => {
 });
 
 test('every data-t in the pages has a string', () => {
-  for (const page of ['popup/popup.html', 'settings/settings.html']) {
+  for (const page of ['popup/popup.html', 'settings/settings.html', 'warning/warning.html']) {
     const html = readFileSync(new URL(`../src/${page}`, import.meta.url), 'utf8');
     for (const [, key] of html.matchAll(/data-(?:t|label-key)="(\w+)"/g)) {
       assert.ok(key in STRINGS.en, `${page}: ${key}`);

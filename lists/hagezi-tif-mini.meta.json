@@ -1,0 +1,35 @@
+{
+  "name": "hagezi-tif-mini",
+  "group": "harmful",
+  "descriptionKey": "listHageziTifDesc",
+  "title": "HaGeZi Threat Intelligence Feeds - mini",
+  "homepage": "https://github.com/hagezi/dns-blocklists",
+  "sourceLink": "https://github.com/hagezi/dns-blocklists",
+  "attribution": "HaGeZi (https://github.com/hagezi/dns-blocklists)",
+  "licence": {
+    "name": "GPL-3.0-only",
+    "spdx": "GPL-3.0-only",
+    "url": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "source": "The repository LICENSE is the GPLv3 text and the list header points to it, with no \"or later\", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package."
+  },
+  "admission": {
+    "reviewed": "2026-11-07",
+    "result": "admitted, with care",
+    "checks": {
+      "licenceStated": "The list header \"License:\" points to https://github.com/hagezi/dns-blocklists/blob/main/LICENSE. That file was read on 2026-11-07: it is the GPLv3 text, byte-identical to CPAB's own LICENSE.",
+      "licenceAccepted": "GPL-3.0 is on the accepted set, only or later.",
+      "notRefused": "No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.",
+      "attribution": "HaGeZi (https://github.com/hagezi/dns-blocklists), shown in settings and THIRD-PARTY-NOTICES.md.",
+      "aggregated": "An aggregate. Its inputs are listed in sources.md at commit acded31b209c342f06c38af538281c7ed306202e, whose line 5 says \"None of them is copied over one to one\". Inputs checked on 2026-11-07, on the accepted set: TweetFeed CC0, validin-phish-feed MIT, KADhosts/FiltersHeroes CC BY-SA 4.0, ShadowWhisperer Unlicense, hostsVN MIT, chainapsis Apache-2.0, iam-py-test CC0, uAssets GPL-3.0, LanikSJ MIT, spmedia MIT, durablenapkin MIT, antispam-it GPL-3.0, matomo public domain, netapi CC BY 4.0. Not on the set or unknown: DNSBunker/CTI GPL-2.0-only, MetaMask eth-phishing-detect (\"Don't be a dick\" licence), DandelionSprout adfilt (Dandelicence), Phishing-Database/phishing, cbuijs/ut1, xRuffKez DNSBunker_DNSBL, siberguvenlik.gov.tr, kushari.org, hole.cert.pl. It passes only on HaGeZi's own-work statement, as HaGeZi Multi Light does (PRD D21). Care: read sources.md again at each snapshot, and go back to the advisor if OpenPhish, PhishTank or URLhaus appears in it.",
+      "ownFile": "The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.",
+      "retrievable": "A stable repository. The snapshot is fetched at the last commit that changed adblock/tif.mini.txt and records that commit, the list's own Version line and its SHA-256."
+    }
+  },
+  "sourceUrl": "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.mini.txt",
+  "snapshot": {
+    "date": "2026-11-07",
+    "sha256": "7486fc88f9011bda6587aa37ab681c3fc09f7dd14959943568cd4fdb8302824b",
+    "listVersion": "2026.1107.2046.07",
+    "listCommit": "0b80dc0514c85663d7338d2dadaf7b09a0cd76ca"
+  }
+}

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Harmful sites is now a working switch, on by default, with HaGeZi Threat Intelligence Feeds mini and uBlock filters - Badware risks (both GPL-3.0-only) as source lists, each with its own switch. A listed site is replaced by a warning page that names the site and the list, with Go back and Continue once.
+- The main switch, pausing a site and Allowed addresses don't lift the warnings, and the popup says they stay on.
+- malware-filter urlhaus-filter is not used: abuse.ch's terms of use since 2025-11-04 no longer put URLhaus data under CC0.
 - Widgets is now a working switch, on by default, with AdGuard Widgets (GPL-3.0-only) and Fanboy's Social Blocking List (CC BY-SA 4.0) as source lists, each with its own switch; it hides chat and support bubbles and social media and share buttons, and gives back scrolling on sites AdGuard Widgets names.
 - Fanboy's Annoyance list is not used, because half of it is EasyList Cookie rules, and hiding cookie notices can break consent walls.
 - Popups now also hides pop-ups and overlays inside pages, using the AdGuard Popups filter as its source list with its own switch, and gives back scrolling on sites the list names.

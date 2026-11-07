@@ -1,0 +1,396 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733",
+  "--disable-site-isolation-trials"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.sort())",
+   "label": "every ruleset on by default, Harmful sites included",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
+    "iran",
+    "popups-adguard",
+    "trackers",
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
+   ]
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getAvailableStaticRuleCount()",
+   "label": "availableStaticRules with everything on"
+  },
+  {
+   "open": "http://0000a.net/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "TIF-only host warns",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-hagezi-tif",
+    "0000a.net"
+   ]
+  },
+  {
+   "eval": "document.getElementById('reason').textContent",
+   "label": "names the list",
+   "equals": "HaGeZi Threat Intelligence Feeds - mini lists this site as harmful. CPAB held the page back before it opened."
+  },
+  {
+   "eval": "[...performance.getEntriesByType('resource')].map(e=>new URL(e.name).protocol).filter(p=>p!=='chrome-extension:')",
+   "label": "the warning page loads nothing from outside",
+   "equals": []
+  },
+  {
+   "open": "http://anj-whatsapp.com/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "Badware $doc host warns",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-badware",
+    "anj-whatsapp.com"
+   ]
+  },
+  {
+   "open": "http://sub.anj-whatsapp.com/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "a subdomain warns too",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-badware",
+    "sub.anj-whatsapp.com"
+   ]
+  },
+  {
+   "open": "http://adobecloud5xpo.yolasite.com/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "Badware $all host warns",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-badware",
+    "adobecloud5xpo.yolasite.com"
+   ]
+  },
+  {
+   "open": "http://browseid.codes/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname",
+   "label": "Badware bare host: the page itself opens",
+   "equals": "browseid.codes"
+  },
+  {
+   "open": "http://000webhostapp.com/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname",
+   "label": "shared hosting root in TIF is not warned",
+   "equals": "000webhostapp.com"
+  },
+  {
+   "open": "http://agentlayer-xyz.pages.dev/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "a site under a shared root still warns",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-badware",
+    "agentlayer-xyz.pages.dev"
+   ]
+  },
+  {
+   "open": "http://pages.dev/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href.startsWith('chrome-extension://')",
+   "label": "the shared root itself is not warned (.dev is HSTS-preloaded, so plain http ends on an error page here)",
+   "equals": false
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadobecloud5xpo.yolasite.com%2Fall-sub-probe.gif&image=http%3A%2F%2Fbrowseid.codes%2Fplain-sub-probe.gif&image=http%3A%2F%2F0000a.net%2Ftif-sub-probe.gif&image=http%3A%2F%2Fanj-whatsapp.com%2Fdoc-sub-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "all-sub-probe"
+  },
+  {
+   "expectBlocked": "plain-sub-probe"
+  },
+  {
+   "expectLoaded": "tif-sub-probe"
+  },
+  {
+   "expectLoaded": "doc-sub-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"master\":false,\"pausedSites\":[\"0000a.net\",\"page.fixtures.localhost\"]}}).then(()=>'set')",
+   "label": "master off and the site paused"
+  },
+  {
+   "wait": 700
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.sort())",
+   "label": "master off: Harmful sites alone",
+   "equals": [
+    "harmful-badware",
+    "harmful-hagezi-tif"
+   ]
+  },
+  {
+   "open": "http://0000a.net/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "master off and paused: still warns",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-hagezi-tif",
+    "0000a.net"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadobecloud5xpo.yolasite.com%2Fall-sub-probe.gif&image=http%3A%2F%2Fbrowseid.codes%2Fplain-sub-probe.gif&image=http%3A%2F%2F0000a.net%2Ftif-sub-probe.gif&image=http%3A%2F%2Fanj-whatsapp.com%2Fdoc-sub-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "all-sub-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"pausedSites\":[\"0000a.net\",\"page.fixtures.localhost\"]}}).then(()=>'set')",
+   "label": "site paused, master on"
+  },
+  {
+   "wait": 700
+  },
+  {
+   "open": "http://0000a.net/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "paused: still warns",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-hagezi-tif",
+    "0000a.net"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadobecloud5xpo.yolasite.com%2Fall-sub-probe.gif&image=http%3A%2F%2Fbrowseid.codes%2Fplain-sub-probe.gif&image=http%3A%2F%2F0000a.net%2Ftif-sub-probe.gif&image=http%3A%2F%2Fanj-whatsapp.com%2Fdoc-sub-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "all-sub-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"allowedSites\":[\"0000a.net\",\"yolasite.com\"]}}).then(()=>'set')",
+   "label": "allowed addresses"
+  },
+  {
+   "wait": 700
+  },
+  {
+   "open": "http://0000a.net/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "an allowed address still warns",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-hagezi-tif",
+    "0000a.net"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadobecloud5xpo.yolasite.com%2Fall-sub-probe.gif&image=http%3A%2F%2Fbrowseid.codes%2Fplain-sub-probe.gif&image=http%3A%2F%2F0000a.net%2Ftif-sub-probe.gif&image=http%3A%2F%2Fanj-whatsapp.com%2Fdoc-sub-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "all-sub-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"groups\":{\"harmful\":false}}}).then(()=>'set')",
+   "label": "Harmful sites off"
+  },
+  {
+   "wait": 700
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.sort())",
+   "label": "Harmful sites off",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "cpab-own",
+    "iran",
+    "popups-adguard",
+    "trackers",
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
+   ]
+  },
+  {
+   "open": "http://0000a.net/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname",
+   "label": "Harmful off: TIF host opens",
+   "equals": "0000a.net"
+  },
+  {
+   "open": "http://anj-whatsapp.com/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname",
+   "label": "Harmful off: Badware host opens",
+   "equals": "anj-whatsapp.com"
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadobecloud5xpo.yolasite.com%2Fall-sub-probe.gif&image=http%3A%2F%2Fbrowseid.codes%2Fplain-sub-probe.gif&image=http%3A%2F%2F0000a.net%2Ftif-sub-probe.gif&image=http%3A%2F%2Fanj-whatsapp.com%2Fdoc-sub-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "all-sub-probe"
+  },
+  {
+   "expectLoaded": "plain-sub-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"lists\":{\"harmful-hagezi-tif\":false}}}).then(()=>'set')",
+   "label": "TIF list off"
+  },
+  {
+   "wait": 700
+  },
+  {
+   "open": "http://0000a.net/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "location.hostname",
+   "label": "TIF off: its host opens",
+   "equals": "0000a.net"
+  },
+  {
+   "open": "http://anj-whatsapp.com/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "TIF off: Badware still warns",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-badware",
+    "anj-whatsapp.com"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "defaults"
+  },
+  {
+   "wait": 700
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html",
+   "settle": 800
+  },
+  {
+   "open": "http://anj-whatsapp.com/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "warned after a page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-badware",
+    "anj-whatsapp.com"
+   ]
+  },
+  {
+   "click": "#back",
+   "settle": 1500
+  },
+  {
+   "eval": "location.href",
+   "label": "Go back returns to the page before",
+   "equals": "http://page.fixtures.localhost:8733/probe.html"
+  },
+  {
+   "open": "http://anj-whatsapp.com/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "warned again",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-badware",
+    "anj-whatsapp.com"
+   ]
+  },
+  {
+   "click": "#continue",
+   "settle": 2500
+  },
+  {
+   "eval": "location.hostname+location.pathname+location.search",
+   "label": "Continue once opens the page",
+   "equals": "anj-whatsapp.com/harmful-page?x=1"
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getSessionRules()",
+   "label": "the Continue once rule is gone after the page commits",
+   "equals": []
+  },
+  {
+   "sw": "chrome.storage.session.get(null).then(s=>Object.keys(s).filter(k=>k.startsWith('harmfulContinue:')))",
+   "label": "nothing pending",
+   "equals": []
+  },
+  {
+   "open": "http://anj-whatsapp.com/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "(()=>{const u=new URL(location.href);return [location.origin+location.pathname,u.searchParams.get('list'),document.getElementById('domain').textContent]})()",
+   "label": "the next visit warns again",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "harmful-badware",
+    "anj-whatsapp.com"
+   ]
+  }
+ ]
+}

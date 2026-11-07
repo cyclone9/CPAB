@@ -6,6 +6,18 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.6',
+    date: '2026-11-07',
+    en: [
+      'The Harmful sites switch now works and is on by default. Before a site on a harmful-sites list opens, CPAB shows a warning that names the site and the list, with Go back and Continue once.',
+      'Harmful sites has two source lists, HaGeZi Threat Intelligence Feeds mini and uBlock filters - Badware risks, each with its own switch. Pausing a site or turning off the main switch leaves the warnings on.',
+    ],
+    fa: [
+      'کلید سایت‌های مضر حالا کار می‌کند و به‌طور پیش‌فرض روشن است. پیش از باز شدن سایتی که در فهرست سایت‌های مضر آمده، تبلیغ‌شکن هشداری نشان می‌دهد که نام سایت و فهرست را می‌گوید و دو دکمهٔ «بازگشت» و «فقط این بار ادامه بده» دارد.',
+      'این بخش دو فهرست مبدأ دارد، HaGeZi Threat Intelligence Feeds mini و uBlock filters - Badware risks، و هر کدام کلید جداگانه دارد. متوقف کردن یک سایت یا خاموش کردن کلید اصلی، هشدارها را خاموش نمی‌کند.',
+    ],
+  },
+  {
     version: '0.2.5',
     date: '2026-11-07',
     en: [

@@ -94,6 +94,28 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Licence of the list:** GPL-3.0-or-later or CC BY-SA 3.0 or later, at our choice. CPAB takes the CC BY-SA side, at version 4.0, for the converted file.
 - **Snapshot:** 2026-11-07, version 202611072044, commit 25b9c58ab288bd50d50cc63ae8b82073cca1129b
 - **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
+
+## HaGeZi Threat Intelligence Feeds - mini
+
+- **Title:** HaGeZi Threat Intelligence Feeds - mini
+- **Attribution:** HaGeZi (https://github.com/hagezi/dns-blocklists)
+- **Homepage:** https://github.com/hagezi/dns-blocklists
+- **Source:** https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.mini.txt
+- **Licence of the converted file:** GPL-3.0-only, SPDX `GPL-3.0-only`, https://www.gnu.org/licenses/gpl-3.0.html
+- **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.
+- **Snapshot:** 2026-11-07, version 2026.1107.2046.07, commit 0b80dc0514c85663d7338d2dadaf7b09a0cd76ca
+- **Changes:** converted to declarativeNetRequest warning and block rules by CPAB's build
+
+## uBlock filters - Badware risks
+
+- **Title:** uBlock filters - Badware risks
+- **Attribution:** uBlock Origin (https://github.com/uBlockOrigin/uAssets)
+- **Homepage:** https://github.com/uBlockOrigin/uAssets
+- **Source:** https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt
+- **Licence of the converted file:** GPL-3.0-only, SPDX `GPL-3.0-only`, https://www.gnu.org/licenses/gpl-3.0.html
+- **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same licence ships as LICENSE at the top of the package.
+- **Snapshot:** 2026-11-07, commit 3badba2c3a27300459d96de360da38c9f69829e3
+- **Changes:** converted to declarativeNetRequest warning and block rules by CPAB's build
 <!-- lists:end -->
 
 ## Vazirmatn

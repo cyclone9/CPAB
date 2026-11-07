@@ -15,6 +15,7 @@ import {
 } from '../shared/blocking.js';
 import { CSS_INDEX, SEED_KEY, scriptChanges, scriptList, seedEntries, staleKeys, wantedScripts } from '../shared/css.js';
 import { loadSettings, onSettingsChange, saveRulesetProblems, updateSettings } from '../shared/settings.js';
+import './harmful.js';
 import './popups.js';
 
 const dnr = chrome.declarativeNetRequest;

@@ -114,13 +114,20 @@
         <p class="intro" data-t="protectionIntro"></p>
 
         <div class="panel">
-          <div class="row is-later">
+          <label class="row">
             <span class="row-text">
               <span class="row-title" id="harmful-title" data-t="harmful"></span>
-              <span class="row-desc" data-t="harmfulDesc"></span>
-              <span class="tag" data-t="comingLater"></span>
+              <span class="row-desc" id="harmful-desc" data-t="harmfulDesc"></span>
+              <span class="row-meta" data-meta="harmful"></span>
+              <span class="row-problem small" data-problem="harmful" hidden></span>
             </span>
-            <input class="switch" type="checkbox" role="switch" disabled aria-labelledby="harmful-title">
+            <input class="switch" type="checkbox" role="switch" data-group="harmful" aria-labelledby="harmful-title" aria-describedby="harmful-desc">
+          </label>
+          <button class="lists-toggle" type="button" data-opens-lists="harmful" aria-expanded="false" aria-controls="harmful-lists" aria-describedby="harmful-title" hidden>
+            <span data-t="listsShow"></span>
+          </button>
+          <div id="harmful-lists" class="lists" data-lists="harmful" hidden>
+            <p class="lists-note small" data-lists-note="harmful" hidden data-t="listsGroupOff"></p>
           </div>
         </div>
 

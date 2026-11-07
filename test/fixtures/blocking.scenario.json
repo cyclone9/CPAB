@@ -927,6 +927,8 @@
     "ads",
     "ads-adguard-base",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -967,6 +969,8 @@
    "equals": [
     "ads",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -1007,6 +1011,8 @@
    "equals": [
     "ads-adguard-base",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -1046,6 +1052,8 @@
    "label": "lists: both off",
    "equals": [
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -1084,6 +1092,8 @@
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
    "label": "lists: group off",
    "equals": [
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "popups-adguard",
     "trackers",
     "trackers-hagezi-light",
@@ -1172,7 +1182,10 @@
   {
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
    "label": "lists: master off",
-   "equals": []
+   "equals": [
+    "harmful-badware",
+    "harmful-hagezi-tif"
+   ]
   },
   {
    "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
@@ -1213,6 +1226,8 @@
    "equals": [
     "ads",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -1267,8 +1282,8 @@
   },
   {
    "eval": "document.querySelectorAll('[data-list]').length",
-   "label": "Ads and Trackers have list switches",
-   "equals": 8
+   "label": "every group with several lists has list switches",
+   "equals": 10
   },
   {
    "click": "[data-list=\"ads-adguard-base\"]"
@@ -1285,7 +1300,9 @@
     "trackers": true,
     "trackers-hagezi-light": true,
     "widgets-adguard": true,
-    "widgets-fanboy-social": true
+    "widgets-fanboy-social": true,
+    "harmful-hagezi-tif": true,
+    "harmful-badware": true
    }
   },
   {
@@ -1298,6 +1315,8 @@
    "equals": [
     "ads",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -1361,6 +1380,16 @@
      "widgets-fanboy-social",
      true,
      false
+    ],
+    [
+     "harmful-hagezi-tif",
+     true,
+     false
+    ],
+    [
+     "harmful-badware",
+     true,
+     false
     ]
    ]
   },
@@ -1368,6 +1397,8 @@
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
    "label": "lists: group off from the page",
    "equals": [
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "popups-adguard",
     "trackers",
     "trackers-hagezi-light",
@@ -1421,6 +1452,16 @@
      "widgets-fanboy-social",
      true,
      false
+    ],
+    [
+     "harmful-hagezi-tif",
+     true,
+     false
+    ],
+    [
+     "harmful-badware",
+     true,
+     false
     ]
    ]
   },
@@ -1430,6 +1471,8 @@
    "equals": [
     "ads",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -1448,6 +1491,8 @@
     "ads",
     "ads-adguard-base",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -1476,6 +1521,8 @@
    "equals": [
     "ads",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -1499,7 +1546,8 @@
    "open": "http://page.fixtures.localhost:8733/index.html"
   },
   {
-   "load": "dist"
+   "load": "dist",
+   "settle": 4000
   },
   {
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
@@ -1507,6 +1555,8 @@
    "equals": [
     "ads",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "popups-adguard",
     "trackers",
     "trackers-hagezi-light",
@@ -1527,7 +1577,8 @@
      "ads": true,
      "popups": true,
      "trackers": true,
-     "widgets": true
+     "widgets": true,
+     "harmful": true
     },
     "language": "fa",
     "lists": {
@@ -1539,7 +1590,9 @@
      "trackers": true,
      "trackers-hagezi-light": true,
      "widgets-adguard": true,
-     "widgets-fanboy-social": true
+     "widgets-fanboy-social": true,
+     "harmful-hagezi-tif": true,
+     "harmful-badware": true
     },
     "master": true,
     "pausedSites": [
@@ -1557,7 +1610,8 @@
      "ads": true,
      "popups": true,
      "trackers": true,
-     "widgets": true
+     "widgets": true,
+     "harmful": true
     },
     false
    ]
@@ -1595,6 +1649,8 @@
     "ads",
     "ads-adguard-base",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",
@@ -1656,6 +1712,8 @@
     "ads",
     "ads-adguard-base",
     "cpab-own",
+    "harmful-badware",
+    "harmful-hagezi-tif",
     "iran",
     "popups-adguard",
     "trackers",

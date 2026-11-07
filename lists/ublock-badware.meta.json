@@ -1,0 +1,35 @@
+{
+  "name": "ublock-badware",
+  "group": "harmful",
+  "descriptionKey": "listBadwareDesc",
+  "title": "uBlock filters - Badware risks",
+  "homepage": "https://github.com/uBlockOrigin/uAssets",
+  "sourceLink": "https://github.com/uBlockOrigin/uAssets",
+  "attribution": "uBlock Origin (https://github.com/uBlockOrigin/uAssets)",
+  "licence": {
+    "name": "GPL-3.0-only",
+    "spdx": "GPL-3.0-only",
+    "url": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "source": "The repository LICENSE is the GPLv3 text and the list header points to it, with no \"or later\", so CPAB treats the list as GPL-3.0-only. The same licence ships as LICENSE at the top of the package."
+  },
+  "admission": {
+    "reviewed": "2026-11-07",
+    "result": "admitted",
+    "checks": {
+      "licenceStated": "The list header \"License:\" points to https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE. That file was read on 2026-11-07: it is the GPLv3 text, in the FSF's older template.",
+      "licenceAccepted": "GPL-3.0 is on the accepted set, only or later.",
+      "notRefused": "No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.",
+      "attribution": "uBlock Origin (https://github.com/uBlockOrigin/uAssets), shown in settings and THIRD-PARTY-NOTICES.md.",
+      "aggregated": "Not an aggregate: curated by hand in uAssets, with the sources for each entry in the comments above it. The file has no !#include line.",
+      "ownFile": "The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.",
+      "retrievable": "A stable repository. The snapshot is fetched at the last commit that changed filters/badware.txt and records that commit and its SHA-256; the file has no Version line."
+    }
+  },
+  "sourceUrl": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
+  "snapshot": {
+    "date": "2026-11-07",
+    "sha256": "eeb80d681bbaf894155fa26d7023aba78f72cae45103bbf48bc6dacf291bbe9c",
+    "listVersion": null,
+    "listCommit": "3badba2c3a27300459d96de360da38c9f69829e3"
+  }
+}

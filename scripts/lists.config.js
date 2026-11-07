@@ -319,6 +319,96 @@ export const LISTS = [
       },
     },
   },
+  // Harmful sites: whole sites, warned before they open. scripts/convert-harmful.js reads these, not the
+  // ad converter, and `plainRules` says what a plain ||host^ line means in each list.
+  {
+    name: 'hagezi-tif-mini',
+    group: 'harmful',
+    descriptionKey: 'listHageziTifDesc',
+    ruleset: 'harmful-hagezi-tif',
+    listFile: 'hagezi-tif-mini.txt',
+    metaFile: 'hagezi-tif-mini.meta.json',
+    rulesFile: 'harmful-hagezi-tif.json',
+    required: true,
+    harmful: true,
+    // A DNS list: every line is a whole host to warn about. Copying it as a subresource block as well
+    // would double the biggest file in the package.
+    plainRules: 'warn',
+    title: 'HaGeZi Threat Intelligence Feeds - mini',
+    fileTitle: 'HaGeZi\'s Threat Intelligence Feeds - mini version (best for browser/mobile ad blockers)',
+    url: 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.mini.txt',
+    pinned: {
+      commitsApi: 'https://api.github.com/repos/hagezi/dns-blocklists/commits?path=adblock/tif.mini.txt&per_page=1',
+      raw: 'https://raw.githubusercontent.com/hagezi/dns-blocklists',
+      path: 'adblock/tif.mini.txt',
+    },
+    homepage: 'https://github.com/hagezi/dns-blocklists',
+    sourceLink: 'https://github.com/hagezi/dns-blocklists',
+    attribution: 'HaGeZi (https://github.com/hagezi/dns-blocklists)',
+    licence: {
+      name: 'GPL-3.0-only',
+      spdx: 'GPL-3.0-only',
+      url: 'https://www.gnu.org/licenses/gpl-3.0.html',
+      source: 'The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.',
+    },
+    admission: {
+      reviewed: '2026-11-07',
+      result: 'admitted, with care',
+      checks: {
+        licenceStated: 'The list header "License:" points to https://github.com/hagezi/dns-blocklists/blob/main/LICENSE. That file was read on 2026-11-07: it is the GPLv3 text, byte-identical to CPAB\'s own LICENSE.',
+        licenceAccepted: 'GPL-3.0 is on the accepted set, only or later.',
+        notRefused: 'No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.',
+        attribution: 'HaGeZi (https://github.com/hagezi/dns-blocklists), shown in settings and THIRD-PARTY-NOTICES.md.',
+        aggregated: 'An aggregate. Its inputs are listed in sources.md at commit acded31b209c342f06c38af538281c7ed306202e, whose line 5 says "None of them is copied over one to one". Inputs checked on 2026-11-07, on the accepted set: TweetFeed CC0, validin-phish-feed MIT, KADhosts/FiltersHeroes CC BY-SA 4.0, ShadowWhisperer Unlicense, hostsVN MIT, chainapsis Apache-2.0, iam-py-test CC0, uAssets GPL-3.0, LanikSJ MIT, spmedia MIT, durablenapkin MIT, antispam-it GPL-3.0, matomo public domain, netapi CC BY 4.0. Not on the set or unknown: DNSBunker/CTI GPL-2.0-only, MetaMask eth-phishing-detect ("Don\'t be a dick" licence), DandelionSprout adfilt (Dandelicence), Phishing-Database/phishing, cbuijs/ut1, xRuffKez DNSBunker_DNSBL, siberguvenlik.gov.tr, kushari.org, hole.cert.pl. It passes only on HaGeZi\'s own-work statement, as HaGeZi Multi Light does (PRD D21). Care: read sources.md again at each snapshot, and go back to the advisor if OpenPhish, PhishTank or URLhaus appears in it.',
+        ownFile: 'The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.',
+        retrievable: 'A stable repository. The snapshot is fetched at the last commit that changed adblock/tif.mini.txt and records that commit, the list\'s own Version line and its SHA-256.',
+      },
+    },
+  },
+  {
+    name: 'ublock-badware',
+    group: 'harmful',
+    descriptionKey: 'listBadwareDesc',
+    ruleset: 'harmful-badware',
+    listFile: 'ublock-badware.txt',
+    metaFile: 'ublock-badware.meta.json',
+    rulesFile: 'harmful-badware.json',
+    required: true,
+    harmful: true,
+    // In this list $doc means warn and a bare ||host^ blocks what pages load from the host.
+    plainRules: 'block',
+    title: 'uBlock filters - Badware risks',
+    fileTitle: 'uBlock₀ filters – Badware risks',
+    url: 'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt',
+    // The file has no Version line, so the commit and the SHA-256 are what identify a snapshot.
+    pinned: {
+      commitsApi: 'https://api.github.com/repos/uBlockOrigin/uAssets/commits?path=filters/badware.txt&per_page=1',
+      raw: 'https://raw.githubusercontent.com/uBlockOrigin/uAssets',
+      path: 'filters/badware.txt',
+    },
+    homepage: 'https://github.com/uBlockOrigin/uAssets',
+    sourceLink: 'https://github.com/uBlockOrigin/uAssets',
+    attribution: 'uBlock Origin (https://github.com/uBlockOrigin/uAssets)',
+    licence: {
+      name: 'GPL-3.0-only',
+      spdx: 'GPL-3.0-only',
+      url: 'https://www.gnu.org/licenses/gpl-3.0.html',
+      source: 'The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same licence ships as LICENSE at the top of the package.',
+    },
+    admission: {
+      reviewed: '2026-11-07',
+      result: 'admitted',
+      checks: {
+        licenceStated: 'The list header "License:" points to https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE. That file was read on 2026-11-07: it is the GPLv3 text, in the FSF\'s older template.',
+        licenceAccepted: 'GPL-3.0 is on the accepted set, only or later.',
+        notRefused: 'No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.',
+        attribution: 'uBlock Origin (https://github.com/uBlockOrigin/uAssets), shown in settings and THIRD-PARTY-NOTICES.md.',
+        aggregated: 'Not an aggregate: curated by hand in uAssets, with the sources for each entry in the comments above it. The file has no !#include line.',
+        ownFile: 'The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.',
+        retrievable: 'A stable repository. The snapshot is fetched at the last commit that changed filters/badware.txt and records that commit and its SHA-256; the file has no Version line.',
+      },
+    },
+  },
 ];
 
 // Stored under this name beside the rule file, because AGPLv3 needs the text with the work.
