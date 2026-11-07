@@ -69,14 +69,13 @@
             </span>
             <input class="switch" type="checkbox" role="switch" data-group="trackers" aria-labelledby="trackers-title" aria-describedby="trackers-desc">
           </label>
-          <div class="row is-later">
+          <label class="row">
             <span class="row-text">
               <span class="row-title" id="popups-title" data-t="groupPopups"></span>
-              <span class="row-desc" data-t="groupPopupsDesc"></span>
-              <span class="tag" data-t="comingLater"></span>
+              <span class="row-desc" id="popups-desc" data-t="groupPopupsDesc"></span>
             </span>
-            <input class="switch" type="checkbox" role="switch" disabled aria-labelledby="popups-title">
-          </div>
+            <input id="popups" class="switch" type="checkbox" role="switch" aria-labelledby="popups-title" aria-describedby="popups-desc">
+          </label>
           <div class="row is-later">
             <span class="row-text">
               <span class="row-title" id="widgets-title" data-t="groupWidgets"></span>

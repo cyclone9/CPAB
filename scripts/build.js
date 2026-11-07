@@ -6,8 +6,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { convertList, formatReport } from './convert.js';
 import { exceptedSelectors, finishCss, formatCssReport, readCss } from './convert-css.js';
+import { convertPopups, formatPopupReport, hasPopupRules, popupBadfilters } from './convert-popup.js';
 import { AGPL_TEXT, LISTS } from './lists.config.js';
 import { CSS_INDEX, seedEntries, storedBytes } from '../src/shared/css.js';
+import { POPUP_INDEX } from '../src/shared/popups.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
@@ -23,7 +25,7 @@ if (manifest.version !== pkg.version) {
   throw new Error(`src/manifest.json says ${manifest.version}, package.json says ${pkg.version}`);
 }
 
-function convertInto(rulesDir, list, css) {
+function convertInto(rulesDir, list, css, cancelledPopups) {
   const source = join(root, 'lists', list.listFile);
   if (!existsSync(source)) {
     if (list.required) throw new Error(`lists/${list.listFile} is missing. Run npm run lists.`);
@@ -32,7 +34,8 @@ function convertInto(rulesDir, list, css) {
   }
 
   const meta = readJson(join(root, 'lists', list.metaFile));
-  const result = convertList(readFileSync(source, 'utf8'));
+  const text = readFileSync(source, 'utf8');
+  const result = convertList(text);
   writeFileSync(join(rulesDir, list.rulesFile), JSON.stringify(result.rules));
   if (meta.licence.copy) cpSync(join(root, 'lists', AGPL_TEXT.file), join(rulesDir, meta.licence.copy));
   console.log(formatReport(list.title, result));
@@ -42,7 +45,13 @@ function convertInto(rulesDir, list, css) {
   writeFileSync(join(rulesDir, `${stem}.sites.json`), JSON.stringify(css.sites));
   console.log(formatCssReport(list.title, css));
 
+  const popups = convertPopups(text, cancelledPopups);
+  const popupFile = `${stem}.popup.json`;
+  if (hasPopupRules(popups)) writeFileSync(join(rulesDir, popupFile), JSON.stringify(popups.data));
+  console.log(formatPopupReport(list.title, popups));
+
   return {
+    popupFile: hasPopupRules(popups) ? `rules/${popupFile}` : null,
     group: list.group,
     ruleset: list.ruleset,
     available: true,
@@ -66,7 +75,7 @@ function convertInto(rulesDir, list, css) {
 
 // Read before writing, because an exception in one list can name a selector from another.
 function convertCss(lists) {
-  const read = new Map(lists.map((list) => [list, readCss(readFileSync(join(root, 'lists', list.listFile), 'utf8'))]));
+  const read = new Map(lists.map((list) => [list, readCss(readFileSync(join(root, 'lists', list.listFile), 'utf8'), { ownFormat: list.ownFormat })]));
   const excepted = exceptedSelectors([...read.values()]);
   const selectors = (css) => [...css.generic, ...[...css.site.values()].flatMap((set) => [...set])];
   const hiddenBy = new Map(lists.map((list) => [list, new Set(selectors(read.get(list)))]));
@@ -107,9 +116,13 @@ const rulesDir = join(dist, 'rules');
 mkdirSync(rulesDir);
 const present = LISTS.filter((list) => existsSync(join(root, 'lists', list.listFile)));
 const css = convertCss(present);
-const lists = LISTS.map((list) => convertInto(rulesDir, list, css.get(list)));
+const cancelledPopups = new Set(present.flatMap((list) => popupBadfilters(readFileSync(join(root, 'lists', list.listFile), 'utf8'))));
+const lists = LISTS.map((list) => convertInto(rulesDir, list, css.get(list), cancelledPopups));
 writeCssIndex(present, css);
-writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists }));
+writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists: lists.map(({ popupFile, ...list }) => list) }));
+writeFileSync(join(dist, POPUP_INDEX), JSON.stringify({
+  lists: lists.filter(({ popupFile }) => popupFile).map(({ ruleset, popupFile }) => ({ id: ruleset, file: popupFile })),
+}));
 
 // Chrome won't load an extension whose manifest names a rule file that isn't there.
 const built = new Set(lists.filter((list) => list.available).map((list) => list.ruleset));

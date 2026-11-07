@@ -6,6 +6,22 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.1',
+    date: '2026-11-07',
+    en: [
+      'Tabs and windows that ads open from a page now close by themselves. The Popups switch in Settings turns this on and off.',
+      'Tabs you open yourself stay open.',
+      'CPAB now asks to see new tabs, which Chrome shows as "Read your browsing history". What it sees stays on your device.',
+      'Ad banners and boxes on soft98.ir are now removed.',
+    ],
+    fa: [
+      'زبانه‌ها و پنجره‌هایی که تبلیغ‌ها از داخل یک صفحه باز می‌کنند حالا خودبه‌خود بسته می‌شوند. کلید پاپ‌آپ‌ها در تنظیمات این کار را روشن و خاموش می‌کند.',
+      'زبانه‌هایی که خودتان باز می‌کنید باز می‌مانند.',
+      'تبلیغ‌شکن حالا اجازهٔ دیدن زبانه‌های تازه را می‌خواهد که کروم آن را «خواندن تاریخچهٔ مرور» نشان می‌دهد. آنچه می‌بیند روی دستگاه شما می‌ماند.',
+      'بنرها و کادرهای تبلیغ در soft98.ir حالا حذف می‌شوند.',
+    ],
+  },
+  {
     version: '0.2.0',
     date: '2026-11-06',
     en: [

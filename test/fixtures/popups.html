@@ -1,0 +1,48 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Popups</title>
+  <style>a, button { display: block; margin: 4px; padding: 4px; width: 320px; }</style>
+</head>
+<body>
+  <p>Opens tabs and windows for popups.scenario.json. Every address reaches the fixture server through --host-resolver-rules.</p>
+  <a id="link" href="http://11x11.com/person.html">plain link to an address with a rule</a>
+  <a id="blank-link" href="http://11x11.com/anchor.html" target="_blank">target=_blank to an address with a rule</a>
+  <div id="buttons"></div>
+  <script>
+    const AD = 'http://11x11.com/ad.html';
+    const OTHER = 'http://plain.fixtures.localhost/other.html';
+    const REDIRECT = 'http://plain.fixtures.localhost/redirect?to=';
+    const opens = {
+      ad: () => window.open(AD),
+      window: () => window.open(AD, '', 'width=400,height=300'),
+      other: () => window.open(OTHER),
+      exception: () => window.open('http://ad.doubleclick.net/ddm/clk/1;http://shop.fixtures.localhost/'),
+      'no-exception': () => window.open('http://ad.doubleclick.net/ddm/other'),
+      'tied-to-site': () => window.open('http://binance.com/tied.html'),
+      'third-party': () => window.open('http://actiondesk.com/third.html'),
+      adguard: () => window.open('http://profitableratecpmnetwork.com/adguard.html'),
+      iran: () => window.open('http://gourls.ir/iran.html'),
+      'blank-then-ad': () => { const tab = window.open('about:blank'); tab.location = AD; return tab; },
+      'empty-then-ad': () => { const tab = window.open(''); setTimeout(() => { tab.location.href = AD; }, 300); return tab; },
+      'blank-later': () => { const tab = window.open('about:blank'); setTimeout(() => { tab.location.href = AD; }, 2500); return tab; },
+      'blank-then-other': () => { const tab = window.open('about:blank'); tab.location = OTHER; return tab; },
+      'blank-stays': () => window.open('about:blank'),
+      'redirect-to-ad': () => window.open(`${REDIRECT}${encodeURIComponent(AD)}`),
+      'redirect-to-other': () => window.open(`${REDIRECT}${encodeURIComponent(OTHER)}`),
+      'sign-in': () => window.open('http://accounts.fixtures.localhost/popup-opener.html?sign-in', '', 'width=400,height=300'),
+      payment: () => window.open('http://pay.fixtures.localhost/popup-opener.html?payment'),
+    };
+    window.last = null;
+    window.state = () => ({ opened: Boolean(window.last), closed: Boolean(window.last?.closed) });
+    addEventListener('message', ({ data }) => { window.heard = data; });
+    for (const [id, open] of Object.entries(opens)) {
+      const button = Object.assign(document.createElement('button'), { id, textContent: id });
+      button.addEventListener('click', () => { window.last = open(); });
+      document.querySelector('#buttons').append(button);
+    }
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Both READMEs now describe 0.2.1: ad tabs and windows that a page opens are closed, and Chrome's "Read your browsing history" warning is expected.
 - Both READMEs now describe 0.2.0: leftover ad boxes are hidden, access to all sites is requested, and PersianBlocker is named as a list under Ads.
 - List snapshots now record their checksum after line endings are normalised, so it matches the stored file.
 - The motto is now "Free ad blocker. No data collected.", in both languages and both READMEs.
@@ -27,6 +28,8 @@
 - In Settings, Ads opens to show its source lists, each with its own switch, rule count and date. Turning the group off keeps each list's choice, and settings saved by 0.1.4 carry over unchanged.
 - Settings has a Changelog section with the last three versions, in English and Persian, and marks the version running.
 - `npm run lists` can pin a compiled list to its repository's commit, and `THIRD-PARTY-NOTICES.md` now records each list's version.
+- Popup ad tabs and windows now close: `$popup` rules convert to one data file per list, a small matcher in the service worker judges new tabs, and the Popups switch is live; this adds the `webNavigation` permission.
+- `lists/cpab-own.txt` now blocks soft98.ir's banner images and collapses its ad boxes, through a `:cpab-collapse` mark that only this list may use, because the page forces `display` back inline.
 - Ad boxes are now hidden with each list's CSS rules, generic ones as registered stylesheets and site ones from local storage, following every switch and the site pause; this adds the `scripting` and all-sites permissions, and `lists/cpab-own.txt` now builds as a list of its own with a rule for kojaro.com.
 - The Iran group is gone: PersianBlocker sits under Ads as a third source list with its own switch, file and licence, and a saved Iran choice carries over.
 

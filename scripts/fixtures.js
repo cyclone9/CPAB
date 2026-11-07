@@ -29,7 +29,10 @@ const server = createServer((request, response) => {
   if (searchParams.has('csp')) headers['content-security-policy'] = "style-src 'none'";
   const file = fixtureFile(pathname);
   const type = TYPES[extname(pathname)];
-  if (file) {
+  if (pathname === '/redirect') {
+    response.writeHead(302, { ...headers, location: searchParams.get('to') });
+    response.end();
+  } else if (file) {
     response.writeHead(200, { ...headers, 'content-type': type ?? 'application/octet-stream' });
     response.end(readFileSync(file));
   } else if (type) {

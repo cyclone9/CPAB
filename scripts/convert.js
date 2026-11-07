@@ -8,7 +8,7 @@ import { ALLOW_RULE_ID_BASE } from '../src/shared/blocking.js';
 const BLOCK_PRIORITY = 1;
 const ALLOW_PRIORITY = 2;
 
-const RESOURCE_TYPES = {
+export const RESOURCE_TYPES = {
   script: 'script',
   image: 'image',
   stylesheet: 'stylesheet',
@@ -29,6 +29,7 @@ const PARTY = {
   '~third-party': 'firstParty',
 };
 
+export const POPUP_OPTIONS = new Set(['popup', 'popunder']);
 const DROPPED_OPTIONS = new Set(['popup', 'document', 'all', 'to']);
 
 // Other names some lists use for these options.
@@ -126,6 +127,16 @@ export function parseDomains(values) {
       ...(excluded.size ? { excludedInitiatorDomains: [...excluded].sort() } : {}),
     },
   };
+}
+
+// What a line still asks of the network once $popup is taken out: a line can name other types as well.
+// null means it was about popups alone, which scripts/convert-popup.js handles. An exception with
+// $document keeps every option, so it stays refused rather than turning into a whole-page exception.
+export function withoutPopup(options, allow = false) {
+  const names = optionNames(options);
+  if (!names.includes('popup') || (allow && names.includes('document'))) return options;
+  const others = options.filter((_, index) => !POPUP_OPTIONS.has(names[index]));
+  return names.some((name) => name in RESOURCE_TYPES || name === 'document') ? others : null;
 }
 
 // One rule's options as a declarativeNetRequest condition, or the reason it can't be one. Only an
@@ -282,6 +293,7 @@ export function ruleKey({ allow, host, pattern, options }) {
 export function convertList(text) {
   const dropped = {};
   let droppedExceptions = 0;
+  let popupOnly = 0;
   const entries = [];
   const pathEntries = [];
   const drop = (reason, allow) => {
@@ -298,13 +310,18 @@ export function convertList(text) {
       drop(parsed.dropped, parsed.allow);
       continue;
     }
-    const { allow, host, pattern, options } = parsed;
+    const { allow, host, pattern } = parsed;
     if (hasBadfilter(parsed)) {
       drop('$badfilter', allow);
       continue;
     }
     if (cancelled.has(ruleKey(parsed))) {
       drop('cancelled by $badfilter', allow);
+      continue;
+    }
+    const options = withoutPopup(parsed.options, allow);
+    if (!options) {
+      popupOnly += 1;
       continue;
     }
     const { condition, wholePage, dropped: reason } = parseOptions(options, allow);
@@ -341,6 +358,7 @@ export function convertList(text) {
     converted: entries.length + pathEntries.length,
     dropped,
     droppedExceptions,
+    popupOnly,
     domains: rules.reduce((total, rule) => total + (rule.condition.requestDomains?.length ?? 0), 0),
     pathRules: paths.length,
     rules,
@@ -353,7 +371,7 @@ export function formatReport(title, result) {
     .map(([reason, count]) => `    ${String(count).padStart(7)}  ${reason}`);
   const total = Object.values(result.dropped).reduce((sum, count) => sum + count, 0);
   return [
-    `${title}: read ${result.read}, converted ${result.converted}, dropped ${total} (exceptions among them: ${result.droppedExceptions}), output ${result.rules.length} rules: ${result.pathRules} path rules, the rest holding ${result.domains} domains`,
+    `${title}: read ${result.read}, converted ${result.converted}, dropped ${total} (exceptions among them: ${result.droppedExceptions}), ${result.popupOnly} for popups only, output ${result.rules.length} rules: ${result.pathRules} path rules, the rest holding ${result.domains} domains`,
     ...reasons,
   ].join('\n');
 }

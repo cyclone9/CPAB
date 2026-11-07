@@ -29,6 +29,7 @@ test('the defaults are on, dark, automatic and empty', () => {
     master: true,
     groups: { ads: true, trackers: true },
     lists: ALL_LISTS_ON,
+    popups: true,
     pausedSites: [],
     blockedSites: [],
     language: 'auto',
@@ -43,6 +44,7 @@ test('valid stored values are kept', () => {
     master: false,
     groups: { ads: false, trackers: true },
     lists: { ads: false, 'ads-adguard-base': true, iran: false, 'cpab-own': true, trackers: true },
+    popups: false,
     pausedSites: ['a.com', 'b.ir'],
     blockedSites: ['c.com'],
     language: 'fa',
@@ -82,6 +84,7 @@ test('settings saved by 0.1.4 keep every choice and gain the per-list switches',
     ...SAVED_BY_0_1_4,
     groups: { ads: true, trackers: false },
     lists: { ...ALL_LISTS_ON, iran: false },
+    popups: true,
   });
 });
 

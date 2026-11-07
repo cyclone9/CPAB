@@ -136,6 +136,7 @@ export const LISTS = [
     rulesFile: 'ads-cpab-own.json',
     required: true,
     listed: false,
+    ownFormat: true,
     title: 'CPAB',
     homepage: 'https://cyclone9.dev/cpab',
     attribution: 'CPAB',

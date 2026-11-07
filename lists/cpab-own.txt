@@ -9,3 +9,22 @@
 ! 2026-11-06, owner report, kojaro.com: the top banner. PersianBlocker's kojaro rules no longer match
 ! it, and its images carry no ad address. The close button is what marks this box as an ad.
 kojaro.com##div:has(> div > button[aria-label="بستن تبلیغ"])
+!
+! 2026-11-06, owner report, soft98.ir: banners served from the site's own hosts, which no list blocks.
+! Its forum isn't part of the report. The 300x250 image sits in a hidden link and may be how the site
+! checks for a blocker, so it stays loading whichever other lists are on.
+||img.soft98.ir/1/$image,domain=soft98.ir|~forum.soft98.ir
+||file3.soft98.ir^$image,domain=soft98.ir|~forum.soft98.ir
+@@||img.soft98.ir/1/300x250.$image,domain=soft98.ir
+@@||file3.soft98.ir/300x250.$image,domain=soft98.ir
+! The page's script forces display and clip-path back, inline with !important and on a timer, so these
+! boxes collapse instead. #sbd, #tbdl and .tbdl hold the real software list and stay.
+soft98.ir##.abdd:cpab-collapse
+soft98.ir##.abddm:cpab-collapse
+soft98.ir##.abdd_ibd:cpab-collapse
+soft98.ir##.abddp:cpab-collapse
+soft98.ir##.cbd1211:has(> .abdd):cpab-collapse
+soft98.ir###sbds:has(.abddl):cpab-collapse
+soft98.ir###sbd > .cbdd:has(> .abdd):cpab-collapse
+soft98.ir###sbd > hr:has(+ #sbds)
+soft98.ir###sbd > hr:has(+ .cbdd > .abdd)

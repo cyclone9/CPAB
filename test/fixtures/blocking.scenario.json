@@ -1428,6 +1428,7 @@
      "cpab-own": true,
      "trackers": true
     },
+    "popups": true,
     "pausedSites": [
      "paused.example"
     ],

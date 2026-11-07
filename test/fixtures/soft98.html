@@ -1,0 +1,86 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>soft98 shapes</title>
+  <style>
+    aside { flex-direction: column; }
+    .abddi { width: 300px; height: 60px; }
+    .abddp { position: absolute; }
+    .abdd, .abddm, .cbd1211, .cbddb { min-height: 60px; }
+    hr { margin: 12px 0; }
+  </style>
+</head>
+<body>
+  <!-- Reduced shapes of the page in the owner's report. The inline styles are the site's own. -->
+  <div class="cbd1211 cbdlg11" id="top-box" style="display: flex !important; clip-path: none !important;">
+    <div class="abdd c1ean" id="abddh" style="display: block !important; clip-path: none !important;">
+      <a class="abddl" href="#" style="display: block !important; clip-path: none !important;">
+        <span class="abddp abddpr" style="display: flex !important; clip-path: none !important;">AD</span>
+        <img class="abddi" src="http://img.soft98.ir/1/ircd10.gif" data-backup="http://file3.soft98.ir/ircd10.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
+      </a>
+    </div>
+  </div>
+
+  <div class="abdd_ibd" id="wide-box">
+    <div class="abddm tbdc" style="display: block !important; clip-path: none !important;">
+      <div class="abdd" id="abddw" style="display: block !important; clip-path: none !important;">
+        <a href="#" class="abddl" style="display: inline-block !important; clip-path: none !important;">
+          <img class="abddi" src="http://img.soft98.ir/1/wide.gif" data-backup="http://file3.soft98.ir/wide.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <aside class="cbdlg114 obdlg111" id="sbd" style="display: flex !important; clip-path: none !important;">
+    <section class="cbdd obdlg113" id="tbdl" style="display: flex !important; clip-path: none !important;">
+      <header class="cbddh"><h4 class="cbddt">Software list</h4></header>
+      <div class="cbddb p-0">
+        <ul class="tbdl"><li class="tbdli"><a class="tbdll" href="#"><img id="content-image" src="http://cdn.soft98.ir/icons/winrar.png" alt=""><span><strong>Winrar</strong></span></a></li></ul>
+      </div>
+    </section>
+    <hr class="obdlg113" id="first-rule">
+    <div class="obdlg113" id="sbds" style="display: block !important; clip-path: none !important;">
+      <section class="cbdd bbdl" style="display: flex !important; clip-path: none !important;">
+        <header class="cbddh" style="display: block !important; clip-path: none !important;"><h4 class="cbddt">AD</h4></header>
+        <div class="cbddb tbdc" style="display: block !important; clip-path: none !important;">
+          <div class="abdds abdd-300-250" style="display: block !important; clip-path: none !important;">
+            <a href="#" class="abddl abdd-300-250" rel="nofollow" style="display: inline-block !important; clip-path: none !important;">
+              <span class="abddp abddpl" style="display: flex !important; clip-path: none !important;">AD</span>
+              <img class="abddi abdd-300-250" src="http://img.soft98.ir/1/side.gif" data-backup="http://file3.soft98.ir/side.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+    <hr class="obdlg112" id="second-rule">
+    <div class="cbdd obdlg111" id="ad-box" style="display: flex !important; clip-path: none !important;">
+      <header class="cbddh" style="display: block !important; clip-path: none !important;"><h4 class="cbddt">AD BOX</h4></header>
+      <div class="cbddb tbdc abdd" style="display: block !important; clip-path: none !important;">
+        <a class="abddl abdd-240-90" href="#" style="display: inline-block !important; clip-path: none !important;">
+          <span class="abddp abddpy" style="display: flex !important; clip-path: none !important;">AD</span>
+          <img class="abddi" src="http://img.soft98.ir/1/box.gif" data-backup="http://file3.soft98.ir/box.gif" alt="AD" style="display: inline !important; clip-path: none !important;">
+        </a>
+      </div>
+      <a class="abddf" href="" style="display: none !important; clip-path: circle(0px at 50% 50%) !important;"><img src="http://img.soft98.ir/1/300x250.png" data-backup="http://file3.soft98.ir/300x250.png" alt=""></a>
+    </div>
+  </aside>
+
+  <script>
+    // Stands in for the site's script: puts its inline styles back after load and on a timer.
+    const forced = [...document.querySelectorAll('[style]')].map((element) => [element, element.getAttribute('style')]);
+    const force = () => {
+      for (const [element, style] of forced) element.setAttribute('style', style);
+      window.forced = (window.forced ?? 0) + 1;
+    };
+    for (const image of document.querySelectorAll('img[data-backup]')) {
+      image.addEventListener('error', () => {
+        if (image.src !== image.dataset.backup) image.src = image.dataset.backup;
+      });
+    }
+    addEventListener('load', force);
+    setInterval(force, 100);
+  </script>
+</body>
+</html>

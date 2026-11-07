@@ -151,10 +151,19 @@ test('an exclusion that covers an included domain is dropped, because Chrome let
   assert.ok(parseDomains(['~nota.com', 'a.com']).condition);
 });
 
-test('$popup with domain= keeps its $popup reason, and other out-of-scope options theirs', () => {
+test('a popup-only line is counted apart, and other out-of-scope options keep their reasons', () => {
   const result = convertList('@@||a.com^$popup,domain=b.com\n@@$generichide,domain=b.com\n||d.com/x.mp4$rewrite=abp-resource:blank-mp4,domain=b.com\n');
   assert.deepEqual(result.rules, []);
-  assert.deepEqual(result.dropped, { $popup: 1, 'unknown option: generichide': 1, 'unknown option: rewrite': 1 });
+  assert.equal(result.popupOnly, 1);
+  assert.deepEqual(result.dropped, { 'unknown option: generichide': 1, 'unknown option: rewrite': 1 });
+});
+
+test('a line with $popup and other types keeps its other conversion', () => {
+  const result = convertList('/earn.php?z=$popup,subdocument\n||a.com/x$popup,script,third-party\n||b.com^$popup,document\n');
+  assert.deepEqual(result.rules.map((rule) => rule.condition.resourceTypes), [['sub_frame'], ['script']]);
+  assert.equal(result.rules[1].condition.domainType, 'thirdParty');
+  assert.equal(result.popupOnly, 0);
+  assert.deepEqual(result.dropped, { $document: 1 });
 });
 
 test('a named site limits a broad pattern, so the rule converts with its scope', () => {
@@ -293,7 +302,7 @@ test('$badfilter on a block rule leaves the exception of the same text alone', (
   assert.deepEqual(dropped, { 'cancelled by $badfilter': 1, $badfilter: 1 });
 });
 
-test('$popup, $document, $all and unknown options are dropped by reason', () => {
+test('$document, $all and unknown options are dropped by reason', () => {
   const result = convertList([
     '||a.com^$popup',
     '||b.com^$popup,third-party',
@@ -304,8 +313,8 @@ test('$popup, $document, $all and unknown options are dropped by reason', () => 
     '||g.com^$strict3p',
   ].join('\n'));
   assert.deepEqual(result.rules, []);
+  assert.equal(result.popupOnly, 2);
   assert.deepEqual(result.dropped, {
-    $popup: 2,
     $document: 1,
     $all: 1,
     'unknown option: important': 1,
@@ -413,8 +422,8 @@ test('out-of-scope options drop a path rule by the same reasons as a domain rule
     '/ads/v$generichide',
   ].join('\n'));
   assert.deepEqual(result.rules, []);
+  assert.equal(result.popupOnly, 1);
   assert.deepEqual(result.dropped, {
-    $popup: 1,
     $document: 1,
     $all: 1,
     'unknown option: removeparam': 1,
@@ -475,7 +484,7 @@ test('the real lists add up, take no pattern Chrome refuses, and fit the guarant
   for (const list of available) {
     const result = convertList(readFileSync(new URL(`../lists/${list.listFile}`, import.meta.url), 'utf8'));
     const dropped = Object.values(result.dropped).reduce((sum, count) => sum + count, 0);
-    assert.equal(result.read, result.converted + dropped, list.title);
+    assert.equal(result.read, result.converted + dropped + result.popupOnly, list.title);
     assert.ok(!Object.keys(result.dropped).some((reason) => reason.includes('||domain^')), list.title);
     assert.equal(new Set(result.rules.map((rule) => rule.id)).size, result.rules.length, list.title);
     for (const { action, priority, condition } of result.rules) {
@@ -501,7 +510,7 @@ test('the real lists add up, take no pattern Chrome refuses, and fit the guarant
 
 test('the report says how many path rules there are', () => {
   const report = formatReport('List', convertList('||a.com^\n/ads/one.\n*\n'));
-  assert.match(report, /^List: read 3, converted 2, dropped 1 \(exceptions among them: 0\), output 2 rules: 1 path rules, the rest holding 1 domains/);
+  assert.match(report, /^List: read 3, converted 2, dropped 1 \(exceptions among them: 0\), 0 for popups only, output 2 rules: 1 path rules, the rest holding 1 domains/);
   assert.match(report, /1 {2}pattern too broad/);
 });
 

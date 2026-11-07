@@ -1,0 +1,776 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "viewport": [
+    900,
+    1400
+   ]
+  },
+  {
+   "sw": "chrome.runtime.getManifest().permissions",
+   "label": "permissions",
+   "equals": [
+    "storage",
+    "activeTab",
+    "declarativeNetRequest",
+    "scripting",
+    "webNavigation"
+   ]
+  },
+  {
+   "sw": "fetch(chrome.runtime.getURL('rules/popup-index.json')).then(r=>r.json()).then(i=>i.lists.map(l=>l.id))",
+   "label": "one popup file per list",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "iran"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "real click, window.open, matching tab: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#window"
+  },
+  {
+   "eval": "state()",
+   "label": "real click, a window, matching: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "sw": "chrome.windows.getAll().then(w=>w.filter(x=>x.type===\"popup\").length)",
+   "label": "popup window gone",
+   "equals": 0
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#blank-link"
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>t.filter(x=>(x.url||x.pendingUrl||'').includes('anchor.html')).length)",
+   "label": "target=_blank to a rule: closed",
+   "equals": 0
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#other"
+  },
+  {
+   "eval": "state()",
+   "label": "non-matching: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#exception"
+  },
+  {
+   "eval": "state()",
+   "label": "exception over ||doubleclick.net^$popup: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#no-exception"
+  },
+  {
+   "eval": "state()",
+   "label": "same host without the exception: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#tied-to-site"
+  },
+  {
+   "eval": "state()",
+   "label": "domain= rule, off its site: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://www.usagoals.sx/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#tied-to-site"
+  },
+  {
+   "eval": "state()",
+   "label": "domain= rule, on its site: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#third-party"
+  },
+  {
+   "eval": "state()",
+   "label": "third-party rule, from another site: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://www.actiondesk.com/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#third-party"
+  },
+  {
+   "eval": "state()",
+   "label": "third-party rule, from the same site: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#adguard"
+  },
+  {
+   "eval": "state()",
+   "label": "AdGuard Base rule: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#iran"
+  },
+  {
+   "eval": "state()",
+   "label": "PersianBlocker rule: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#blank-then-ad"
+  },
+  {
+   "eval": "state()",
+   "label": "about:blank, then a script sends it to an ad: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#empty-then-ad",
+   "settle": 2500
+  },
+  {
+   "eval": "state()",
+   "label": "empty start, sent to an ad 300 ms later: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#blank-then-other"
+  },
+  {
+   "eval": "state()",
+   "label": "about:blank, then a non-matching address: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#blank-stays"
+  },
+  {
+   "eval": "state()",
+   "label": "about:blank, left blank: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#redirect-to-ad"
+  },
+  {
+   "eval": "state()",
+   "label": "server redirect to an ad: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#redirect-to-other"
+  },
+  {
+   "eval": "state()",
+   "label": "server redirect to a non-matching address: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#blank-stays"
+  },
+  {
+   "navigateOpened": "http://11x11.com/typed.html"
+  },
+  {
+   "eval": "state()",
+   "label": "a person typing an ad address into a blank popup: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#sign-in"
+  },
+  {
+   "eval": "({...state(),heard:window.heard})",
+   "label": "sign-in shaped window stays and reaches its opener",
+   "equals": {
+    "opened": true,
+    "closed": false,
+    "heard": "sign-in"
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#payment"
+  },
+  {
+   "eval": "({...state(),heard:window.heard})",
+   "label": "payment shaped tab stays and reaches its opener",
+   "equals": {
+    "opened": true,
+    "closed": false,
+    "heard": "payment"
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#link",
+   "modifiers": [
+    "ctrl"
+   ]
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>t.filter(x=>(x.url||x.pendingUrl||'').includes('person.html')).length)",
+   "label": "Ctrl+click on a link with a rule: stays",
+   "equals": 1
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#link",
+   "button": "middle"
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>t.filter(x=>(x.url||x.pendingUrl||'').includes('person.html')).length)",
+   "label": "middle-click on a link with a rule: stays",
+   "equals": 1
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#link",
+   "modifiers": [
+    "shift"
+   ]
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>t.filter(x=>(x.url||x.pendingUrl||'').includes('person.html')).length)",
+   "label": "Shift+click, new window: stays",
+   "equals": 1
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#link",
+   "modifiers": [
+    "ctrl",
+    "shift"
+   ]
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>t.filter(x=>(x.url||x.pendingUrl||'').includes('person.html')).length)",
+   "label": "known limit: Ctrl+Shift+click looks like target=_blank and closes",
+   "equals": 0
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"popups\":false}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"popups\":false}"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "Popups switch off: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"popups\":true}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"popups\":true}"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "Popups switch back on: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"lists\":{\"ads\":false,\"ads-adguard-base\":true,\"iran\":true,\"cpab-own\":true,\"trackers\":true}}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"lists\":{\"ads\":false,\"ads-adguard-base\":true,\"iran\":true,\"cpab-own\":true,\"trackers\":true}}"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "EasyList off: its rule: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#adguard"
+  },
+  {
+   "eval": "state()",
+   "label": "EasyList off: AdGuard Base rule still closes: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"lists\":{\"ads\":true,\"ads-adguard-base\":true,\"iran\":true,\"cpab-own\":true,\"trackers\":true}}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"lists\":{\"ads\":true,\"ads-adguard-base\":true,\"iran\":true,\"cpab-own\":true,\"trackers\":true}}"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"groups\":{\"ads\":false,\"trackers\":true}}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"groups\":{\"ads\":false,\"trackers\":true}}"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "Ads group off: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#iran"
+  },
+  {
+   "eval": "state()",
+   "label": "Ads group off, Iran list: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"groups\":{\"ads\":true,\"trackers\":true}}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"groups\":{\"ads\":true,\"trackers\":true}}"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"master\":false}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"master\":false}"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "master off: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"master\":true}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"master\":true}"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"pausedSites\":[\"fixtures.localhost\"]}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"pausedSites\":[\"fixtures.localhost\"]}"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "opening site paused: stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://www.usagoals.sx/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "another site, not paused: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"pausedSites\":[\"11x11.com\"]}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"pausedSites\":[\"11x11.com\"]}"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "pause is judged on the opener, not the ad: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,...{\"pausedSites\":[]}}})).then(()=>new Promise(r=>setTimeout(r,250))).then(()=>'set')",
+   "label": "settings {\"pausedSites\":[]}"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "stopWorker": "settings/settings.html"
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "eval": "state()",
+   "label": "stopped worker: matching tab closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "stopWorker": "settings/settings.html"
+  },
+  {
+   "click": "#other"
+  },
+  {
+   "eval": "state()",
+   "label": "stopped worker: non-matching stays",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>{const keep=t.find(x=>(x.url||'').includes('popups.html'));return chrome.tabs.remove(t.filter(x=>x.id!==keep?.id&&x.index>=0&&!x.url?.startsWith('chrome')&&x.url!=='about:blank'||x.openerTabId===keep?.id).map(x=>x.id))}).then(()=>'clean')",
+   "label": "close what stayed"
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "stopWorker": "settings/settings.html"
+  },
+  {
+   "click": "#blank-then-ad"
+  },
+  {
+   "eval": "state()",
+   "label": "stopped worker: blank then ad, closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#blank-later",
+   "settle": 200
+  },
+  {
+   "stopWorker": "settings/settings.html"
+  },
+  {
+   "wait": 4000
+  },
+  {
+   "eval": "state()",
+   "label": "worker stopped between the blank start and the navigation: closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "sw": "chrome.storage.session.get(null).then(s=>Object.keys(s).length)",
+   "label": "no watch left behind"
+  }
+ ]
+}

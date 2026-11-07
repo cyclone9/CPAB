@@ -1,0 +1,9 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Sign-in shaped page</title></head>
+<body>
+  <p>Answers the page that opened it, as a sign-in or payment window does.</p>
+  <script>window.opener?.postMessage(location.search.slice(1), '*');</script>
+</body>
+</html>

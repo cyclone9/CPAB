@@ -1,0 +1,154 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "open": "http://soft98.ir/soft98.html",
+   "settle": 1200
+  },
+  {
+   "expectBlocked": "img.soft98.ir/1/ircd10.gif"
+  },
+  {
+   "expectBlocked": "file3.soft98.ir/ircd10.gif"
+  },
+  {
+   "expectBlocked": "img.soft98.ir/1/wide.gif"
+  },
+  {
+   "expectBlocked": "img.soft98.ir/1/side.gif"
+  },
+  {
+   "expectBlocked": "img.soft98.ir/1/box.gif"
+  },
+  {
+   "expectLoaded": "img.soft98.ir/1/300x250.png"
+  },
+  {
+   "expectLoaded": "cdn.soft98.ir/icons/winrar.png"
+  },
+  {
+   "eval": "document.fonts.ready.then(()=>({top:document.querySelector('#top-box').getBoundingClientRect().height,wide:document.querySelector('#wide-box').getBoundingClientRect().height,side:document.querySelector('#sbds').getBoundingClientRect().height,adBox:document.querySelector('#ad-box').getBoundingClientRect().height,rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,labels:[...document.querySelectorAll('.abddp')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(document.querySelector('#tbdl')).display,listShown:document.querySelector('#tbdl').getBoundingClientRect().height>0&&document.querySelector('.tbdll').getBoundingClientRect().height>0,sidebarShown:document.querySelector('#sbd').getBoundingClientRect().height>0,inline:document.querySelector('#abddh').style.getPropertyPriority('display'),timer:window.forced>1}))",
+   "label": "ad boxes at zero height, software list stays",
+   "equals": {
+    "top": 0,
+    "wide": 0,
+    "side": 0,
+    "adBox": 0,
+    "rules": 0,
+    "labels": 0,
+    "list": "flex",
+    "listShown": true,
+    "sidebarShown": true,
+    "inline": "important",
+    "timer": true
+   }
+  },
+  {
+   "eval": "new Promise(r=>setTimeout(r,1500)).then(()=>({top:document.querySelector('#top-box').getBoundingClientRect().height,wide:document.querySelector('#wide-box').getBoundingClientRect().height,side:document.querySelector('#sbds').getBoundingClientRect().height,adBox:document.querySelector('#ad-box').getBoundingClientRect().height,rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,labels:[...document.querySelectorAll('.abddp')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(document.querySelector('#tbdl')).display,listShown:document.querySelector('#tbdl').getBoundingClientRect().height>0&&document.querySelector('.tbdll').getBoundingClientRect().height>0,sidebarShown:document.querySelector('#sbd').getBoundingClientRect().height>0,inline:document.querySelector('#abddh').style.getPropertyPriority('display'),timer:window.forced>1}))",
+   "label": "still so after 1.5 s of the page re-applying its styles",
+   "equals": {
+    "top": 0,
+    "wide": 0,
+    "side": 0,
+    "adBox": 0,
+    "rules": 0,
+    "labels": 0,
+    "list": "flex",
+    "listShown": true,
+    "sidebarShown": true,
+    "inline": "important",
+    "timer": true
+   }
+  },
+  {
+   "eval": "(()=>{const s=document.createElement('style');s.textContent='#abddh{display:none!important}';document.head.append(s);const d=getComputedStyle(document.querySelector('#abddh')).display;s.remove();return d})()",
+   "label": "a plain display:none loses to the inline style",
+   "equals": "block"
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(t=>t.find(x=>(x.url||'').includes('soft98.html'))).then(t=>chrome.scripting.insertCSS({target:{tabId:t.id},origin:'USER',css:'#abddw{display:none!important}'}).then(()=>new Promise(r=>setTimeout(r,300))).then(()=>chrome.scripting.executeScript({target:{tabId:t.id},func:()=>getComputedStyle(document.querySelector('#abddw')).display}))).then(([r])=>r.result)",
+   "label": "a USER origin display:none would beat it too",
+   "equals": "none"
+  },
+  {
+   "open": "http://www.soft98.ir/soft98.html",
+   "settle": 1000
+  },
+  {
+   "eval": "({top:document.querySelector('#top-box').getBoundingClientRect().height,wide:document.querySelector('#wide-box').getBoundingClientRect().height,side:document.querySelector('#sbds').getBoundingClientRect().height,adBox:document.querySelector('#ad-box').getBoundingClientRect().height,rules:[...document.querySelectorAll('#sbd > hr')].filter(e=>e.getBoundingClientRect().height>0).length,labels:[...document.querySelectorAll('.abddp')].filter(e=>e.getBoundingClientRect().height>0).length,list:getComputedStyle(document.querySelector('#tbdl')).display,listShown:document.querySelector('#tbdl').getBoundingClientRect().height>0&&document.querySelector('.tbdll').getBoundingClientRect().height>0,sidebarShown:document.querySelector('#sbd').getBoundingClientRect().height>0,inline:document.querySelector('#abddh').style.getPropertyPriority('display'),timer:window.forced>1})",
+   "label": "www works the same",
+   "equals": {
+    "top": 0,
+    "wide": 0,
+    "side": 0,
+    "adBox": 0,
+    "rules": 0,
+    "labels": 0,
+    "list": "flex",
+    "listShown": true,
+    "sidebarShown": true,
+    "inline": "important",
+    "timer": true
+   }
+  },
+  {
+   "open": "http://forum.soft98.ir/soft98.html",
+   "settle": 1000
+  },
+  {
+   "expectLoaded": "img.soft98.ir/1/ircd10.gif"
+  },
+  {
+   "open": "http://page.fixtures.localhost/soft98.html",
+   "settle": 1000
+  },
+  {
+   "expectLoaded": "img.soft98.ir/1/ircd10.gif"
+  },
+  {
+   "eval": "document.querySelector('#top-box').getBoundingClientRect().height>0",
+   "label": "another site: rules do not apply",
+   "equals": true
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,lists:{...settings.lists,'cpab-own':false}}}))",
+   "label": "own list off"
+  },
+  {
+   "open": "http://soft98.ir/soft98.html",
+   "settle": 1000
+  },
+  {
+   "expectLoaded": "img.soft98.ir/1/ircd10.gif"
+  },
+  {
+   "eval": "document.querySelector('#top-box').getBoundingClientRect().height>0",
+   "label": "own list off: nothing collapses",
+   "equals": true
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,lists:{...settings.lists,'cpab-own':true},pausedSites:['soft98.ir']}}))",
+   "label": "own list on, site paused"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "open": "http://soft98.ir/soft98.html",
+   "settle": 1000
+  },
+  {
+   "expectLoaded": "img.soft98.ir/1/ircd10.gif"
+  },
+  {
+   "eval": "document.querySelector('#top-box').getBoundingClientRect().height>0",
+   "label": "paused: nothing collapses",
+   "equals": true
+  }
+ ]
+}

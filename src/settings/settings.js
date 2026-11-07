@@ -261,6 +261,7 @@ function render() {
   byId('master').checked = settings.master;
   byId('master-note').hidden = settings.master;
   byId('badge').checked = settings.badge;
+  byId('popups').checked = settings.popups;
   for (const toggle of document.querySelectorAll('[data-group]')) {
     toggle.checked = settings.groups[toggle.dataset.group];
   }
@@ -289,6 +290,7 @@ async function save(change) {
 
 byId('master').addEventListener('change', (event) => save({ master: event.target.checked }));
 byId('badge').addEventListener('change', (event) => save({ badge: event.target.checked }));
+byId('popups').addEventListener('change', (event) => save({ popups: event.target.checked }));
 
 for (const toggle of document.querySelectorAll('[data-group]')) {
   toggle.addEventListener('change', () => save((current) => ({

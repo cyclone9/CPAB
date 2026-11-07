@@ -343,12 +343,31 @@ test('the content script never logs and runs nothing from a list', () => {
 test('the real lists give selectors that all pass the check, and the own list hides the kojaro banner', () => {
   const available = LISTS.filter((list) => existsSync(new URL(`../lists/${list.listFile}`, import.meta.url)));
   for (const list of available) {
-    const css = readCss(readFileSync(new URL(`../lists/${list.listFile}`, import.meta.url), 'utf8'));
+    const css = readCss(readFileSync(new URL(`../lists/${list.listFile}`, import.meta.url), 'utf8'), { ownFormat: list.ownFormat });
     const dropped = Object.values(css.dropped).reduce((sum, count) => sum + count, 0);
     assert.equal(css.read, css.converted + dropped, list.title);
     for (const selector of css.generic) assert.equal(selectorProblem(selector), null, selector);
   }
-  const own = finish(readFileSync(new URL('../lists/cpab-own.txt', import.meta.url), 'utf8'));
-  assert.deepEqual(Object.keys(own.sites), ['kojaro.com']);
+  const own = finishCss(readCss(readFileSync(new URL('../lists/cpab-own.txt', import.meta.url), 'utf8'), { ownFormat: true }), new Set(), new Set());
+  assert.deepEqual(own.stats.dropped, {});
+  assert.deepEqual(Object.keys(own.sites), ['kojaro.com', 'soft98.ir']);
   assert.ok(own.sites['kojaro.com'].includes('button[aria-label="بستن تبلیغ"]'));
+  // Each of these holds the site's real software list, so no rule may end on one of them.
+  assert.doesNotMatch(own.sites['soft98.ir'], /(?:#sbd|#tbdl|\.tbdl|\.cbddh)\{/);
+});
+
+test('only the own list can collapse a box, only on a named site, and the CSS comes from here', () => {
+  const line = 'a.com##.box:cpab-collapse';
+  assert.deepEqual(parseHidingLine(line), { dropped: 'unsupported :cpab-collapse', allow: false });
+  assert.deepEqual(parseHidingLine('##.box:cpab-collapse', true), { dropped: 'collapse needs a site', allow: false });
+  assert.deepEqual(parseHidingLine('a.com#@#.box:cpab-collapse', true), { dropped: 'collapse needs a site', allow: true });
+  assert.deepEqual(parseHidingLine('a.com##.box{color:red}:cpab-collapse', true), { dropped: 'refused: brace', allow: false });
+  assert.equal(parseHidingLine('a.com##html:cpab-collapse', true).dropped, 'hides the whole page');
+
+  const own = finishCss(readCss(`${line}\na.com##.plain\n`, { ownFormat: true }), new Set(), new Set());
+  assert.equal(
+    own.sites['a.com'],
+    '.box{min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}.plain{display:none!important}',
+  );
+  assert.deepEqual(finishCss(readCss(line), new Set(), new Set()).sites, {});
 });
