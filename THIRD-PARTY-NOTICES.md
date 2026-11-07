@@ -72,6 +72,28 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.
 - **Snapshot:** 2026-11-07, version 2.0.87.25, commit 360326836b0f101549f538ed4668d6c4884133bc
 - **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
+
+## AdGuard Widgets filter
+
+- **Title:** AdGuard Widgets filter
+- **Attribution:** AdGuard (https://github.com/AdguardTeam/AdguardFilters)
+- **Homepage:** https://github.com/AdguardTeam/AdguardFilters
+- **Source:** https://filters.adtidy.org/extension/ublock/filters/22.txt
+- **Licence of the converted file:** GPL-3.0-only, SPDX `GPL-3.0-only`, https://www.gnu.org/licenses/gpl-3.0.html
+- **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.
+- **Snapshot:** 2026-11-07, version 2.0.15.49, commit efb922d1da13ca0ce81a35e52e2394d319844ed7
+- **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
+
+## Fanboy's Social Blocking List
+
+- **Title:** Fanboy's Social Blocking List
+- **Attribution:** The EasyList authors (https://easylist.to/)
+- **Homepage:** https://easylist.to/
+- **Source:** https://easylist.to/easylist/fanboy-social.txt
+- **Licence of the converted file:** CC BY-SA 4.0, SPDX `CC-BY-SA-4.0`, https://creativecommons.org/licenses/by-sa/4.0/
+- **Licence of the list:** GPL-3.0-or-later or CC BY-SA 3.0 or later, at our choice. CPAB takes the CC BY-SA side, at version 4.0, for the converted file.
+- **Snapshot:** 2026-11-07, version 202611072044, commit 25b9c58ab288bd50d50cc63ae8b82073cca1129b
+- **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
 <!-- lists:end -->
 
 ## Vazirmatn

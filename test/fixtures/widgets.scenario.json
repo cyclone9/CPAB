@@ -1,0 +1,301 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>['widgets-adguard','widgets-fanboy-social'].every(id=>r.includes(id)))",
+   "label": "both Widgets rulesets on at install",
+   "equals": true
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>['generic-css-widgets-adguard','generic-css-widgets-fanboy-social'].map(id=>s.some(x=>x.id===id)))",
+   "label": "both generic sheets registered",
+   "equals": [
+    true,
+    true
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>[settings.groups.widgets,settings.lists['widgets-adguard'],settings.lists['widgets-fanboy-social']])",
+   "label": "Widgets on by default, both lists on",
+   "equals": [
+    true,
+    true,
+    true
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('css:widgets-adguard:cornellsun.com').then(s=>s['css:widgets-adguard:cornellsun.com'])",
+   "label": "cornellsun.com site CSS stored, the style rule after the hiding rules",
+   "equals": "#cds-donate-modal{display:none!important}#cds-donate-modal ~ .modal-backdrop{display:none!important}body.modal-open{overflow:auto!important}"
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getAvailableStaticRuleCount()",
+   "label": "availableStaticRules with every ruleset on"
+  },
+  {
+   "open": "http://starwars.com/widgets.html?step=on",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "all on: chat, social bar and social button hidden, both scripts blocked",
+   "equals": {
+    "chat": "none",
+    "social": "none",
+    "button": "none",
+    "dialog": "block",
+    "overflow": "hidden",
+    "content": "block"
+   }
+  },
+  {
+   "expectBlocked": "chat.quickcep.com/widget-on.js"
+  },
+  {
+   "expectBlocked": "bshare.cn/widget-on.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,ads:false,trackers:false,popups:false}}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "Ads, Trackers and Popups off, Widgets on"
+  },
+  {
+   "open": "http://starwars.com/widgets.html?step=othersoff",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "other groups off: Widgets still hides and blocks",
+   "equals": {
+    "chat": "none",
+    "social": "none",
+    "button": "none",
+    "dialog": "block",
+    "overflow": "hidden",
+    "content": "block"
+   }
+  },
+  {
+   "expectBlocked": "chat.quickcep.com/widget-othersoff.js"
+  },
+  {
+   "expectBlocked": "bshare.cn/widget-othersoff.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,ads:true,trackers:true,popups:true,widgets:false}}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "Widgets group off"
+  },
+  {
+   "sw": "chrome.scripting.getRegisteredContentScripts().then(s=>['generic-css-widgets-adguard','generic-css-widgets-fanboy-social'].map(id=>s.some(x=>x.id===id)))",
+   "label": "Widgets off: both generic sheets gone",
+   "equals": [
+    false,
+    false
+   ]
+  },
+  {
+   "open": "http://starwars.com/widgets.html?step=groupoff",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "Widgets group off: everything shown, both scripts load",
+   "equals": {
+    "chat": "block",
+    "social": "block",
+    "button": "block",
+    "dialog": "block",
+    "overflow": "hidden",
+    "content": "block"
+   }
+  },
+  {
+   "expectLoaded": "chat.quickcep.com/widget-groupoff.js"
+  },
+  {
+   "expectLoaded": "bshare.cn/widget-groupoff.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,widgets:true},lists:{...settings.lists,'widgets-adguard':false}}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "Widgets on, AdGuard Widgets list off"
+  },
+  {
+   "open": "http://starwars.com/widgets.html?step=adguardoff",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "AdGuard Widgets off: its chat and social bar shown, the Fanboy button still hidden",
+   "equals": {
+    "chat": "block",
+    "social": "block",
+    "button": "none",
+    "dialog": "block",
+    "overflow": "hidden",
+    "content": "block"
+   }
+  },
+  {
+   "expectLoaded": "chat.quickcep.com/widget-adguardoff.js"
+  },
+  {
+   "expectBlocked": "bshare.cn/widget-adguardoff.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,lists:{...settings.lists,'widgets-adguard':true,'widgets-fanboy-social':false}}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "AdGuard Widgets on, Fanboy's Social off"
+  },
+  {
+   "open": "http://starwars.com/widgets.html?step=fanboyoff",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "Fanboy's Social off: its button shown, AdGuard's chat and social bar still hidden",
+   "equals": {
+    "chat": "none",
+    "social": "none",
+    "button": "block",
+    "dialog": "block",
+    "overflow": "hidden",
+    "content": "block"
+   }
+  },
+  {
+   "expectBlocked": "chat.quickcep.com/widget-fanboyoff.js"
+  },
+  {
+   "expectLoaded": "bshare.cn/widget-fanboyoff.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,lists:{...settings.lists,'widgets-fanboy-social':true},pausedSites:['starwars.com']}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "both lists on, starwars.com paused"
+  },
+  {
+   "open": "http://starwars.com/widgets.html?step=paused",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "site paused: everything shown, both scripts load",
+   "equals": {
+    "chat": "block",
+    "social": "block",
+    "button": "block",
+    "dialog": "block",
+    "overflow": "hidden",
+    "content": "block"
+   }
+  },
+  {
+   "expectLoaded": "chat.quickcep.com/widget-paused.js"
+  },
+  {
+   "expectLoaded": "bshare.cn/widget-paused.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,pausedSites:[],master:false}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "pause lifted, master off"
+  },
+  {
+   "open": "http://starwars.com/widgets.html?step=masteroff",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "master off: everything shown, both scripts load",
+   "equals": {
+    "chat": "block",
+    "social": "block",
+    "button": "block",
+    "dialog": "block",
+    "overflow": "hidden",
+    "content": "block"
+   }
+  },
+  {
+   "expectLoaded": "chat.quickcep.com/widget-masteroff.js"
+  },
+  {
+   "expectLoaded": "bshare.cn/widget-masteroff.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,master:true}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "master on"
+  },
+  {
+   "open": "http://starwars.com/widgets.html?step=back",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "all back on: hidden and blocked again",
+   "equals": {
+    "chat": "none",
+    "social": "none",
+    "button": "none",
+    "dialog": "block",
+    "overflow": "hidden",
+    "content": "block"
+   }
+  },
+  {
+   "expectBlocked": "chat.quickcep.com/widget-back.js"
+  },
+  {
+   "expectBlocked": "bshare.cn/widget-back.js"
+  },
+  {
+   "open": "http://cornellsun.com/widgets.html?step=cornell",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "cornellsun.com: its dialog hidden and scrolling back; .social-copy-container stays, it is a starwars.com rule",
+   "equals": {
+    "chat": "none",
+    "social": "block",
+    "button": "none",
+    "dialog": "none",
+    "overflow": "auto",
+    "content": "block"
+   }
+  },
+  {
+   "expectBlocked": "chat.quickcep.com/widget-cornell.js"
+  },
+  {
+   "expectBlocked": "bshare.cn/widget-cornell.js"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,widgets:false}}})).then(()=>new Promise(r=>setTimeout(r,600))).then(()=>'set')",
+   "label": "Widgets group off"
+  },
+  {
+   "open": "http://cornellsun.com/widgets.html?step=cornelloff",
+   "settle": 700
+  },
+  {
+   "eval": "({chat:getComputedStyle(document.querySelector('.online-chat-root-Verbox')).display,social:getComputedStyle(document.querySelector('.social-copy-container')).display,button:getComputedStyle(document.querySelector('#FacebookLikeBox')).display,dialog:getComputedStyle(document.querySelector('#cds-donate-modal')).display,overflow:getComputedStyle(document.body).overflow,content:getComputedStyle(document.querySelector('#content')).display})",
+   "label": "cornellsun.com with Widgets off: dialog shown, page locked as the page wants",
+   "equals": {
+    "chat": "block",
+    "social": "block",
+    "button": "block",
+    "dialog": "block",
+    "overflow": "hidden",
+    "content": "block"
+   }
+  },
+  {
+   "expectLoaded": "chat.quickcep.com/widget-cornelloff.js"
+  },
+  {
+   "expectLoaded": "bshare.cn/widget-cornelloff.js"
+  }
+ ]
+}

@@ -304,7 +304,7 @@ async function runHide(hostname, stored) {
 }
 
 test('the content script knows every list, in its group', () => {
-  const [, table] = hideSource.match(/LIST_GROUPS = (\{.*\});/);
+  const [, table] = hideSource.match(/LIST_GROUPS = (\{[\s\S]*?\});/);
   const groups = vm.runInNewContext(`(${table})`);
   const expected = Object.fromEntries(Object.entries(GROUP_RULESETS).flatMap(([group, lists]) => lists.map((list) => [list, group])));
   assert.deepEqual({ ...groups }, expected);

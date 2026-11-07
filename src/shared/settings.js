@@ -12,6 +12,7 @@ export const GROUP_RULESETS = Object.freeze({
   ads: Object.freeze(['ads', 'ads-adguard-base', 'iran', 'cpab-own']),
   trackers: Object.freeze(['trackers', 'trackers-hagezi-light']),
   popups: Object.freeze(['popups-adguard']),
+  widgets: Object.freeze(['widgets-adguard', 'widgets-fanboy-social']),
 });
 
 export const GROUP_IDS = Object.freeze(Object.keys(GROUP_RULESETS));
@@ -19,7 +20,7 @@ export const RULESET_IDS = Object.freeze(Object.values(GROUP_RULESETS).flat());
 
 export const DEFAULTS = Object.freeze({
   master: true,
-  groups: Object.freeze({ ads: true, trackers: true, popups: true }),
+  groups: Object.freeze({ ads: true, trackers: true, popups: true, widgets: true }),
   lists: Object.freeze(Object.fromEntries(RULESET_IDS.map((id) => [id, true]))),
   pausedSites: Object.freeze([]),
   blockedSites: Object.freeze([]),

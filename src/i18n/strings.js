@@ -56,7 +56,9 @@ export const STRINGS = {
     groupPopupsDesc: 'Ad tabs and windows that open by themselves, and pop-ups inside pages.',
     listPopupsAdguardDesc: 'Pop-ups, overlays and newsletter or notification prompts inside pages.',
     groupWidgets: 'Widgets',
-    groupWidgetsDesc: 'Recommendation boxes, sticky bars, chat and social media boxes.',
+    groupWidgetsDesc: 'Chat bubbles, social media and share buttons, and other widgets inside pages.',
+    listWidgetsAdguardDesc: 'Live chat and support bubbles, and other third-party widgets inside pages.',
+    listFanboySocialDesc: 'Social media buttons, share bars and embedded feeds.',
 
     protectionIntro: 'Whole-site checks that run on your device.',
     harmful: 'Harmful sites',
@@ -182,7 +184,9 @@ export const STRINGS = {
     groupPopupsDesc: 'زبانه‌ها و پنجره‌های تبلیغی که خودشان باز می‌شوند، و پاپ‌آپ‌های درون صفحه.',
     listPopupsAdguardDesc: 'پاپ‌آپ‌ها، لایه‌های روی صفحه و درخواست‌های خبرنامه یا اعلان درون صفحه‌ها.',
     groupWidgets: 'کادرهای مزاحم',
-    groupWidgetsDesc: 'کادرهای پیشنهاد، نوارهای ثابت، گفتگو و شبکه‌های اجتماعی.',
+    groupWidgetsDesc: 'حباب‌های گفت‌وگو، دکمه‌های شبکه‌های اجتماعی و اشتراک‌گذاری، و دیگر کادرهای درون صفحه.',
+    listWidgetsAdguardDesc: 'حباب‌های گفت‌وگو و پشتیبانی آنلاین، و دیگر کادرهای بیرونی درون صفحه‌ها.',
+    listFanboySocialDesc: 'دکمه‌های شبکه‌های اجتماعی، نوارهای اشتراک‌گذاری و محتوای جاسازی‌شدهٔ این شبکه‌ها.',
 
     protectionIntro: 'بررسی کل سایت، روی همین دستگاه.',
     harmful: 'سایت‌های مضر',

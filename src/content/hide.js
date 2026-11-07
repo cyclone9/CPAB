@@ -4,7 +4,12 @@
 {
   // Each list and its group, as in GROUP_RULESETS: a content script can't import, and
   // test/css.test.js fails if the two differ.
-  const LIST_GROUPS = { ads: 'ads', 'ads-adguard-base': 'ads', iran: 'ads', 'cpab-own': 'ads', trackers: 'trackers', 'trackers-hagezi-light': 'trackers', 'popups-adguard': 'popups' };
+  const LIST_GROUPS = {
+    ads: 'ads', 'ads-adguard-base': 'ads', iran: 'ads', 'cpab-own': 'ads',
+    trackers: 'trackers', 'trackers-hagezi-light': 'trackers',
+    'popups-adguard': 'popups',
+    'widgets-adguard': 'widgets', 'widgets-fanboy-social': 'widgets',
+  };
 
   const isOn = (settings, list) => settings?.master !== false
     && settings?.groups?.[LIST_GROUPS[list]] !== false

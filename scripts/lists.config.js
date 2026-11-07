@@ -255,6 +255,70 @@ export const LISTS = [
       },
     },
   },
+  {
+    name: 'adguard-widgets',
+    group: 'widgets',
+    descriptionKey: 'listWidgetsAdguardDesc',
+    ruleset: 'widgets-adguard',
+    listFile: 'adguard-widgets.txt',
+    metaFile: 'adguard-widgets.meta.json',
+    rulesFile: 'widgets-adguard.json',
+    required: true,
+    // A few of its :style() rules give a page back its scrolling once a chat or dialog is hidden.
+    cssStyles: true,
+    title: 'AdGuard Widgets filter',
+    // Filter 22 in AdGuard's FiltersRegistry, fetched like the Popups filter.
+    url: 'https://filters.adtidy.org/extension/ublock/filters/22.txt',
+    commitApi: 'https://api.github.com/repos/AdguardTeam/AdguardFilters/commits/master',
+    homepage: 'https://github.com/AdguardTeam/AdguardFilters',
+    sourceLink: 'https://github.com/AdguardTeam/AdguardFilters',
+    attribution: 'AdGuard (https://github.com/AdguardTeam/AdguardFilters)',
+    licence: {
+      name: 'GPL-3.0-only',
+      spdx: 'GPL-3.0-only',
+      url: 'https://www.gnu.org/licenses/gpl-3.0.html',
+      source: 'The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.',
+    },
+    admission: {
+      reviewed: '2026-11-07',
+      result: 'admitted',
+      checks: {
+        licenceStated: 'Admitted in the licence review of 2026-11-04 (section 8). Rechecked on 2026-11-07: the list header "License:" points to https://github.com/AdguardTeam/AdguardFilters/blob/master/LICENSE, and that file is the GPLv3 text, byte-identical to CPAB\'s own LICENSE (SHA-256 3972dc97...b36986).',
+        licenceAccepted: 'GPL-3.0 is on the accepted set, only or later.',
+        notRefused: 'No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.',
+        attribution: 'AdGuard (https://github.com/AdguardTeam/AdguardFilters), shown in settings and THIRD-PARTY-NOTICES.md.',
+        aggregated: 'AdGuard\'s own work. The FiltersRegistry template for filter 22 (filters/filter_22_Annoyances_Widgets/template.txt, read on 2026-11-07) includes only AnnoyancesFilter/Widgets/sections/widgets.txt from AdGuard\'s own repository, and the fetched file has no !#include line.',
+        ownFile: 'The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.',
+        retrievable: 'A stable URL, a dated snapshot with its SHA-256 and the list\'s own Version line. The recorded commit is the head of AdguardFilters just after the download, so the file was built from that commit or an earlier one; the snapshot in lists/ is the exact copy used.',
+      },
+    },
+  },
+  {
+    name: 'fanboy-social',
+    group: 'widgets',
+    descriptionKey: 'listFanboySocialDesc',
+    ruleset: 'widgets-fanboy-social',
+    listFile: 'fanboy-social.txt',
+    metaFile: 'fanboy-social.meta.json',
+    rulesFile: 'widgets-fanboy-social.json',
+    required: true,
+    title: 'Fanboy\'s Social Blocking List',
+    // The easylist.to copy, whose header points to the EasyList licence. The copy on fanboy.co.nz
+    // carries a different licence line.
+    url: 'https://easylist.to/easylist/fanboy-social.txt',
+    homepage: 'https://easylist.to/',
+    attribution: 'The EasyList authors (https://easylist.to/)',
+    licence: EASYLIST_LICENCE,
+    admission: {
+      ...easylistAdmission('Fanboy\'s Social Blocking List'),
+      reviewed: '2026-11-07',
+      checks: {
+        ...easylistAdmission('Fanboy\'s Social Blocking List').checks,
+        licenceStated: 'Admitted in the licence review of 2026-11-04 (section 8) as part of the EasyList repository. Rechecked on 2026-11-07: the header of the easylist.to copy says "Licence: https://easylist.to/pages/licence.html", the page EasyList itself points to.',
+        aggregated: 'Not an aggregate: built from the fanboy-addon templates in the EasyList repository. The file has no !#include line.',
+      },
+    },
+  },
 ];
 
 // Stored under this name beside the rule file, because AGPLv3 needs the text with the work.

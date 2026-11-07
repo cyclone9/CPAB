@@ -6,6 +6,18 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.5',
+    date: '2026-11-07',
+    en: [
+      'The Widgets switch now works and is on by default. It hides chat and support bubbles, social media and share buttons, and embedded social feeds inside pages, and gives back scrolling on sites AdGuard Widgets names.',
+      'Widgets has two source lists, AdGuard Widgets and Fanboy\'s Social Blocking List, each with its own switch.',
+    ],
+    fa: [
+      'کلید کادرهای مزاحم حالا کار می‌کند و به‌طور پیش‌فرض روشن است. حباب‌های گفت‌وگو و پشتیبانی، دکمه‌های شبکه‌های اجتماعی و اشتراک‌گذاری و محتوای جاسازی‌شدهٔ این شبکه‌ها را در صفحه‌ها پنهان می‌کند و در سایت‌هایی که AdGuard Widgets نامشان را برده، اسکرول را آزاد می‌کند.',
+      'این بخش دو فهرست مبدأ دارد، AdGuard Widgets و Fanboy\'s Social Blocking List، و هر کدام کلید جداگانه دارد.',
+    ],
+  },
+  {
     version: '0.2.4',
     date: '2026-11-07',
     en: [

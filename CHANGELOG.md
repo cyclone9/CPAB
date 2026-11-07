@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Widgets is now a working switch, on by default, with AdGuard Widgets (GPL-3.0-only) and Fanboy's Social Blocking List (CC BY-SA 4.0) as source lists, each with its own switch; it hides chat and support bubbles and social media and share buttons, and gives back scrolling on sites AdGuard Widgets names.
+- Fanboy's Annoyance list is not used, because half of it is EasyList Cookie rules, and hiding cookie notices can break consent walls.
 - Popups now also hides pop-ups and overlays inside pages, using the AdGuard Popups filter as its source list with its own switch, and gives back scrolling on sites the list names.
 - `:style()` rules are converted as plain CSS for AdGuard Popups only, with checks on every declaration; scriptlets are still never converted.
 - HaGeZi Multi Light (GPL-3.0-only) is a second list under Trackers, with its own switch.

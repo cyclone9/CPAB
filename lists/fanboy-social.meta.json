@@ -1,0 +1,34 @@
+{
+  "name": "fanboy-social",
+  "group": "widgets",
+  "descriptionKey": "listFanboySocialDesc",
+  "title": "Fanboy's Social Blocking List",
+  "homepage": "https://easylist.to/",
+  "attribution": "The EasyList authors (https://easylist.to/)",
+  "licence": {
+    "name": "CC BY-SA 4.0",
+    "spdx": "CC-BY-SA-4.0",
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source": "GPL-3.0-or-later or CC BY-SA 3.0 or later, at our choice. CPAB takes the CC BY-SA side, at version 4.0, for the converted file."
+  },
+  "admission": {
+    "reviewed": "2026-11-07",
+    "result": "admitted",
+    "checks": {
+      "licenceStated": "Admitted in the licence review of 2026-11-04 (section 8) as part of the EasyList repository. Rechecked on 2026-11-07: the header of the easylist.to copy says \"Licence: https://easylist.to/pages/licence.html\", the page EasyList itself points to.",
+      "licenceAccepted": "GPL-3.0-or-later and CC BY-SA 3.0 or later are both on the accepted set.",
+      "notRefused": "No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.",
+      "attribution": "The EasyList authors (https://easylist.to/), shown in settings and THIRD-PARTY-NOTICES.md.",
+      "aggregated": "Not an aggregate: built from the fanboy-addon templates in the EasyList repository. The file has no !#include line.",
+      "ownFile": "The converted rules are one file of their own, never merged with another list.",
+      "retrievable": "A stable URL, and the snapshot records the list's own version and commit."
+    }
+  },
+  "sourceUrl": "https://easylist.to/easylist/fanboy-social.txt",
+  "snapshot": {
+    "date": "2026-11-07",
+    "sha256": "7e5c9eda55829510c0dc7a5a08e8cf4024748a0a0bb25fc315d056ca78a933a1",
+    "listVersion": "202611072044",
+    "listCommit": "25b9c58ab288bd50d50cc63ae8b82073cca1129b"
+  }
+}

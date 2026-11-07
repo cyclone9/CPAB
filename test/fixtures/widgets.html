@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CPAB widgets fixture</title>
+<style>
+  /* What a page does while a dialog is open: the page can't scroll. */
+  body.modal-open { overflow: hidden; }
+  .online-chat-root-Verbox, .social-copy-container, #FacebookLikeBox, #cds-donate-modal, #content { display: block; }
+</style>
+</head>
+<body class="modal-open">
+<p>Served as starwars.com and cornellsun.com for widgets.scenario.json, through --host-resolver-rules.
+.online-chat-root-Verbox is a generic rule of AdGuard Widgets, .social-copy-container its starwars.com rule, #cds-donate-modal
+and body.modal-open:style() its cornellsun.com rules, and chat.quickcep.com one of its network rules.
+#FacebookLikeBox is a generic rule of Fanboy's Social, and bshare.cn one of its third-party network rules.</p>
+<div id="content">Content</div>
+<div class="online-chat-root-Verbox">Chat widget</div>
+<div class="social-copy-container">Social bar</div>
+<div id="FacebookLikeBox">Social button</div>
+<div id="cds-donate-modal">Dialog</div>
+<script>
+  // A new path for each step, so one step's request can't answer for another's.
+  const step = new URLSearchParams(location.search).get('step') ?? 'none';
+  for (const host of ['chat.quickcep.com', 'bshare.cn']) {
+    const script = document.createElement('script');
+    script.src = `http://${host}/widget-${step}.js`;
+    document.body.append(script);
+  }
+</script>
+</body>
+</html>

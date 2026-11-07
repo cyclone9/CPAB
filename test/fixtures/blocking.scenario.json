@@ -930,7 +930,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -968,7 +970,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1006,7 +1010,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1043,7 +1049,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1078,7 +1086,9 @@
    "equals": [
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1206,7 +1216,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1256,7 +1268,7 @@
   {
    "eval": "document.querySelectorAll('[data-list]').length",
    "label": "Ads and Trackers have list switches",
-   "equals": 6
+   "equals": 8
   },
   {
    "click": "[data-list=\"ads-adguard-base\"]"
@@ -1271,7 +1283,9 @@
     "iran": true,
     "popups-adguard": true,
     "trackers": true,
-    "trackers-hagezi-light": true
+    "trackers-hagezi-light": true,
+    "widgets-adguard": true,
+    "widgets-fanboy-social": true
    }
   },
   {
@@ -1287,7 +1301,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1335,6 +1351,16 @@
      "popups-adguard",
      true,
      false
+    ],
+    [
+     "widgets-adguard",
+     true,
+     false
+    ],
+    [
+     "widgets-fanboy-social",
+     true,
+     false
     ]
    ]
   },
@@ -1344,7 +1370,9 @@
    "equals": [
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1383,6 +1411,16 @@
      "popups-adguard",
      true,
      false
+    ],
+    [
+     "widgets-adguard",
+     true,
+     false
+    ],
+    [
+     "widgets-fanboy-social",
+     true,
+     false
     ]
    ]
   },
@@ -1395,7 +1433,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1411,7 +1451,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1437,7 +1479,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1465,7 +1509,9 @@
     "cpab-own",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1480,7 +1526,8 @@
     "groups": {
      "ads": true,
      "popups": true,
-     "trackers": true
+     "trackers": true,
+     "widgets": true
     },
     "language": "fa",
     "lists": {
@@ -1490,7 +1537,9 @@
      "iran": false,
      "popups-adguard": true,
      "trackers": true,
-     "trackers-hagezi-light": true
+     "trackers-hagezi-light": true,
+     "widgets-adguard": true,
+     "widgets-fanboy-social": true
     },
     "master": true,
     "pausedSites": [
@@ -1507,7 +1556,8 @@
     {
      "ads": true,
      "popups": true,
-     "trackers": true
+     "trackers": true,
+     "widgets": true
     },
     false
    ]
@@ -1548,7 +1598,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -1607,7 +1659,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {

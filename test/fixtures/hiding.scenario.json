@@ -14,7 +14,9 @@
     "generic-css-ads-adguard-base",
     "generic-css-iran",
     "generic-css-popups-adguard",
-    "generic-css-trackers"
+    "generic-css-trackers",
+    "generic-css-widgets-adguard",
+    "generic-css-widgets-fanboy-social"
    ]
   },
   {
@@ -137,12 +139,12 @@
   },
   {
    "eval": "({generic:getComputedStyle(document.querySelector(\"#ad-box\")).display,site:getComputedStyle(document.querySelector(\".adbox\")).display,content:getComputedStyle(document.querySelector(\"#content\")).display,styles:document.querySelectorAll('style').length+document.adoptedStyleSheets.length})",
-   "label": "generichide site: no generic rule applies",
+   "label": "generichide site: no generic rule applies, and the one sheet is Fanboy's Social's jetzt.de rule",
    "equals": {
     "generic": "block",
     "site": "block",
     "content": "block",
-    "styles": 0
+    "styles": 1
    }
   },
   {
@@ -214,7 +216,9 @@
     "generic-css-ads-adguard-base",
     "generic-css-iran",
     "generic-css-popups-adguard",
-    "generic-css-trackers"
+    "generic-css-trackers",
+    "generic-css-widgets-adguard",
+    "generic-css-widgets-fanboy-social"
    ]
   },
   {
@@ -287,7 +291,9 @@
     "generic-css-ads-adguard-base",
     "generic-css-iran",
     "generic-css-popups-adguard",
-    "generic-css-trackers"
+    "generic-css-trackers",
+    "generic-css-widgets-adguard",
+    "generic-css-widgets-fanboy-social"
    ]
   },
   {

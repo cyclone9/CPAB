@@ -17,7 +17,9 @@
     "iran",
     "popups-adguard",
     "trackers",
-    "trackers-hagezi-light"
+    "trackers-hagezi-light",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {
@@ -80,7 +82,9 @@
     "cpab-own",
     "iran",
     "popups-adguard",
-    "trackers"
+    "trackers",
+    "widgets-adguard",
+    "widgets-fanboy-social"
    ]
   },
   {

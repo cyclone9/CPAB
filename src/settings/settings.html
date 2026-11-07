@@ -91,13 +91,20 @@
           <div id="popups-lists" class="lists" data-lists="popups" data-lists-always hidden>
             <p class="lists-note small" data-lists-note="popups" hidden data-t="listsGroupOff"></p>
           </div>
-          <div class="row is-later">
+          <label class="row">
             <span class="row-text">
               <span class="row-title" id="widgets-title" data-t="groupWidgets"></span>
-              <span class="row-desc" data-t="groupWidgetsDesc"></span>
-              <span class="tag" data-t="comingLater"></span>
+              <span class="row-desc" id="widgets-desc" data-t="groupWidgetsDesc"></span>
+              <span class="row-meta" data-meta="widgets"></span>
+              <span class="row-problem small" data-problem="widgets" hidden></span>
             </span>
-            <input class="switch" type="checkbox" role="switch" disabled aria-labelledby="widgets-title">
+            <input class="switch" type="checkbox" role="switch" data-group="widgets" aria-labelledby="widgets-title" aria-describedby="widgets-desc">
+          </label>
+          <button class="lists-toggle" type="button" data-opens-lists="widgets" aria-expanded="false" aria-controls="widgets-lists" aria-describedby="widgets-title" hidden>
+            <span data-t="listsShow"></span>
+          </button>
+          <div id="widgets-lists" class="lists" data-lists="widgets" hidden>
+            <p class="lists-note small" data-lists-note="widgets" hidden data-t="listsGroupOff"></p>
           </div>
         </div>
       </section>
