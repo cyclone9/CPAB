@@ -20,6 +20,7 @@
         <a href="#protection" data-t="sectionProtection"></a>
         <a href="#paused" data-t="sectionPaused"></a>
         <a href="#blocked-sites" data-t="sectionBlockedSites"></a>
+        <a href="#allowed" data-t="sectionAllowed"></a>
         <a href="#appearance" data-t="sectionAppearance"></a>
         <a href="#about" data-t="sectionAbout"></a>
         <a href="#changelog" data-t="sectionChangelog"></a>
@@ -69,6 +70,12 @@
             </span>
             <input class="switch" type="checkbox" role="switch" data-group="trackers" aria-labelledby="trackers-title" aria-describedby="trackers-desc">
           </label>
+          <button class="lists-toggle" type="button" data-opens-lists="trackers" aria-expanded="false" aria-controls="trackers-lists" aria-describedby="trackers-title" hidden>
+            <span data-t="listsShow"></span>
+          </button>
+          <div id="trackers-lists" class="lists" data-lists="trackers" hidden>
+            <p class="lists-note small" data-lists-note="trackers" hidden data-t="listsGroupOff"></p>
+          </div>
           <label class="row">
             <span class="row-text">
               <span class="row-title" id="popups-title" data-t="groupPopups"></span>
@@ -171,6 +178,50 @@
           <div id="blocked-site-empty" class="empty">
             <p class="empty-title" data-t="blockedSitesEmptyTitle"></p>
             <p class="small muted" data-t="blockedSitesEmptyHint"></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="allowed" class="section">
+        <h2 data-t="sectionAllowed"></h2>
+        <p class="intro" data-t="allowedIntro"></p>
+
+        <div class="panel">
+          <form id="add-allowed" class="add" novalidate>
+            <label class="add-label small" for="allowed-input" data-t="allowedAddLabel"></label>
+            <div class="add-controls">
+              <input id="allowed-input" class="field" type="text" dir="ltr" inputmode="url" autocomplete="off" spellcheck="false" placeholder="example.com" aria-describedby="allowed-error">
+              <button class="button button-primary" type="submit" data-t="pausedAdd"></button>
+            </div>
+            <p id="allowed-error" class="error" role="alert" hidden></p>
+          </form>
+
+          <div class="search" hidden>
+            <input id="allowed-search" class="field" type="search" dir="ltr" autocomplete="off" spellcheck="false">
+          </div>
+          <ul id="allowed-list" class="paused-list"></ul>
+          <p id="allowed-none" class="search-none muted" role="status" data-t="searchNoMatches" hidden></p>
+          <div id="allowed-more" class="search-footer" hidden>
+            <p id="allowed-count" class="small muted" role="status"></p>
+            <button id="allowed-show-more" class="button button-quiet" type="button" hidden></button>
+          </div>
+          <div id="allowed-empty" class="empty">
+            <p class="empty-title" data-t="allowedEmptyTitle"></p>
+            <p class="small muted" data-t="allowedEmptyHint"></p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" id="exceptions-title" data-t="recommendedExceptions"></span>
+              <span class="row-desc" id="exceptions-desc" data-t="recommendedExceptionsDesc"></span>
+            </span>
+            <input id="recommended-exceptions" class="switch" type="checkbox" role="switch" aria-labelledby="exceptions-title" aria-describedby="exceptions-desc">
+          </label>
+          <div class="exceptions">
+            <p class="small muted" id="exceptions-heading" data-t="recommendedExceptionsList"></p>
+            <ul id="exceptions-list" class="exceptions-list" aria-labelledby="exceptions-heading"></ul>
           </div>
         </div>
       </section>

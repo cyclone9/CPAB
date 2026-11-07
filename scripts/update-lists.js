@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Fetches the list snapshots into lists/ and records each one. Usage: npm run lists
+// Fetches the list snapshots into lists/ and records each one. Usage: npm run lists [-- name ...]
+// With names, only those lists are fetched and the others keep their snapshots.
 // An old snapshot stays in place unless the new one passes every check.
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hostsToFilters } from './convert.js';
@@ -29,7 +30,7 @@ async function download(url, headers = {}) {
 // Parts of one list carry titles such as PersianBlockerAds, and a host file writes # for !.
 function checkTitle(list, text, source) {
   const title = text.match(/^[!#] Title: *(.+)$/m)?.[1].trim();
-  if (!title?.startsWith(list.title)) throw new Error(`${source}: the file's title is "${title}"`);
+  if (!title?.startsWith(list.fileTitle ?? list.title)) throw new Error(`${source}: the file's title is "${title}"`);
 }
 
 function checkSnapshot(list, text) {
@@ -59,15 +60,27 @@ async function downloadRepository(list) {
   };
 }
 
+// The commit list for one path, newest first, so the file can be fetched at exactly that commit.
+async function downloadPinned(list) {
+  const { commitsApi, raw, path } = list.pinned;
+  const commits = JSON.parse(await download(commitsApi, { accept: 'application/vnd.github+json' }));
+  const commit = Array.isArray(commits) ? commits[0]?.sha : undefined;
+  if (!/^[0-9a-f]{40}$/.test(commit ?? '')) throw new Error(`${commitsApi}: no commit in the answer`);
+  const text = await download(`${raw}/${commit}/${path}`);
+  checkTitle(list, text, path);
+  return { text, commit };
+}
+
 async function downloadList(list) {
   if (list.repository) return downloadRepository(list);
+  if (list.pinned) return downloadPinned(list);
   const text = await download(list.url);
   checkTitle(list, text, list.url);
   return list.commitApi ? { text, commit: await latestCommit(list.commitApi) } : { text };
 }
 
 function record(list, { text, commit, files }, snapshotDate) {
-  const { name, group, ruleset, listFile, rulesFile, metaFile, required, url, repository, commitApi, ...details } = list;
+  const { name, group, ruleset, listFile, rulesFile, metaFile, required, url, repository, commitApi, pinned, fileTitle, ...details } = list;
   return {
     name,
     group,
@@ -111,23 +124,33 @@ function updateNotices(metas) {
   writeFileSync(NOTICES, `${text.slice(0, start)}${NOTICES_START}\n${entries}\n${text.slice(end)}`);
 }
 
+const fetchable = LISTS.filter(({ url, repository }) => url || repository);
+const only = process.argv.slice(2);
+const unknown = only.filter((name) => !fetchable.some((list) => list.name === name));
+if (unknown.length) throw new Error(`no fetched list is called ${unknown.join(', ')}`);
+const chosen = only.length ? fetchable.filter((list) => only.includes(list.name)) : fetchable;
+
 const snapshots = [];
-for (const list of LISTS.filter(({ url, repository }) => url || repository)) {
+for (const list of chosen) {
   const snapshot = await downloadList(list);
   checkSnapshot(list, snapshot.text);
   snapshots.push({ list, snapshot });
 }
-const agpl = await download(AGPL_TEXT.url);
-if (!agpl.includes('GNU AFFERO GENERAL PUBLIC LICENSE')) throw new Error(`${AGPL_TEXT.url} is not the AGPL text`);
+const needsAgpl = chosen.some((list) => list.licence.copy === AGPL_TEXT.file);
+const agpl = needsAgpl ? await download(AGPL_TEXT.url) : null;
+if (agpl !== null && !agpl.includes('GNU AFFERO GENERAL PUBLIC LICENSE')) throw new Error(`${AGPL_TEXT.url} is not the AGPL text`);
 
 mkdirSync(listsDir, { recursive: true });
 const today = new Date().toISOString().slice(0, 10);
-const metas = snapshots.map(({ list, snapshot }) => {
+const fresh = new Map(snapshots.map(({ list, snapshot }) => {
   const meta = record(list, snapshot, today);
   writeFileSync(join(listsDir, list.listFile), snapshot.text);
   writeFileSync(join(listsDir, list.metaFile), `${JSON.stringify(meta, null, 2)}\n`);
   console.log(`${list.title}: ${snapshot.text.length} bytes, snapshot ${today}, version ${meta.snapshot.listVersion ?? 'not stated'}`);
-  return meta;
-});
-writeFileSync(join(listsDir, AGPL_TEXT.file), agpl);
-updateNotices(metas);
+  return [list, meta];
+}));
+if (agpl !== null) writeFileSync(join(listsDir, AGPL_TEXT.file), agpl);
+// The notices cover every list on disk, fetched now or before.
+const onDisk = (list) => existsSync(join(listsDir, list.metaFile)) && existsSync(join(listsDir, list.listFile));
+updateNotices(fetchable.filter((list) => fresh.has(list) || onDisk(list))
+  .map((list) => fresh.get(list) ?? JSON.parse(readFileSync(join(listsDir, list.metaFile), 'utf8'))));

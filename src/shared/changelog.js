@@ -6,6 +6,20 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.3',
+    date: '2026-11-07',
+    en: [
+      'Trackers has a second list, HaGeZi Multi Light, with its own switch.',
+      'A new Allowed addresses section in Settings lists addresses CPAB never blocks, on any site. Tabs that ads open to an allowed address stay open.',
+      'Exceptions for Iranian sites is on by default. It keeps the e-rasaneh.ir registration seal from being blocked.',
+    ],
+    fa: [
+      'بخش ردیاب‌ها فهرست دومی دارد، HaGeZi Multi Light، با کلید جداگانهٔ خودش.',
+      'بخش تازهٔ «نشانی‌های مجاز» در تنظیمات، نشانی‌هایی را نگه می‌دارد که تبلیغ‌شکن در هیچ سایتی مسدودشان نمی‌کند. زبانه‌هایی که تبلیغ‌ها به نشانی مجاز باز می‌کنند هم باز می‌مانند.',
+      'کلید «استثناهای سایت‌های ایرانی» به‌طور پیش‌فرض روشن است و جلوی مسدود شدن نماد ثبت e-rasaneh.ir را می‌گیرد.',
+    ],
+  },
+  {
     version: '0.2.2',
     date: '2026-11-07',
     en: [

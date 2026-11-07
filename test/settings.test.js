@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { wantedRulesets } from '../src/shared/blocking.js';
 import { DEFAULTS, RULESET_IDS, normalizeSettings } from '../src/shared/settings.js';
 
-const ALL_LISTS_ON = { ads: true, 'ads-adguard-base': true, iran: true, 'cpab-own': true, trackers: true };
+const ALL_LISTS_ON = { ads: true, 'ads-adguard-base': true, iran: true, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': true };
 
 // What 0.1.4 wrote to storage: a group switch for each list, and no per-list switches.
 const SAVED_BY_0_1_4 = Object.freeze({
@@ -32,6 +32,8 @@ test('the defaults are on, dark, automatic and empty', () => {
     popups: true,
     pausedSites: [],
     blockedSites: [],
+    allowedSites: [],
+    recommendedExceptions: true,
     language: 'auto',
     theme: 'dark',
     badge: true,
@@ -43,10 +45,12 @@ test('valid stored values are kept', () => {
   const stored = {
     master: false,
     groups: { ads: false, trackers: true },
-    lists: { ads: false, 'ads-adguard-base': true, iran: false, 'cpab-own': true, trackers: true },
+    lists: { ads: false, 'ads-adguard-base': true, iran: false, 'cpab-own': true, trackers: true, 'trackers-hagezi-light': false },
     popups: false,
     pausedSites: ['a.com', 'b.ir'],
     blockedSites: ['c.com'],
+    allowedSites: ['d.ir'],
+    recommendedExceptions: false,
     language: 'fa',
     theme: 'light',
     badge: false,
@@ -61,6 +65,8 @@ test('bad stored values fall back to the defaults', () => {
     lists: { ads: 'off', unknown: false },
     pausedSites: 'a.com',
     blockedSites: 'b.com',
+    allowedSites: { a: 'c.com' },
+    recommendedExceptions: 'no',
     language: 'de',
     theme: 'blue',
     badge: null,
@@ -79,19 +85,49 @@ test('blocked sites are cleaned, deduplicated and sorted like paused sites', () 
   assert.deepEqual(blockedSites, ['a.com', 'b.com']);
 });
 
+test('allowed addresses are cleaned, deduplicated and sorted like paused sites', () => {
+  const { allowedSites } = normalizeSettings({ allowedSites: ['www.b.com', 'b.com', 'not a domain', 7, 'a.com'] });
+  assert.deepEqual(allowedSites, ['a.com', 'b.com']);
+});
+
 test('settings saved by 0.1.4 keep every choice and gain the per-list switches', () => {
   assert.deepEqual(normalizeSettings(SAVED_BY_0_1_4), {
     ...SAVED_BY_0_1_4,
     groups: { ads: true, trackers: false },
     lists: { ...ALL_LISTS_ON, iran: false },
     popups: true,
+    allowedSites: [],
+    recommendedExceptions: true,
   });
+});
+
+// What 0.2.2 wrote to storage: no HaGeZi switch, no allowed addresses, no exceptions switch.
+test('settings saved by 0.2.2 keep every choice and gain HaGeZi, allowed addresses and the exceptions switch, all on', () => {
+  const saved = {
+    master: true,
+    groups: { ads: true, trackers: true },
+    lists: { ads: true, 'ads-adguard-base': false, iran: true, 'cpab-own': true, trackers: false },
+    popups: false,
+    pausedSites: ['a.com'],
+    blockedSites: ['c.com'],
+    language: 'fa',
+    theme: 'light',
+    badge: true,
+  };
+  const normal = normalizeSettings(saved);
+  assert.deepEqual(normal, {
+    ...saved,
+    lists: { ...saved.lists, 'trackers-hagezi-light': true },
+    allowedSites: [],
+    recommendedExceptions: true,
+  });
+  assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['ads', 'iran', 'cpab-own', 'trackers-hagezi-light']);
 });
 
 test('after an update from 0.1.4 a list runs when its group was on', () => {
   assert.deepEqual(wantedRulesets(normalizeSettings(SAVED_BY_0_1_4), RULESET_IDS), ['ads', 'ads-adguard-base', 'cpab-own']);
   const adsOff = { ...SAVED_BY_0_1_4, groups: { ads: false, trackers: true, iran: true } };
-  assert.deepEqual(wantedRulesets(normalizeSettings(adsOff), RULESET_IDS), ['iran', 'trackers']);
+  assert.deepEqual(wantedRulesets(normalizeSettings(adsOff), RULESET_IDS), ['iran', 'trackers', 'trackers-hagezi-light']);
 });
 
 test('a saved 0.1.6 Iran group off becomes the PersianBlocker list off, and the field goes', () => {
@@ -113,7 +149,7 @@ test('a saved 0.1.6 with Ads off and Iran on keeps PersianBlocker running and th
   const saved = { ...SAVED_BY_0_1_6, groups: { ads: false, trackers: true, iran: true } };
   const normal = normalizeSettings(saved);
   assert.equal(normal.groups.ads, true);
-  assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['iran', 'trackers']);
+  assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['iran', 'trackers', 'trackers-hagezi-light']);
   assert.deepEqual(normalizeSettings(normal), normal);
 });
 

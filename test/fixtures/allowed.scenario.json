@@ -1,0 +1,359 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733",
+  "--disable-site-isolation-trials"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.sort())",
+   "label": "all six rulesets on by default",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "cpab-own",
+    "iran",
+    "trackers",
+    "trackers-hagezi-light"
+   ]
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getAvailableStaticRuleCount()",
+   "label": "availableStaticRules with every ruleset on"
+  },
+  {
+   "sw": "fetch(chrome.runtime.getURL('rules/trackers-hagezi-light.json')).then(r=>r.json()).then(r=>({rules:r.length,domains:r[0].condition.requestDomains.length,excluded:r[0].condition.excludedResourceTypes}))",
+   "label": "HaGeZi ruleset shape"
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getDynamicRules().then(r=>r.map(x=>({id:x.id,priority:x.priority,type:x.action.type,domains:x.condition.requestDomains})).sort((a,b)=>a.id-b.id))",
+   "label": "defaults: only the exceptions rule",
+   "equals": [
+    {
+     "id": 4,
+     "priority": 2,
+     "type": "allow",
+     "domains": [
+      "trustseal.e-rasaneh.ir"
+     ]
+    }
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fanalytics.004gmbh.de%2Fhagezi-only-probe.gif&image=http%3A%2F%2Ftrustseal.e-rasaneh.ir%2Fseal-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fallowed-root-probe.gif&image=http%3A%2F%2Facdn.adnxs.com%2Fallowed-sub-probe.gif&fetch=http%3A%2F%2Fadnxs.com%2Fallowed-fetch-probe&image=http%3A%2F%2Fhotjar.com%2Fstill-blocked-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "hagezi-only-probe"
+  },
+  {
+   "expectLoaded": "seal-probe"
+  },
+  {
+   "expectBlocked": "allowed-root-probe"
+  },
+  {
+   "expectBlocked": "allowed-sub-probe"
+  },
+  {
+   "expectBlocked": "allowed-fetch-probe"
+  },
+  {
+   "expectBlocked": "still-blocked-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"lists\": {\"trackers-hagezi-light\": false}}}).then(()=>'set')",
+   "label": "HaGeZi list off, the rest on"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.sort())",
+   "label": "HaGeZi off",
+   "equals": [
+    "ads",
+    "ads-adguard-base",
+    "cpab-own",
+    "iran",
+    "trackers"
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fanalytics.004gmbh.de%2Fhagezi-only-probe.gif&image=http%3A%2F%2Ftrustseal.e-rasaneh.ir%2Fseal-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fallowed-root-probe.gif&image=http%3A%2F%2Facdn.adnxs.com%2Fallowed-sub-probe.gif&fetch=http%3A%2F%2Fadnxs.com%2Fallowed-fetch-probe&image=http%3A%2F%2Fhotjar.com%2Fstill-blocked-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "hagezi-only-probe"
+  },
+  {
+   "expectBlocked": "still-blocked-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"recommendedExceptions\": false}}).then(()=>'set')",
+   "label": "recommended exceptions off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getDynamicRules().then(r=>r.map(x=>({id:x.id,priority:x.priority,type:x.action.type,domains:x.condition.requestDomains})).sort((a,b)=>a.id-b.id))",
+   "label": "exceptions off: no allow rule",
+   "equals": []
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fanalytics.004gmbh.de%2Fhagezi-only-probe.gif&image=http%3A%2F%2Ftrustseal.e-rasaneh.ir%2Fseal-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fallowed-root-probe.gif&image=http%3A%2F%2Facdn.adnxs.com%2Fallowed-sub-probe.gif&fetch=http%3A%2F%2Fadnxs.com%2Fallowed-fetch-probe&image=http%3A%2F%2Fhotjar.com%2Fstill-blocked-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "seal-probe"
+  },
+  {
+   "expectBlocked": "hagezi-only-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"recommendedExceptions\": false, \"lists\": {\"iran\": false}}}).then(()=>'set')",
+   "label": "exceptions off, PersianBlocker off: HaGeZi alone still blocks the seal"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fanalytics.004gmbh.de%2Fhagezi-only-probe.gif&image=http%3A%2F%2Ftrustseal.e-rasaneh.ir%2Fseal-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fallowed-root-probe.gif&image=http%3A%2F%2Facdn.adnxs.com%2Fallowed-sub-probe.gif&fetch=http%3A%2F%2Fadnxs.com%2Fallowed-fetch-probe&image=http%3A%2F%2Fhotjar.com%2Fstill-blocked-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "seal-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"allowedSites\": [\"adnxs.com\"]}}).then(()=>'set')",
+   "label": "adnxs.com allowed, everything else default"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getDynamicRules().then(r=>r.map(x=>({id:x.id,priority:x.priority,type:x.action.type,domains:x.condition.requestDomains})).sort((a,b)=>a.id-b.id))",
+   "label": "allowed and exceptions rules",
+   "equals": [
+    {
+     "id": 3,
+     "priority": 2,
+     "type": "allow",
+     "domains": [
+      "adnxs.com"
+     ]
+    },
+    {
+     "id": 4,
+     "priority": 2,
+     "type": "allow",
+     "domains": [
+      "trustseal.e-rasaneh.ir"
+     ]
+    }
+   ]
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fanalytics.004gmbh.de%2Fhagezi-only-probe.gif&image=http%3A%2F%2Ftrustseal.e-rasaneh.ir%2Fseal-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fallowed-root-probe.gif&image=http%3A%2F%2Facdn.adnxs.com%2Fallowed-sub-probe.gif&fetch=http%3A%2F%2Fadnxs.com%2Fallowed-fetch-probe&image=http%3A%2F%2Fhotjar.com%2Fstill-blocked-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "allowed-root-probe"
+  },
+  {
+   "expectLoaded": "allowed-sub-probe"
+  },
+  {
+   "expectLoaded": "allowed-fetch-probe"
+  },
+  {
+   "expectLoaded": "seal-probe"
+  },
+  {
+   "expectBlocked": "hagezi-only-probe"
+  },
+  {
+   "expectBlocked": "still-blocked-probe"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"master\": false, \"allowedSites\": [\"adnxs.com\"]}}).then(()=>'set')",
+   "label": "master off"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getDynamicRules().then(r=>r.map(x=>({id:x.id,priority:x.priority,type:x.action.type,domains:x.condition.requestDomains})).sort((a,b)=>a.id-b.id))",
+   "label": "master off: no allow rule",
+   "equals": []
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"allowedSites\": [\"my-blocked.localhost\"], \"blockedSites\": [\"my-blocked.localhost\"]}}).then(()=>'set')",
+   "label": "the same site allowed and blocked, written straight to storage"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-over-allowed.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "mine-over-allowed"
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"blockedSites\": [\"my-blocked.localhost\"]}}).then(()=>'set')",
+   "label": "settings page: one blocked site"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 800
+  },
+  {
+   "eval": "(async()=>{const i=document.getElementById('allowed-input');i.value='sub.my-blocked.localhost';i.form.requestSubmit();await new Promise(r=>setTimeout(r,400));const e=document.getElementById('allowed-error');return e.hidden?'':e.textContent})()",
+   "label": "allowing under a blocked site is refused",
+   "equals": "sub.my-blocked.localhost can't be allowed while Blocked sites has my-blocked.localhost. Remove it there first."
+  },
+  {
+   "eval": "(async()=>{const i=document.getElementById('allowed-input');i.value='adnxs.com';i.form.requestSubmit();await new Promise(r=>setTimeout(r,400));const e=document.getElementById('allowed-error');return e.hidden?'':e.textContent})()",
+   "label": "allowing adnxs.com",
+   "equals": ""
+  },
+  {
+   "wait": 500
+  },
+  {
+   "eval": "chrome.storage.local.get('settings').then(s=>s.settings.allowedSites)",
+   "label": "allowed saved",
+   "equals": [
+    "adnxs.com"
+   ]
+  },
+  {
+   "eval": "(async()=>{const i=document.getElementById('blocked-site-input');i.value='x.adnxs.com';i.form.requestSubmit();await new Promise(r=>setTimeout(r,400));const e=document.getElementById('blocked-site-error');return e.hidden?'':e.textContent})()",
+   "label": "blocking under an allowed address is refused",
+   "equals": "x.adnxs.com can't be blocked while Allowed addresses has adnxs.com. Remove it there first."
+  },
+  {
+   "eval": "(async()=>{const i=document.getElementById('allowed-input');i.value='www.adnxs.com';i.form.requestSubmit();await new Promise(r=>setTimeout(r,400));const e=document.getElementById('allowed-error');return e.hidden?'':e.textContent})()",
+   "label": "www form of an allowed address",
+   "equals": "adnxs.com is already allowed."
+  },
+  {
+   "eval": "(async()=>{const i=document.getElementById('site-input');i.value='adnxs.com';i.form.requestSubmit();await new Promise(r=>setTimeout(r,400));const e=document.getElementById('site-error');return e.hidden?'':e.textContent})()",
+   "label": "pausing an allowed address is fine",
+   "equals": ""
+  },
+  {
+   "wait": 500
+  },
+  {
+   "eval": "chrome.storage.local.get('settings').then(s=>({allowed:s.settings.allowedSites,blocked:s.settings.blockedSites,paused:s.settings.pausedSites}))",
+   "label": "lists after the form checks",
+   "equals": {
+    "allowed": [
+     "adnxs.com"
+    ],
+    "blocked": [
+     "my-blocked.localhost"
+    ],
+    "paused": [
+     "adnxs.com"
+    ]
+   }
+  },
+  {
+   "eval": "[...document.querySelectorAll('#exceptions-list li')].map(l=>l.textContent)",
+   "label": "settings shows the exceptions",
+   "equals": [
+    "trustseal.e-rasaneh.ir"
+   ]
+  },
+  {
+   "eval": "(async()=>{document.getElementById('recommended-exceptions').click();await new Promise(r=>setTimeout(r,400));return (await chrome.storage.local.get('settings')).settings.recommendedExceptions})()",
+   "label": "exceptions switch off from the page",
+   "equals": false
+  },
+  {
+   "eval": "chrome.storage.local.get('settings').then(s=>s.settings.allowedSites)",
+   "label": "own addresses stay with the switch off",
+   "equals": [
+    "adnxs.com"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{}}).then(()=>'set')",
+   "label": "popups: defaults"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "wait": 1000
+  },
+  {
+   "eval": "state()",
+   "label": "control: ad popup closed",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  },
+  {
+   "sw": "chrome.storage.local.set({settings:{\"allowedSites\": [\"11x11.com\"]}}).then(()=>'set')",
+   "label": "popups: 11x11.com allowed"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#ad"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "eval": "state()",
+   "label": "popup to an allowed address stays open",
+   "equals": {
+    "opened": true,
+    "closed": false
+   }
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/popups.html",
+   "settle": 500
+  },
+  {
+   "click": "#iran"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "eval": "state()",
+   "label": "popup to another ad address still closes",
+   "equals": {
+    "opened": true,
+    "closed": true
+   }
+  }
+ ]
+}

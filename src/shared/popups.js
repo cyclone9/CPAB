@@ -120,6 +120,12 @@ export function isPaused(settings, pageUrl) {
   return !page || settings.pausedSites.some((site) => isUnder(page.host, site));
 }
 
+// A tab sent to an allowed address stays open: what is never blocked isn't closed either.
+export function isAllowedTarget(allowed, targetUrl) {
+  const target = addressOf(targetUrl);
+  return Boolean(target?.host) && allowed.some((domain) => isUnder(target.host, domain));
+}
+
 // The lists to check, as ids: the same master, group and list switches as the rulesets, under the Popups switch.
 export function popupLists(settings, index) {
   return settings.popups ? wantedRulesets(settings, index.lists.map(({ id }) => id)) : [];

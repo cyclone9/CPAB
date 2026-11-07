@@ -660,9 +660,6 @@
    "expectBlocked": "path-exception-wrong-type"
   },
   {
-   "expectLoaded": "path-harmless"
-  },
-  {
    "expectLoaded": "path-wrong-type"
   },
   {
@@ -687,6 +684,9 @@
   {
    "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fgooglesyndication.com%2Fpagead%2Fpath-pagead.gif&image=http%3A%2F%2Fproof.googlesyndication.com%2Fsafeframe%2Fpath-safeframe.gif&image=http%3A%2F%2Fgooglesyndication.com%2Fpath-harmless.gif&image=http%3A%2F%2Fgeneric.fixtures.localhost%3A8733%2Fbanner-300x250-path-generic.gif&script=http%3A%2F%2Fgeneric.fixtures.localhost%3A8733%2Fbanner-300x250-path-wrong-type.js&image=http%3A%2F%2Fnrk.no%2Fx%2Fstats%2Fpath-privacy.gif&fetch=http%3A%2F%2Fnrk.no%2Fx%2Fstats%2Fpath-privacy-fetch&image=http%3A%2F%2Fnrk.no%2Fpath-privacy-harmless.gif&image=http%3A%2F%2Fabipic.com%2Fads%2Fpath-iran.gif&image=http%3A%2F%2Fabipic.com%2Fpath-iran-harmless.gif&image=http%3A%2F%2Fdiscretemath.org%2Fads%2Fpath-exception-allow.gif&image=http%3A%2F%2Fmathproof.org%2Fads%2Fpath-exception-block.gif&script=http%3A%2F%2Fsankei.co.jp%2Fjs%2Fanalytics%2Fskd.Analysis.js-path-exception-typed.js&image=http%3A%2F%2Fsankei.co.jp%2Fjs%2Fanalytics%2Fskd.Analysis.js-path-exception-wrong-type.gif",
    "settle": 1500
+  },
+  {
+   "expectLoaded": "path-harmless"
   },
   {
    "expectLoaded": "path-privacy"
@@ -922,13 +922,14 @@
   },
   {
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
-   "label": "lists: all five rulesets enabled",
+   "label": "lists: all six rulesets enabled",
    "equals": [
     "ads",
     "ads-adguard-base",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -964,7 +965,8 @@
     "ads",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1000,7 +1002,8 @@
     "ads-adguard-base",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1035,7 +1038,8 @@
    "equals": [
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1068,7 +1072,8 @@
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
    "label": "lists: group off",
    "equals": [
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1194,7 +1199,8 @@
     "ads",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1243,8 +1249,8 @@
   },
   {
    "eval": "document.querySelectorAll('[data-list]').length",
-   "label": "only Ads has list switches",
-   "equals": 3
+   "label": "Ads and Trackers have list switches",
+   "equals": 5
   },
   {
    "click": "[data-list=\"ads-adguard-base\"]"
@@ -1257,7 +1263,8 @@
     "ads-adguard-base": false,
     "iran": true,
     "cpab-own": true,
-    "trackers": true
+    "trackers": true,
+    "trackers-hagezi-light": true
    }
   },
   {
@@ -1271,7 +1278,8 @@
     "ads",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1304,6 +1312,16 @@
      "iran",
      true,
      true
+    ],
+    [
+     "trackers",
+     true,
+     false
+    ],
+    [
+     "trackers-hagezi-light",
+     true,
+     false
     ]
    ]
   },
@@ -1311,7 +1329,8 @@
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
    "label": "lists: group off from the page",
    "equals": [
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1335,6 +1354,16 @@
      "iran",
      true,
      false
+    ],
+    [
+     "trackers",
+     true,
+     false
+    ],
+    [
+     "trackers-hagezi-light",
+     true,
+     false
     ]
    ]
   },
@@ -1345,7 +1374,8 @@
     "ads",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1359,7 +1389,8 @@
     "ads-adguard-base",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1383,7 +1414,8 @@
     "ads",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1409,7 +1441,8 @@
    "equals": [
     "ads",
     "cpab-own",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1426,7 +1459,8 @@
      "ads-adguard-base": false,
      "iran": false,
      "cpab-own": true,
-     "trackers": true
+     "trackers": true,
+     "trackers-hagezi-light": true
     },
     "popups": true,
     "pausedSites": [
@@ -1437,7 +1471,9 @@
     ],
     "language": "fa",
     "theme": "light",
-    "badge": false
+    "badge": false,
+    "allowedSites": [],
+    "recommendedExceptions": true
    }
   },
   {
@@ -1479,13 +1515,14 @@
   },
   {
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
-   "label": "lists: all five again",
+   "label": "lists: all six again",
    "equals": [
     "ads",
     "ads-adguard-base",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {
@@ -1536,13 +1573,14 @@
   },
   {
    "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then((ids)=>ids.sort())",
-   "label": "lists: all five after the refusal",
+   "label": "lists: all six after the refusal",
    "equals": [
     "ads",
     "ads-adguard-base",
     "cpab-own",
     "iran",
-    "trackers"
+    "trackers",
+    "trackers-hagezi-light"
    ]
   },
   {

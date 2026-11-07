@@ -1,0 +1,14 @@
+! Title: CPAB recommended exceptions
+! Homepage: https://cyclone9.dev/cpab
+! License: GPL-3.0-or-later
+!
+! Addresses CPAB never blocks while the Recommended exceptions switch is on, because a list blocks
+! something people need. One domain per line, which covers its subdomains too. Every domain has a
+! comment above it with the date and the reason:
+! ! 2026-11-07, example.ir: why blocking it breaks something
+!
+! 2026-11-07, trustseal.e-rasaneh.ir: the registration seal from e-rasaneh.ir, Iran's registry of
+! online media, which Iranian sites show as proof that they are registered. PersianBlocker and HaGeZi
+! Multi Light block the whole host, so those pages lose the seal. The enamad.ir and samandehi.ir
+! seals only meet $cookie rules, which CPAB drops, so they load already.
+trustseal.e-rasaneh.ir

@@ -175,6 +175,47 @@ export const LISTS = [
     licence: EASYLIST_LICENCE,
     admission: easylistAdmission('EasyPrivacy'),
   },
+  {
+    name: 'hagezi-light',
+    group: 'trackers',
+    descriptionKey: 'listHageziDesc',
+    ruleset: 'trackers-hagezi-light',
+    listFile: 'hagezi-light.txt',
+    metaFile: 'hagezi-light.meta.json',
+    rulesFile: 'trackers-hagezi-light.json',
+    required: true,
+    title: 'HaGeZi Multi Light',
+    fileTitle: 'HaGeZi\'s Multi LIGHT',
+    url: 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/light.txt',
+    // The file is rebuilt several times a day, so it is fetched at the last commit that changed it.
+    pinned: {
+      commitsApi: 'https://api.github.com/repos/hagezi/dns-blocklists/commits?path=adblock/light.txt&per_page=1',
+      raw: 'https://raw.githubusercontent.com/hagezi/dns-blocklists',
+      path: 'adblock/light.txt',
+    },
+    homepage: 'https://github.com/hagezi/dns-blocklists',
+    sourceLink: 'https://github.com/hagezi/dns-blocklists',
+    attribution: 'HaGeZi (https://github.com/hagezi/dns-blocklists)',
+    licence: {
+      name: 'GPL-3.0-only',
+      spdx: 'GPL-3.0-only',
+      url: 'https://www.gnu.org/licenses/gpl-3.0.html',
+      source: 'The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.',
+    },
+    admission: {
+      reviewed: '2026-11-07',
+      result: 'admitted, with care',
+      checks: {
+        licenceStated: 'The list header "License:" points to https://github.com/hagezi/dns-blocklists/blob/main/LICENSE. That file was read on 2026-11-07: it is the GPLv3 text, byte-identical to CPAB\'s own LICENSE.',
+        licenceAccepted: 'GPL-3.0 is on the accepted set, only or later.',
+        notRefused: 'No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience.',
+        attribution: 'HaGeZi (https://github.com/hagezi/dns-blocklists), shown in settings and THIRD-PARTY-NOTICES.md.',
+        aggregated: 'An aggregate. Its inputs are listed in sources.md at commit acded31b209c342f06c38af538281c7ed306202e, and FAQ section 11 says none is copied one to one: HaGeZi rewrites them. 21 inputs were spot-checked on 2026-11-07, all on the accepted set (GPL-3.0, MIT, MPL-2.0, Unlicense, CC0, CC BY-SA 4.0, CC BY 4.0, CC BY 3.0, AGPL-3.0). Not verified: cbuijs/ut1, DandelionSprout/adfilt, pgl.yoyo.org, big.oisd.nl, two Codeberg inputs and about 150 regional ones. One input is the Codeberg copy of PersianBlocker: CPAB doesn\'t copy that file, and the owner accepted the list with it (PRD D21). Care: read sources.md again at each snapshot.',
+        ownFile: 'The converted rules are one file of their own, never merged with another list, under GPL-3.0-only. The GPLv3 text is in the package as LICENSE.',
+        retrievable: 'A stable repository. The snapshot is fetched at the last commit that changed adblock/light.txt and records that commit, the list\'s own Version line and its SHA-256.',
+      },
+    },
+  },
 ];
 
 // Stored under this name beside the rule file, because AGPLv3 needs the text with the work.

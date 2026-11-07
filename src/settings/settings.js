@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import { format, formatDate, formatNumber, t } from '../i18n/i18n.js';
+import { EXCEPTIONS_FILE } from '../shared/blocking.js';
 import { recentChangelog } from '../shared/changelog.js';
 import { addSite, findOverlap, normalizeDomain } from '../shared/domains.js';
 import { applyPage, fillWithDomains, fillWithLatin } from '../shared/page.js';
@@ -19,11 +20,12 @@ const EXAMPLE_DOMAIN = 'example.com';
 const byId = (id) => document.getElementById(id);
 const nav = byId('nav');
 
-// Paused sites and Blocked sites are one control with two lists. A site can't sit in both.
+// Paused sites, Blocked sites and Allowed addresses are one control with three lists. Blocked sites
+// can't share a site with either of the others: each would undo what the other says.
 const SITE_LISTS = [
   {
     key: 'pausedSites',
-    other: 'blockedSites',
+    conflicts: [{ key: 'blockedSites', error: 'errorConflictBlocked' }],
     form: byId('add-site'),
     input: byId('site-input'),
     errorLine: byId('site-error'),
@@ -37,12 +39,11 @@ const SITE_LISTS = [
     showMore: byId('paused-show-more'),
     limit: PAGE_SIZE,
     duplicate: 'errorDuplicate',
-    conflict: 'errorConflictBlocked',
     error: null,
   },
   {
     key: 'blockedSites',
-    other: 'pausedSites',
+    conflicts: [{ key: 'pausedSites', error: 'errorConflictPaused' }, { key: 'allowedSites', error: 'errorConflictAllowed' }],
     form: byId('add-blocked-site'),
     input: byId('blocked-site-input'),
     errorLine: byId('blocked-site-error'),
@@ -56,7 +57,24 @@ const SITE_LISTS = [
     showMore: byId('blocked-site-show-more'),
     limit: PAGE_SIZE,
     duplicate: 'errorDuplicateBlocked',
-    conflict: 'errorConflictPaused',
+    error: null,
+  },
+  {
+    key: 'allowedSites',
+    conflicts: [{ key: 'blockedSites', error: 'errorAllowedConflictBlocked' }],
+    form: byId('add-allowed'),
+    input: byId('allowed-input'),
+    errorLine: byId('allowed-error'),
+    list: byId('allowed-list'),
+    empty: byId('allowed-empty'),
+    search: byId('allowed-search'),
+    searchLabel: 'searchAllowedLabel',
+    none: byId('allowed-none'),
+    more: byId('allowed-more'),
+    count: byId('allowed-count'),
+    showMore: byId('allowed-show-more'),
+    limit: PAGE_SIZE,
+    duplicate: 'errorDuplicateAllowed',
     error: null,
   },
 ];
@@ -64,6 +82,7 @@ const SITE_LISTS = [
 let settings = await loadSettings().catch(() => normalizeSettings());
 let problems = await loadRulesetProblems().catch(() => ({}));
 const lists = await fetch('../rules/summary.json').then((response) => response.json()).then((summary) => summary.lists).catch(() => null);
+const exceptions = await fetch(`../${EXCEPTIONS_FILE}`).then((response) => response.json()).then(({ domains }) => domains).catch(() => []);
 let language = 'en';
 
 function renderError(sites) {
@@ -256,6 +275,15 @@ function renderCredits() {
   byId('credits-empty').hidden = shown.length > 0;
 }
 
+function renderExceptions() {
+  byId('exceptions-list').replaceChildren(...exceptions.map((domain) => {
+    const item = document.createElement('li');
+    item.append(Object.assign(document.createElement('bdi'), { dir: 'ltr', textContent: domain }));
+    return item;
+  }));
+  byId('exceptions-list').closest('.exceptions').hidden = !exceptions.length;
+}
+
 function renderChangelog() {
   const running = chrome.runtime.getManifest().version;
   byId('changelog-list').replaceChildren(...recentChangelog().map(({ version, date, ...changes }) => {
@@ -286,6 +314,7 @@ function render() {
   byId('master-note').hidden = settings.master;
   byId('badge').checked = settings.badge;
   byId('popups').checked = settings.popups;
+  byId('recommended-exceptions').checked = settings.recommendedExceptions;
   for (const toggle of document.querySelectorAll('[data-group]')) {
     toggle.checked = settings.groups[toggle.dataset.group];
   }
@@ -295,6 +324,7 @@ function render() {
   renderGroups();
   renderListRows();
   renderCredits();
+  renderExceptions();
   renderChangelog();
   byId('name-fa').hidden = language !== 'fa';
   for (const sites of SITE_LISTS) {
@@ -315,6 +345,7 @@ async function save(change) {
 byId('master').addEventListener('change', (event) => save({ master: event.target.checked }));
 byId('badge').addEventListener('change', (event) => save({ badge: event.target.checked }));
 byId('popups').addEventListener('change', (event) => save({ popups: event.target.checked }));
+byId('recommended-exceptions').addEventListener('change', (event) => save({ recommendedExceptions: event.target.checked }));
 
 for (const toggle of document.querySelectorAll('[data-group]')) {
   toggle.addEventListener('change', () => save((current) => ({
@@ -335,7 +366,7 @@ for (const radio of document.querySelectorAll('input[type="radio"]')) {
 }
 
 for (const sites of SITE_LISTS) {
-  const { key, other, form, input, list, duplicate, conflict, search, showMore } = sites;
+  const { key, conflicts, form, input, list, duplicate, search, showMore } = sites;
 
   search.addEventListener('input', () => {
     sites.limit = PAGE_SIZE;
@@ -365,8 +396,10 @@ for (const sites of SITE_LISTS) {
     const result = addSite(settings[key], domain);
     if (result.status === 'duplicate') return setError(sites, duplicate, { domain });
     if (result.status === 'covered') return setError(sites, 'errorCovered', { domain, parent: result.parent });
-    const entry = findOverlap(domain, settings[other]);
-    if (entry) return setError(sites, conflict, { domain, entry });
+    for (const conflict of conflicts) {
+      const entry = findOverlap(domain, settings[conflict.key]);
+      if (entry) return setError(sites, conflict.error, { domain, entry });
+    }
 
     input.value = '';
     setError(sites, null);

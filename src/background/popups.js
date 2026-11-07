@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Closes new tabs that $popup rules name. Everything between two events lives in storage.session, which
 // stays in memory on this device, because Chrome can stop this worker while a tab is still loading.
-import { POPUP_INDEX, isBlank, isPaused, isPopupAd, isWebPage, popupLists } from '../shared/popups.js';
+import { EXCEPTIONS_FILE, allowedDomains } from '../shared/blocking.js';
+import { POPUP_INDEX, isAllowedTarget, isBlank, isPaused, isPopupAd, isWebPage, popupLists } from '../shared/popups.js';
 import { loadSettings } from '../shared/settings.js';
 
 const WATCH_PREFIX = 'popupWatch:';
@@ -25,6 +26,8 @@ function cached(path) {
 async function isAd(url, pageUrl) {
   const settings = await loadSettings();
   if (isPaused(settings, pageUrl)) return false;
+  const exceptions = settings.recommendedExceptions ? (await cached(EXCEPTIONS_FILE)).domains : [];
+  if (isAllowedTarget(allowedDomains(settings, exceptions), url)) return false;
   const index = await cached(POPUP_INDEX);
   const on = popupLists(settings, index);
   const lists = await Promise.all(index.lists.filter(({ id }) => on.includes(id)).map(({ file }) => cached(file)));

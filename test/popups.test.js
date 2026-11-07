@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { convertPopups, filterTokens, formatPopupReport, popupBadfilters } from '../scripts/convert-popup.js';
-import { isBlank, isPaused, isPopupAd, isWebPage, matchesFilter, popupLists } from '../src/shared/popups.js';
+import { isAllowedTarget, isBlank, isPaused, isPopupAd, isWebPage, matchesFilter, popupLists } from '../src/shared/popups.js';
 import { normalizeSettings } from '../src/shared/settings.js';
 
 const PAGE = 'https://news.example.ir/article';
@@ -194,4 +194,15 @@ test('the switches follow the rulesets, under Popups', () => {
   assert.deepEqual(on({ lists: { 'ads-adguard-base': false } }), ['ads', 'iran']);
   assert.equal(normalizeSettings({}).popups, true);
   assert.equal(normalizeSettings({ popups: 'yes' }).popups, true);
+});
+
+test('a tab sent to an allowed address or its subdomain is never closed', () => {
+  assert.equal(isAllowedTarget(['ads.com'], 'https://ads.com/'), true);
+  assert.equal(isAllowedTarget(['ads.com'], 'https://x.ads.com/a'), true);
+  assert.equal(isAllowedTarget(['ads.com'], 'https://badads.com/'), false);
+  assert.equal(isAllowedTarget(['ads.com'], 'https://ads.com.evil.net/'), false);
+  assert.equal(isAllowedTarget(['x.ads.com'], 'https://ads.com/'), false);
+  assert.equal(isAllowedTarget([], 'https://ads.com/'), false);
+  assert.equal(isAllowedTarget(['ads.com'], 'not a url'), false);
+  assert.equal(isAllowedTarget(['ads.com'], 'about:blank'), false);
 });

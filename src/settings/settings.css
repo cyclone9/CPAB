@@ -190,6 +190,14 @@ label.row-list.is-later:hover { background: transparent; }
 }
 .search-footer p { min-block-size: 2rem; display: flex; align-items: center; }
 
+/* Recommended exceptions: what the switch holds, read only */
+.exceptions {
+  padding-block: 0 0.875rem;
+  padding-inline: 1.125rem;
+}
+.exceptions-list { margin-block-start: 0.25rem; font-size: var(--size-small); }
+.exceptions-list li { overflow-wrap: anywhere; }
+
 .empty { padding: 1rem 1.125rem; }
 .search-footer + .empty { border-block-start: 1px solid var(--line); }
 .empty-title { font-weight: 500; }

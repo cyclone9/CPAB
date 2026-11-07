@@ -2,13 +2,18 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import { convertList } from '../scripts/convert.js';
 import { LISTS } from '../scripts/lists.config.js';
 import {
+  ALLOWED_RULE_ID,
   ALLOW_RULE_ID_BASE,
   BADGE_COLORS,
   BLOCKED_RULE_ID,
   BLOCK_GROUPS,
+  EXCEPTIONS_RULE_ID,
   PAUSED_RULE_ID,
+  allowedDomains,
+  allowedRules,
   blockedRules,
   countBlocked,
   pausedRules,
@@ -83,6 +88,47 @@ test('blocked sites follow the master switch, and nothing else', () => {
   assert.deepEqual(blockedRules(normalizeSettings({})), []);
   assert.deepEqual(blockedRules(normalizeSettings({ master: false, blockedSites: ['a.com'] })), []);
   assert.equal(blockedRules(normalizeSettings({ blockedSites: ['a.com'], pausedSites: ['b.com'], groups: { ads: false } })).length, 1);
+});
+
+test('allowed addresses and the exceptions are two allow rules, above list blocks and below the pause and blocked-sites rules', () => {
+  const rules = allowedRules(normalizeSettings({ allowedSites: ['a.com', 'b.ir'] }), ['seal.ir']);
+  assert.deepEqual(rules.map(({ id }) => id), [ALLOWED_RULE_ID, EXCEPTIONS_RULE_ID]);
+  const [mine, recommended] = rules;
+  assert.equal(mine.action.type, 'allow');
+  assert.deepEqual(mine.condition.requestDomains, ['a.com', 'b.ir']);
+  assert.deepEqual(recommended.condition.requestDomains, ['seal.ir']);
+  assert.equal(mine.condition.resourceTypes.length, 15);
+  const listBlock = convertList('||ads.com^').rules[0];
+  const listAllow = convertList('@@||ads.com^').rules[0];
+  for (const rule of rules) {
+    assert.ok(rule.priority > listBlock.priority);
+    assert.ok(rule.priority >= listAllow.priority);
+    assert.ok(rule.priority < pausedRules(['x.com'])[0].priority);
+    assert.ok(rule.priority < blockedRules(normalizeSettings({ blockedSites: ['x.com'] }))[0].priority);
+  }
+  const ids = [PAUSED_RULE_ID, BLOCKED_RULE_ID, ALLOWED_RULE_ID, EXCEPTIONS_RULE_ID];
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test('allowed addresses follow the master switch, and the exceptions their own switch too', () => {
+  assert.deepEqual(allowedRules(normalizeSettings({}), []), []);
+  assert.deepEqual(allowedRules(normalizeSettings({ master: false, allowedSites: ['a.com'] }), ['seal.ir']), []);
+  const off = allowedRules(normalizeSettings({ allowedSites: ['a.com'], recommendedExceptions: false }), ['seal.ir']);
+  assert.deepEqual(off.map(({ id }) => id), [ALLOWED_RULE_ID]);
+  const onlyExceptions = allowedRules(normalizeSettings({ groups: { ads: false, trackers: false } }), ['seal.ir']);
+  assert.deepEqual(onlyExceptions.map(({ id }) => id), [EXCEPTIONS_RULE_ID]);
+  assert.deepEqual(allowedRules(normalizeSettings({ pausedSites: ['a.com'] }), []), []);
+});
+
+test('the allowed domains for the popup closer are the person\'s own, then the exceptions while on', () => {
+  assert.deepEqual(allowedDomains(normalizeSettings({ allowedSites: ['a.com'] }), ['seal.ir']), ['a.com', 'seal.ir']);
+  assert.deepEqual(allowedDomains(normalizeSettings({ allowedSites: ['a.com'], recommendedExceptions: false }), ['seal.ir']), ['a.com']);
+});
+
+test('a dynamic match counts only for the blocked-sites rule, never the pause or allow rules', () => {
+  const allow = (ruleId) => ({ rule: { rulesetId: '_dynamic', ruleId } });
+  assert.equal(countBlocked([allow(ALLOWED_RULE_ID), allow(EXCEPTIONS_RULE_ID)]), 0);
+  assert.deepEqual(splitBlocked([allow(ALLOWED_RULE_ID), allow(EXCEPTIONS_RULE_ID)]), []);
 });
 
 test('a dynamic match counts only for the blocked-sites rule, never the pause rule', () => {

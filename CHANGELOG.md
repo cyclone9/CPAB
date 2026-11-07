@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- HaGeZi Multi Light (GPL-3.0-only) is a second list under Trackers, with its own switch.
+- A new Allowed addresses section in Settings: requests to those addresses and their subdomains are never blocked by the lists, on any site.
+- An Exceptions for Iranian sites switch, on by default, allows the addresses in `lists/cpab-exceptions.txt`; the addresses you added yourself stay when it is off.
+- Popup tabs that go to an allowed address stay open.
+- `npm run lists -- <name>` fetches only the named lists, and HaGeZi is fetched at the exact commit it records.
 - Site-specific hiding rules now go in an adopted stylesheet instead of a `<style>` element, so a page script that deletes style elements (as soft98.ir does every second) can no longer bring the ads back.
 - Settings search for Blocked sites and Paused sites: results update as you type, 50 sites show at a time with a Show more button and a count line, and Escape clears the box.
 - soft98.ir: the image block rules are gone and its ad boxes are moved off-screen with `:cpab-offscreen`, because the site detected the blocked images and zero-height boxes.

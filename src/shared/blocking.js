@@ -12,6 +12,17 @@ const PAUSED_PRIORITY = 3;
 // Above the pause rule, so pausing a page can't let a person's own blocked site through it.
 export const BLOCKED_RULE_ID = 2;
 const BLOCKED_PRIORITY = 4;
+
+// Allowed addresses and the recommended exceptions sit with the lists' own exceptions: above every list
+// block and below the pause rule and a person's blocked sites. Harmful and Adult sites must go above
+// the pause rule, so these can never lift them either.
+export const ALLOWED_RULE_ID = 3;
+export const EXCEPTIONS_RULE_ID = 4;
+const ALLOWED_PRIORITY = 2;
+
+// The recommended exceptions, as { domains } built from lists/cpab-exceptions.txt.
+export const EXCEPTIONS_FILE = 'rules/cpab-exceptions.json';
+
 const ALL_RESOURCE_TYPES = Object.freeze([
   'main_frame', 'sub_frame', 'stylesheet', 'script', 'image', 'font', 'object', 'xmlhttprequest',
   'ping', 'csp_report', 'media', 'websocket', 'webtransport', 'webbundle', 'other',
@@ -49,6 +60,26 @@ export function blockedRules(settings) {
     action: { type: 'block' },
     condition: { requestDomains: [...settings.blockedSites], resourceTypes: [...ALL_RESOURCE_TYPES] },
   }];
+}
+
+// The addresses never blocked: the person's own, then the recommended exceptions while their switch is on.
+export function allowedDomains(settings, exceptions) {
+  return [...settings.allowedSites, ...(settings.recommendedExceptions ? exceptions : [])];
+}
+
+// Both follow the master switch, since with it off nothing is blocked for them to lift.
+export function allowedRules(settings, exceptions) {
+  if (!settings.master) return [];
+  const rule = (id, domains) => ({
+    id,
+    priority: ALLOWED_PRIORITY,
+    action: { type: 'allow' },
+    condition: { requestDomains: [...domains], resourceTypes: [...ALL_RESOURCE_TYPES] },
+  });
+  const rules = [];
+  if (settings.allowedSites.length) rules.push(rule(ALLOWED_RULE_ID, settings.allowedSites));
+  if (settings.recommendedExceptions && exceptions.length) rules.push(rule(EXCEPTIONS_RULE_ID, exceptions));
+  return rules;
 }
 
 // The popup's split of the count, in display order. A group joins by adding one entry: it lists every

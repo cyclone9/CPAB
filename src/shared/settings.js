@@ -10,7 +10,7 @@ const THEMES = ['dark', 'light'];
 // the group's switch sits above them, so turning a group off leaves every list's own choice stored.
 export const GROUP_RULESETS = Object.freeze({
   ads: Object.freeze(['ads', 'ads-adguard-base', 'iran', 'cpab-own']),
-  trackers: Object.freeze(['trackers']),
+  trackers: Object.freeze(['trackers', 'trackers-hagezi-light']),
 });
 
 export const GROUP_IDS = Object.freeze(Object.keys(GROUP_RULESETS));
@@ -23,6 +23,8 @@ export const DEFAULTS = Object.freeze({
   popups: true,
   pausedSites: Object.freeze([]),
   blockedSites: Object.freeze([]),
+  allowedSites: Object.freeze([]),
+  recommendedExceptions: true,
   language: 'auto',
   theme: 'dark',
   badge: true,
@@ -57,6 +59,8 @@ export function normalizeSettings(stored) {
     popups: flag(value.popups, DEFAULTS.popups),
     pausedSites: siteList(value.pausedSites),
     blockedSites: siteList(value.blockedSites),
+    allowedSites: siteList(value.allowedSites),
+    recommendedExceptions: flag(value.recommendedExceptions, DEFAULTS.recommendedExceptions),
     language: LANGUAGES.includes(value.language) ? value.language : DEFAULTS.language,
     theme: THEMES.includes(value.theme) ? value.theme : DEFAULTS.theme,
     badge: flag(value.badge, DEFAULTS.badge),

@@ -6,8 +6,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { convertList, formatReport } from './convert.js';
 import { exceptedSelectors, finishCss, formatCssReport, readCss } from './convert-css.js';
+import { parseExceptions } from './convert-exceptions.js';
 import { convertPopups, formatPopupReport, hasPopupRules, popupBadfilters } from './convert-popup.js';
 import { AGPL_TEXT, LISTS } from './lists.config.js';
+import { EXCEPTIONS_FILE } from '../src/shared/blocking.js';
 import { CSS_INDEX, seedEntries, storedBytes } from '../src/shared/css.js';
 import { POPUP_INDEX } from '../src/shared/popups.js';
 
@@ -123,6 +125,10 @@ writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists: lists.map(
 writeFileSync(join(dist, POPUP_INDEX), JSON.stringify({
   lists: lists.filter(({ popupFile }) => popupFile).map(({ ruleset, popupFile }) => ({ id: ruleset, file: popupFile })),
 }));
+
+const exceptions = parseExceptions(readFileSync(join(root, 'lists', 'cpab-exceptions.txt'), 'utf8'));
+writeFileSync(join(dist, EXCEPTIONS_FILE), JSON.stringify({ domains: exceptions }));
+console.log(`recommended exceptions: ${exceptions.length} domains`);
 
 // Chrome won't load an extension whose manifest names a rule file that isn't there.
 const built = new Set(lists.filter((list) => list.available).map((list) => list.ruleset));

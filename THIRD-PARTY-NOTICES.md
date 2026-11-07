@@ -26,17 +26,6 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Snapshot:** 2026-11-06, version 2.5.2.60, commit e7cd2a9280589e0d652cf31d711de71ccb1bb6ac
 - **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
 
-## EasyPrivacy
-
-- **Title:** EasyPrivacy
-- **Attribution:** The EasyList authors (https://easylist.to/)
-- **Homepage:** https://easylist.to/
-- **Source:** https://easylist.to/easylist/easyprivacy.txt
-- **Licence of the converted file:** CC BY-SA 4.0, SPDX `CC-BY-SA-4.0`, https://creativecommons.org/licenses/by-sa/4.0/
-- **Licence of the list:** GPL-3.0-or-later or CC BY-SA 3.0 or later, at our choice. CPAB takes the CC BY-SA side, at version 4.0, for the converted file.
-- **Snapshot:** 2026-11-06, version 202611062116, commit 6eab4df7213ac8271af09706b02998345b610e5a
-- **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
-
 ## PersianBlocker
 
 - **Title:** PersianBlocker
@@ -50,6 +39,28 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Files used:** `PersianBlocker-Deprecated.txt`, `PersianBlockerAds.txt`, `PersianBlockerTrackers.txt`, `PersianBlockerHosts.txt`, joined in that order
 - **Copy in the package:** `rules/LICENSE.AGPL-3.0.txt`, beside the rule file
 - **Where it lives:** `lists/persianblocker.txt`, with its licence in `lists/LICENSE.AGPL-3.0.txt`.
+
+## EasyPrivacy
+
+- **Title:** EasyPrivacy
+- **Attribution:** The EasyList authors (https://easylist.to/)
+- **Homepage:** https://easylist.to/
+- **Source:** https://easylist.to/easylist/easyprivacy.txt
+- **Licence of the converted file:** CC BY-SA 4.0, SPDX `CC-BY-SA-4.0`, https://creativecommons.org/licenses/by-sa/4.0/
+- **Licence of the list:** GPL-3.0-or-later or CC BY-SA 3.0 or later, at our choice. CPAB takes the CC BY-SA side, at version 4.0, for the converted file.
+- **Snapshot:** 2026-11-06, version 202611062116, commit 6eab4df7213ac8271af09706b02998345b610e5a
+- **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
+
+## HaGeZi Multi Light
+
+- **Title:** HaGeZi Multi Light
+- **Attribution:** HaGeZi (https://github.com/hagezi/dns-blocklists)
+- **Homepage:** https://github.com/hagezi/dns-blocklists
+- **Source:** https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/light.txt
+- **Licence of the converted file:** GPL-3.0-only, SPDX `GPL-3.0-only`, https://www.gnu.org/licenses/gpl-3.0.html
+- **Licence of the list:** The repository LICENSE is the GPLv3 text and the list header points to it, with no "or later", so CPAB treats the list as GPL-3.0-only. The same text ships as LICENSE at the top of the package.
+- **Snapshot:** 2026-11-07, version 2026.1107.0909.37, commit 22c1f1b0774e88f94621f1eb01526350de1f7e53
+- **Changes:** converted to declarativeNetRequest form, CSS and popup data by CPAB's build
 <!-- lists:end -->
 
 ## Vazirmatn

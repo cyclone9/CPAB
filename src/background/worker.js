@@ -1,7 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Keeps Chrome's rule state in line with the saved settings. Chrome can stop this worker at any time
 // and the rules keep working without it, so nothing here lives in memory between events.
-import { BADGE_COLORS, BLOCKED_RULE_ID, PAUSED_RULE_ID, blockedRules, pausedRules, wantedRulesets } from '../shared/blocking.js';
+import {
+  ALLOWED_RULE_ID,
+  BADGE_COLORS,
+  BLOCKED_RULE_ID,
+  EXCEPTIONS_FILE,
+  EXCEPTIONS_RULE_ID,
+  PAUSED_RULE_ID,
+  allowedRules,
+  blockedRules,
+  pausedRules,
+  wantedRulesets,
+} from '../shared/blocking.js';
 import { CSS_INDEX, SEED_KEY, scriptChanges, scriptList, seedEntries, staleKeys, wantedScripts } from '../shared/css.js';
 import { loadSettings, onSettingsChange, saveRulesetProblems, updateSettings } from '../shared/settings.js';
 import './popups.js';
@@ -32,10 +43,13 @@ async function applyRulesets(settings) {
   return problems;
 }
 
-function applySiteRules(settings) {
-  return dnr.updateDynamicRules({
-    removeRuleIds: [PAUSED_RULE_ID, BLOCKED_RULE_ID],
-    addRules: [...pausedRules(settings.pausedSites), ...blockedRules(settings)],
+const packageJson = (path) => fetch(chrome.runtime.getURL(path)).then((response) => response.json());
+
+async function applySiteRules(settings) {
+  const { domains: exceptions } = await packageJson(EXCEPTIONS_FILE);
+  await dnr.updateDynamicRules({
+    removeRuleIds: [PAUSED_RULE_ID, BLOCKED_RULE_ID, ALLOWED_RULE_ID, EXCEPTIONS_RULE_ID],
+    addRules: [...pausedRules(settings.pausedSites), ...blockedRules(settings), ...allowedRules(settings, exceptions)],
   });
 }
 
@@ -44,8 +58,6 @@ async function applyBadge(settings) {
   await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.background });
   await dnr.setExtensionActionOptions({ displayActionCountAsBadgeText: settings.badge });
 }
-
-const packageJson = (path) => fetch(chrome.runtime.getURL(path)).then((response) => response.json());
 
 // Puts this build's site CSS into storage, once. The mark goes in last, so a worker stopped halfway
 // starts over at the next event. Reading every key happens only here, on a build it hasn't seeded.
