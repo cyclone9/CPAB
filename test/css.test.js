@@ -361,7 +361,7 @@ test('the real lists give selectors that all pass the check, and the own list hi
   }
   const own = finishCss(readCss(readFileSync(new URL('../lists/cpab-own.txt', import.meta.url), 'utf8'), { ownFormat: true }), new Set(), new Set());
   assert.deepEqual(own.stats.dropped, {});
-  assert.deepEqual(Object.keys(own.sites), ['kojaro.com', 'soft98.ir']);
+  assert.deepEqual(Object.keys(own.sites), ['kojaro.com', 'soft98.ir', 'varzesh3.ir']);
   assert.ok(own.sites['kojaro.com'].includes('button[aria-label="بستن تبلیغ"]'));
   // Each of these holds the site's real software list, so no rule may end on one of them.
   assert.doesNotMatch(own.sites['soft98.ir'], /(?:#sbd|#tbdl|\.tbdl|\.cbddh)\{/);
