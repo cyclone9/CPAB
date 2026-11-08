@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- HaGeZi Multi Light refreshed to its 2026-11-08 release, which upstream cut from about 115,000 to about 88,000 domains. The daily data run had stopped on this drop, as its shrink guard is meant to, until the shipped snapshot matched.
 - A daily GitHub Actions workflow fetches and converts the lists and publishes them on https://cpab.cyclone9.dev/ under `data/v1/`: each list's files as the build writes them (Harmful sites and Adult sites as plain domains, never redirect rules), the source snapshots, and a `version.json` with each file's SHA-256, signed with Ed25519 in `version.sig`. Every file passes the same schema check the build now runs on its own output, and a list that loses more than a fifth of its rules, domains or CSS stops the run. CPAB doesn't download this data yet.
 - About in Settings and the READMEs say which browsers CPAB runs in: Chrome (tested), other Chromium-based browsers (should work, not tested) and Firefox (coming soon).
 - About in Settings links to the source code at https://github.com/cyclone9/CPAB and the lists repository at https://github.com/cyclone9/CPAB-Lists, and the welcome page link has its own row.

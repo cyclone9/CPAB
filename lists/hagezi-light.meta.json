@@ -27,9 +27,9 @@
   },
   "sourceUrl": "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/light.txt",
   "snapshot": {
-    "date": "2026-11-07",
-    "sha256": "f46694d2549964fe72b6650d98d2a3724d3627bc9438a0b02e7ae48b2c6d4cfd",
-    "listVersion": "2026.1107.0909.37",
-    "listCommit": "22c1f1b0774e88f94621f1eb01526350de1f7e53"
+    "date": "2026-11-08",
+    "sha256": "76a41f8e59f78557276786d87856a21c7c69d588817ce825682eda31921f4cf6",
+    "listVersion": "2026.1108.0907.29",
+    "listCommit": "5c992c35301e6f3e4c84181b1dfd51873ca35a21"
   }
 }
