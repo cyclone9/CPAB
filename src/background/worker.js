@@ -20,6 +20,7 @@ import { loadSettings, onSettingsChange, saveRulesetProblems, updateSettings } f
 import './dataleak.js';
 import './harmful.js';
 import './popups.js';
+import './stats.js';
 import './welcome.js';
 
 const dnr = chrome.declarativeNetRequest;

@@ -6,6 +6,18 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.10',
+    date: '2026-11-08',
+    en: [
+      'Settings has a new Statistics section with how much was blocked in this browser today, yesterday and over the last two weeks. The counts stay on your device, incognito windows aren\'t counted, and Clear empties them.',
+      'Top 5 sites, off by default, lists the sites where the most was blocked over the last 14 days. The list stays on your device.',
+    ],
+    fa: [
+      'تنظیمات بخش تازهٔ «آمار» را دارد که می‌گوید امروز، دیروز و در دو هفتهٔ گذشته چه مقدار در این مرورگر مسدود شده است. شمارش‌ها روی دستگاه شما می‌مانند، پنجره‌های ناشناس شمرده نمی‌شوند و دکمهٔ «پاک کردن آمار» همه را پاک می‌کند.',
+      'گزینهٔ «۵ سایت اول» که از پیش خاموش است، سایت‌هایی را نشان می‌دهد که در ۱۴ روز گذشته بیشترین مسدودی را داشته‌اند. این فهرست روی دستگاه شما می‌ماند.',
+    ],
+  },
+  {
     version: '0.2.9',
     date: '2026-11-08',
     en: [

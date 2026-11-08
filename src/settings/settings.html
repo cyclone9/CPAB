@@ -21,6 +21,7 @@
         <a href="#paused" data-t="sectionPaused"></a>
         <a href="#blocked-sites" data-t="sectionBlockedSites"></a>
         <a href="#allowed" data-t="sectionAllowed"></a>
+        <a href="#statistics" data-t="sectionStats"></a>
         <a href="#appearance" data-t="sectionAppearance"></a>
         <a href="#about" data-t="sectionAbout"></a>
         <a href="#sources" data-t="creditsHeading"></a>
@@ -264,6 +265,48 @@
             <p class="small muted" id="exceptions-heading" data-t="recommendedExceptionsList"></p>
             <ul id="exceptions-list" class="exceptions-list" aria-labelledby="exceptions-heading"></ul>
           </div>
+        </div>
+      </section>
+
+      <section id="statistics" class="section">
+        <h2 data-t="sectionStats"></h2>
+        <p class="intro" data-t="statsIntro"></p>
+
+        <div class="panel">
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" id="stats-daily-title" data-t="statsDaily"></span>
+              <span class="row-desc" id="stats-daily-desc" data-t="statsDailyDesc"></span>
+            </span>
+            <input id="stats-daily" class="switch" type="checkbox" role="switch" aria-labelledby="stats-daily-title" aria-describedby="stats-daily-desc">
+          </label>
+          <p id="stats-daily-note" class="row-note small" hidden data-t="statsDailyOff"></p>
+          <div class="stats">
+            <p class="small muted" id="stats-heading" data-t="statsBlockedHeading"></p>
+            <dl class="stats-counts" aria-labelledby="stats-heading">
+              <div><dt data-t="statsToday"></dt><dd id="stats-today"></dd></div>
+              <div><dt data-t="statsYesterday"></dt><dd id="stats-yesterday"></dd></div>
+              <div><dt data-t="statsThisWeek"></dt><dd id="stats-this-week"></dd></div>
+              <div><dt data-t="statsLastWeek"></dt><dd id="stats-last-week"></dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <div class="panel">
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" id="stats-top-title" data-t="statsTopSites"></span>
+              <span class="row-desc" id="stats-top-desc" data-t="statsTopSitesDesc"></span>
+            </span>
+            <input id="stats-top" class="switch" type="checkbox" role="switch" aria-labelledby="stats-top-title" aria-describedby="stats-top-desc">
+          </label>
+          <ol id="stats-top-list" class="paused-list stats-top" aria-labelledby="stats-top-title" hidden></ol>
+          <p id="stats-top-empty" class="empty small muted" data-t="statsTopEmpty" hidden></p>
+        </div>
+
+        <div class="stats-clear">
+          <button id="stats-clear" class="button" type="button" data-t="statsClear"></button>
+          <p id="stats-clear-status" class="small muted" role="status"></p>
         </div>
       </section>
 

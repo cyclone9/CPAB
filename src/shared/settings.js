@@ -34,6 +34,9 @@ export const DEFAULTS = Object.freeze({
   recommendedExceptions: true,
   // The data-leak notice (PRD D14). It only informs, so it answers to its own switch alone.
   dataLeak: true,
+  // Statistics (PRD D16): daily totals on, the Top 5 sites off until the person turns them on.
+  statsDaily: true,
+  statsTopSites: false,
   language: 'auto',
   theme: 'dark',
   badge: true,
@@ -78,6 +81,8 @@ export function normalizeSettings(stored) {
     allowedSites: siteList(value.allowedSites),
     recommendedExceptions: flag(value.recommendedExceptions, DEFAULTS.recommendedExceptions),
     dataLeak: flag(value.dataLeak, DEFAULTS.dataLeak),
+    statsDaily: flag(value.statsDaily, DEFAULTS.statsDaily),
+    statsTopSites: flag(value.statsTopSites, DEFAULTS.statsTopSites),
     language: LANGUAGES.includes(value.language) ? value.language : DEFAULTS.language,
     theme: THEMES.includes(value.theme) ? value.theme : DEFAULTS.theme,
     badge: flag(value.badge, DEFAULTS.badge),

@@ -5,6 +5,7 @@ import { recentChangelog } from '../shared/changelog.js';
 import { addSite, findOverlap, normalizeDomain } from '../shared/domains.js';
 import { applyPage, fillWithDomains, fillWithLatin } from '../shared/page.js';
 import { PAGE_SIZE, searchSites } from '../shared/site-search.js';
+import { STATS_KEY, loadStats, onStatsChange, statsTotals, topSites } from '../shared/stats.js';
 import {
   GROUP_IDS,
   loadRulesetProblems,
@@ -83,6 +84,8 @@ let settings = await loadSettings().catch(() => normalizeSettings());
 let problems = await loadRulesetProblems().catch(() => ({}));
 const lists = await fetch('../rules/summary.json').then((response) => response.json()).then((summary) => summary.lists).catch(() => null);
 const exceptions = await fetch(`../${EXCEPTIONS_FILE}`).then((response) => response.json()).then(({ domains }) => domains).catch(() => []);
+let stats = await loadStats().catch(() => ({ days: {} }));
+let statsCleared = null;
 let language = 'en';
 
 function renderError(sites) {
@@ -320,6 +323,30 @@ function renderChangelog() {
   }));
 }
 
+const STATS_COUNTS = [['stats-today', 'today'], ['stats-yesterday', 'yesterday'], ['stats-this-week', 'thisWeek'], ['stats-last-week', 'lastWeek']];
+
+function renderStats() {
+  byId('stats-daily').checked = settings.statsDaily;
+  byId('stats-daily-note').hidden = settings.statsDaily;
+  byId('stats-top').checked = settings.statsTopSites;
+  const totals = statsTotals(stats, new Date());
+  for (const [id, key] of STATS_COUNTS) byId(id).textContent = formatNumber(language, totals[key]);
+  const sites = settings.statsTopSites ? topSites(stats) : [];
+  byId('stats-top-list').replaceChildren(...sites.map(([site, count]) => {
+    const item = document.createElement('li');
+    item.append(
+      Object.assign(document.createElement('bdi'), { dir: 'ltr', textContent: site }),
+      Object.assign(document.createElement('span'), { className: 'stats-count', textContent: formatNumber(language, count) }),
+    );
+    return item;
+  }));
+  byId('stats-top-list').hidden = !sites.length;
+  byId('stats-top-empty').hidden = !settings.statsTopSites || sites.length > 0;
+  const status = byId('stats-clear-status');
+  status.textContent = statsCleared === null ? '' : t(language, statsCleared ? 'statsCleared' : 'statsClearError');
+  status.className = statsCleared === false ? 'error' : 'small muted';
+}
+
 function render() {
   language = applyPage(settings);
   nav.setAttribute('aria-label', t(language, nav.dataset.labelKey));
@@ -339,6 +366,7 @@ function render() {
   renderDataLeak();
   renderExceptions();
   renderChangelog();
+  renderStats();
   byId('name-fa').hidden = language !== 'fa';
   for (const sites of SITE_LISTS) {
     renderSiteList(sites);
@@ -359,6 +387,16 @@ byId('master').addEventListener('change', (event) => save({ master: event.target
 byId('badge').addEventListener('change', (event) => save({ badge: event.target.checked }));
 byId('recommended-exceptions').addEventListener('change', (event) => save({ recommendedExceptions: event.target.checked }));
 byId('dataleak').addEventListener('change', (event) => save({ dataLeak: event.target.checked }));
+byId('stats-daily').addEventListener('change', (event) => save({ statsDaily: event.target.checked }));
+byId('stats-top').addEventListener('change', (event) => save({ statsTopSites: event.target.checked }));
+
+// The worker clears, so counts it still holds can't come back. A page in an incognito window talks to
+// the incognito worker, which keeps no statistics and doesn't answer: then the page clears them itself.
+byId('stats-clear').addEventListener('click', async () => {
+  const answer = await chrome.runtime.sendMessage({ type: 'statsClear' }).then((reply) => reply?.ok ?? null, () => null);
+  statsCleared = answer ?? await chrome.storage.local.remove(STATS_KEY).then(() => true, () => false);
+  renderStats();
+});
 
 for (const toggle of document.querySelectorAll('[data-group]')) {
   toggle.addEventListener('change', () => save((current) => ({
@@ -450,6 +488,11 @@ buildListRows();
 onSettingsChange((next) => {
   settings = next;
   render();
+});
+
+onStatsChange((next) => {
+  stats = next;
+  renderStats();
 });
 
 onRulesetProblemsChange((next) => {

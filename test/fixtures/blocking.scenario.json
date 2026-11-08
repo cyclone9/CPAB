@@ -1645,6 +1645,8 @@
      "paused.example"
     ],
     "recommendedExceptions": true,
+    "statsDaily": true,
+    "statsTopSites": false,
     "theme": "light"
    }
   },

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added Statistics in Settings: what was blocked in this browser today, yesterday, over the last 7 days and the 7 days before, harmful-site warnings included, with a Top 5 sites list behind its own switch (off by default) and a Clear button. Counts stay in `storage.local` for at most 14 days, hold no addresses, and skip incognito windows. The extension now asks for the `webRequest` permission, which only observes blocked requests and adds no new warning in Chrome.
 - A welcome page opens once after a fresh install and says what CPAB does, what it can't do, what it never collects and how to pause it on a site. About in Settings can open it again.
 - Warning and blocked pages now open in incognito tabs instead of Chrome's error page, through `"incognito": "split"` in the manifest. The incognito worker leaves applying settings to the regular one. Allow in Incognito must be on in CPAB's details page in `chrome://extensions`.
 - The data-leak line in the popup is red.

@@ -1,0 +1,352 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733",
+  "--disable-site-isolation-trials",
+  "--disable-features=HttpsFirstBalancedModeAutoEnable,HttpsFirstModeIncognito,HttpsUpgrades"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>[settings.statsDaily,settings.statsTopSites])",
+   "label": "after install: daily totals on, Top 5 off",
+   "equals": [
+    true,
+    false
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>stats??null)",
+   "label": "nothing counted yet",
+   "equals": null
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "expectBlocked": "trackers-probe"
+  },
+  {
+   "wait": 2600
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>{const d=Object.entries(stats.days);return [d.length,d[0][1].blocked>=2,'sites' in d[0][1],/^\\d{4}-\\d{2}-\\d{2}$/.test(d[0][0])]})",
+   "label": "today counts the blocks, with no sites while Top 5 is off",
+   "equals": [
+    1,
+    true,
+    false,
+    true
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.keys(stats.days)[0]===(d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`)(new Date()))",
+   "label": "the day is today's local date",
+   "equals": true
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,statsTopSites:true}})).then(()=>'set')",
+   "label": "Top 5 on"
+  },
+  {
+   "wait": 700
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>(globalThis.statsMark=n,n>=0))",
+   "label": "count before the Top 5 visit",
+   "equals": true
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "wait": 2600
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats.days).flatMap(d=>Object.keys(d.sites??{})))",
+   "label": "the page's site appears, and only it",
+   "equals": [
+    "page.fixtures.localhost"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>n-globalThis.statsMark>=2)",
+   "label": "the visit added its blocks",
+   "equals": true
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>(globalThis.statsMark=n,n>=0))",
+   "label": "count before a harmful-site warning",
+   "equals": true
+  },
+  {
+   "open": "http://0000a.net/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "location.pathname",
+   "label": "the warning page",
+   "equals": "/warning/warning.html"
+  },
+  {
+   "wait": 2600
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>n-globalThis.statsMark)",
+   "label": "a warning adds one",
+   "equals": 1
+  },
+  {
+   "eval": "(setTimeout(()=>location.reload(),50),'reloading')",
+   "label": "a script reloads the warning page"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "wait": 2600
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>n-globalThis.statsMark)",
+   "label": "a reload of the warning page adds nothing",
+   "equals": 1
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats.days).flatMap(d=>Object.keys(d.sites??{})))",
+   "label": "a warning records no site",
+   "equals": [
+    "page.fixtures.localhost"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,adult:true},blockedSites:['ownblock.localhost']}})).then(()=>'set')",
+   "label": "Adult sites on, and a site of your own blocked"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>(globalThis.statsMark=n,n>=0))",
+   "label": "count before the blocked pages",
+   "equals": true
+  },
+  {
+   "open": "http://005149.cn/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "[location.pathname,new URL(location.href).searchParams.get('list')]",
+   "label": "an adult site shows the blocked page",
+   "equals": [
+    "/blocked/blocked.html",
+    "adult-hagezi-nsfw"
+   ]
+  },
+  {
+   "open": "http://ownblock.localhost/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "[location.pathname,new URL(location.href).searchParams.get('list')]",
+   "label": "your own blocked site shows the blocked page",
+   "equals": [
+    "/blocked/blocked.html",
+    "own"
+   ]
+  },
+  {
+   "wait": 2600
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>n-globalThis.statsMark)",
+   "label": "blocked pages are never counted",
+   "equals": 0
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,adult:false},blockedSites:[],pausedSites:['page.fixtures.localhost']}})).then(()=>'set')",
+   "label": "Adult off, the page's site paused"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>(globalThis.statsMark=n,n>=0))",
+   "label": "count before the paused visit",
+   "equals": true
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "ads-probe"
+  },
+  {
+   "wait": 2600
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>n-globalThis.statsMark)",
+   "label": "a paused site adds nothing",
+   "equals": 0
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,pausedSites:[],master:false}})).then(()=>'set')",
+   "label": "unpaused, main switch off"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "ads-probe"
+  },
+  {
+   "wait": 2600
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>n-globalThis.statsMark)",
+   "label": "with the main switch off nothing counts",
+   "equals": 0
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,master:true,statsDaily:false}})).then(()=>'set')",
+   "label": "main switch on, daily totals off"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "wait": 2600
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats?.days??{}).reduce((t,d)=>t+d.blocked,0)).then(n=>n-globalThis.statsMark)",
+   "label": "with daily totals off nothing counts",
+   "equals": 0
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,statsDaily:true}})).then(()=>'set')",
+   "label": "daily totals on"
+  },
+  {
+   "wait": 700
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 1500
+  },
+  {
+   "eval": "[document.getElementById('stats-daily').checked,document.getElementById('stats-top').checked,[...document.querySelectorAll('#stats-top-list li bdi')].map(b=>[b.textContent,b.dir])]",
+   "label": "settings shows both switches on and the site, left to right",
+   "equals": [
+    true,
+    true,
+    [
+     [
+      "page.fixtures.localhost",
+      "ltr"
+     ]
+    ]
+   ]
+  },
+  {
+   "eval": "(async()=>{const {stats}=await chrome.storage.local.get('stats');const n=Object.values(stats.days).reduce((t,d)=>t+d.blocked,0);return document.getElementById('stats-today').textContent===new Intl.NumberFormat('en').format(n)&&document.getElementById('stats-this-week').textContent===new Intl.NumberFormat('en').format(n)})()",
+   "label": "today and the last 7 days show the stored count",
+   "equals": true
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,statsTopSites:false}})).then(()=>'set')",
+   "label": "Top 5 off"
+  },
+  {
+   "wait": 1000
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>Object.values(stats.days).some(d=>'sites' in d))",
+   "label": "turning Top 5 off deletes every site",
+   "equals": false
+  },
+  {
+   "eval": "[document.getElementById('stats-top').checked,document.getElementById('stats-top-list').hidden,document.getElementById('stats-top-list').children.length]",
+   "label": "settings updates live: Top 5 off, no list",
+   "equals": [
+    false,
+    true,
+    0
+   ]
+  },
+  {
+   "eval": "(document.getElementById('stats-clear').scrollIntoView({block:'center',behavior:'instant'}),'scrolled')",
+  "label": "Clear in view"
+ },
+ {
+  "click": "#stats-clear",
+   "settle": 1000
+  },
+  {
+   "eval": "[document.getElementById('stats-clear-status').textContent,document.getElementById('stats-today').textContent]",
+   "label": "Clear says it worked and today reads 0",
+   "equals": [
+    "Statistics cleared.",
+    "0"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>stats??null)",
+   "label": "Clear empties the stored statistics",
+   "equals": null
+  },
+  {
+   "open": "http://probe.localhost/probe.html",
+   "settle": 800
+  },
+  {
+   "allowIncognito": true
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "incognito": true
+  },
+  {
+   "sw": "chrome.extension.inIncognitoContext",
+   "label": "the incognito worker",
+   "equals": true
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "wait": 2600
+  },
+  {
+   "sw": "chrome.storage.local.get('stats').then(({stats})=>stats??null)",
+   "label": "blocks in an incognito tab are not counted",
+   "regular": true,
+   "equals": null
+  }
+ ]
+}

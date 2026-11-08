@@ -36,6 +36,8 @@ test('the defaults are on, dark, automatic and empty', () => {
     allowedSites: [],
     recommendedExceptions: true,
     dataLeak: true,
+    statsDaily: true,
+    statsTopSites: false,
     language: 'auto',
     theme: 'dark',
     badge: true,
@@ -53,6 +55,8 @@ test('valid stored values are kept', () => {
     allowedSites: ['d.ir'],
     recommendedExceptions: false,
     dataLeak: false,
+    statsDaily: false,
+    statsTopSites: true,
     language: 'fa',
     theme: 'light',
     badge: false,
@@ -70,6 +74,8 @@ test('bad stored values fall back to the defaults', () => {
     allowedSites: { a: 'c.com' },
     recommendedExceptions: 'no',
     dataLeak: 'off',
+    statsDaily: 'on',
+    statsTopSites: 1,
     language: 'de',
     theme: 'blue',
     badge: null,
@@ -101,6 +107,8 @@ test('settings saved by 0.1.4 keep every choice and gain the per-list switches',
     allowedSites: [],
     recommendedExceptions: true,
     dataLeak: true,
+    statsDaily: true,
+    statsTopSites: false,
   });
 });
 
@@ -126,6 +134,8 @@ test('settings saved by 0.2.2 keep every choice and gain HaGeZi, allowed address
     allowedSites: [],
     recommendedExceptions: true,
     dataLeak: true,
+    statsDaily: true,
+    statsTopSites: false,
   });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['ads', 'iran', 'cpab-own', 'trackers-hagezi-light', 'widgets-adguard', 'widgets-fanboy-social', ...HARMFUL]);
 });
@@ -179,6 +189,8 @@ test('settings saved by 0.2.4 keep every choice and gain the Widgets group and l
     groups: { ...saved.groups, widgets: true, harmful: true, adult: false },
     lists: { ...saved.lists, 'widgets-adguard': true, 'widgets-fanboy-social': true, 'harmful-hagezi-tif': true, 'harmful-badware': true, 'adult-hagezi-nsfw': true },
     dataLeak: true,
+    statsDaily: true,
+    statsTopSites: false,
   });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['ads', 'iran', 'cpab-own', 'widgets-adguard', 'widgets-fanboy-social', ...HARMFUL]);
   assert.deepEqual(normalizeSettings(normal), normal);
@@ -202,9 +214,19 @@ test('settings saved by 0.2.7 keep every choice and gain the data-leak notice, o
     badge: false,
   };
   const normal = normalizeSettings(saved);
-  assert.deepEqual(normal, { ...saved, dataLeak: true });
+  assert.deepEqual(normal, { ...saved, dataLeak: true, statsDaily: true, statsTopSites: false });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), wantedRulesets(normalizeSettings({ ...saved, dataLeak: false }), RULESET_IDS));
   assert.equal(normalizeSettings({ ...saved, dataLeak: false }).dataLeak, false);
+});
+
+// What 0.2.9 wrote: every switch there is today but the two for Statistics.
+test('settings saved by 0.2.9 gain daily totals, on, and Top 5, off', () => {
+  const saved = { ...normalizeSettings({ master: false, pausedSites: ['a.com'], dataLeak: false, theme: 'light' }) };
+  delete saved.statsDaily;
+  delete saved.statsTopSites;
+  const normal = normalizeSettings(saved);
+  assert.deepEqual(normal, { ...saved, statsDaily: true, statsTopSites: false });
+  assert.deepEqual(wantedRulesets(normal, RULESET_IDS), wantedRulesets(normalizeSettings({ ...saved, statsDaily: false, statsTopSites: true }), RULESET_IDS));
 });
 
 test('after an update from 0.1.4 a list runs when its group was on', () => {
