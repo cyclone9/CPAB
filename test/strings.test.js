@@ -34,7 +34,7 @@ test('English avoids the forms the naming rule forbids', () => {
 });
 
 test('every data-t in the pages has a string', () => {
-  for (const page of ['popup/popup.html', 'settings/settings.html', 'warning/warning.html']) {
+  for (const page of ['popup/popup.html', 'settings/settings.html', 'warning/warning.html', 'blocked/blocked.html', 'welcome/welcome.html']) {
     const html = readFileSync(new URL(`../src/${page}`, import.meta.url), 'utf8');
     for (const [, key] of html.matchAll(/data-(?:t|label-key)="(\w+)"/g)) {
       assert.ok(key in STRINGS.en, `${page}: ${key}`);
@@ -73,6 +73,8 @@ test('the manifest asks only for what this version needs', () => {
   assert.deepEqual(manifest.permissions, ['storage', 'activeTab', 'declarativeNetRequest', 'scripting', 'webNavigation']);
   assert.deepEqual(manifest.host_permissions, ['<all_urls>']);
   assert.equal(manifest.background.type, 'module');
+  // CPAB's warning and blocked pages can't open in an incognito tab in the default "spanning" mode.
+  assert.equal(manifest.incognito, 'split');
 });
 
 test('the manifest names come from _locales', () => {

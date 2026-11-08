@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- A welcome page opens once after a fresh install and says what CPAB does, what it can't do, what it never collects and how to pause it on a site. About in Settings can open it again.
+- Warning and blocked pages now open in incognito tabs instead of Chrome's error page, through `"incognito": "split"` in the manifest. The incognito worker leaves applying settings to the regular one. Allow in Incognito must be on in CPAB's details page in `chrome://extensions`.
+- The data-leak line in the popup is red.
+- A new Sources and credits section in Settings holds the list credits, moved from About, and the Have I Been Pwned link from under the Data-leak switch.
 - Added a data-leak notice: the toolbar popup and the toolbar button's tooltip say when the open site is listed in Have I Been Pwned's breach catalogue (CC BY 4.0), with the years. The check runs on the device against a copy inside the extension, and it has its own switch in Protection.
 - Sites you block yourself now show CPAB's blocked page, which says you blocked them, instead of Chrome's error page.
 - Adult sites is now a working switch, off by default, with HaGeZi NSFW (GPL-3.0-only) as its source list. While it is on, a listed site is replaced by a blocked page that names only the site and the list, with Go back. The main switch, pausing a site and Allowed addresses don't lift it, and the popup says it stays on.

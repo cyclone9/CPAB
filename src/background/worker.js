@@ -20,6 +20,7 @@ import { loadSettings, onSettingsChange, saveRulesetProblems, updateSettings } f
 import './dataleak.js';
 import './harmful.js';
 import './popups.js';
+import './welcome.js';
 
 const dnr = chrome.declarativeNetRequest;
 
@@ -120,9 +121,14 @@ function scheduleApply() {
   queue = queue.then(applyState).catch((error) => console.error('CPAB could not read its settings:', error.message));
 }
 
-// The content script reads settings as stored, so an update has to leave them in today's shape.
-chrome.runtime.onInstalled.addListener(() => {
-  updateSettings({}).catch((error) => console.error('CPAB could not save its settings:', error.message)).finally(scheduleApply);
-});
-chrome.runtime.onStartup.addListener(scheduleApply);
-onSettingsChange(scheduleApply);
+// An incognito window runs a second copy of this worker ("incognito": "split", so CPAB's own pages can open
+// in incognito tabs). Storage, rules and registered scripts are shared with the regular one, so only the
+// regular worker applies settings: two at once would race to register the same scripts.
+if (!chrome.extension.inIncognitoContext) {
+  // The content script reads settings as stored, so an update has to leave them in today's shape.
+  chrome.runtime.onInstalled.addListener(() => {
+    updateSettings({}).catch((error) => console.error('CPAB could not save its settings:', error.message)).finally(scheduleApply);
+  });
+  chrome.runtime.onStartup.addListener(scheduleApply);
+  onSettingsChange(scheduleApply);
+}

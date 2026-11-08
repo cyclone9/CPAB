@@ -1,0 +1,165 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.runtime.getContexts({contextTypes:['TAB'],documentUrls:[chrome.runtime.getURL('welcome/welcome.html')]}).then(c=>c.length)",
+   "label": "a fresh install opens the welcome page once",
+   "equals": 1
+  },
+  {
+   "wait": 2000
+  },
+  {
+   "sw": "chrome.runtime.getContexts({contextTypes:['TAB'],documentUrls:[chrome.runtime.getURL('welcome/welcome.html')]}).then(c=>c.length)",
+   "label": "and only once",
+   "equals": 1
+  },
+  {
+   "open": "http://welcome-probe.localhost/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "(self.welcomeMark = true)",
+   "label": "mark this worker"
+  },
+  {
+   "stopWorker": "settings/settings.html"
+  },
+  {
+   "open": "http://welcome-probe.localhost/probe.html?again",
+   "settle": 1500
+  },
+  {
+   "sw": "typeof self.welcomeMark",
+   "label": "the worker is a new one",
+   "equals": "undefined"
+  },
+  {
+   "sw": "chrome.runtime.getContexts({contextTypes:['TAB'],documentUrls:[chrome.runtime.getURL('welcome/welcome.html')]}).then(c=>c.length)",
+   "label": "a restarted worker opens nothing",
+   "equals": 1
+  },
+  {
+   "load": "dist",
+   "settle": 2500
+  },
+  {
+   "sw": "chrome.runtime.getContexts({contextTypes:['TAB'],documentUrls:[chrome.runtime.getURL('welcome/welcome.html')]}).then(c=>c.length)",
+   "label": "an update (reload of the same build) opens nothing",
+   "equals": 0
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "sw": "chrome.runtime.getContexts({contextTypes:['TAB'],documentUrls:[chrome.runtime.getURL('welcome/welcome.html')]}).then(c=>c.length)",
+   "label": "still nothing after the update settles",
+   "equals": 0
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,language:'en',theme:'dark'}}))",
+   "label": "English, dark"
+  },
+  {
+   "open": "welcome/welcome.html",
+   "settle": 1200
+  },
+  {
+   "eval": "[document.title, document.documentElement.lang, document.documentElement.dir, document.querySelector('[data-t=tagline]').textContent, document.querySelector('[data-t=motto]').textContent]",
+   "label": "English page with the brand lines",
+   "equals": [
+    "Welcome to CPAB",
+    "en",
+    "ltr",
+    "The page stays, the ads go.",
+    "Free ad blocker. No data collected."
+   ]
+  },
+  {
+   "eval": "performance.getEntriesByType('resource').map(e=>e.name).filter(n=>!n.startsWith(location.origin))",
+   "label": "the page loads nothing from outside the package",
+   "equals": []
+  },
+  {
+   "eval": "(a=>[a.href,a.target,a.rel,a.querySelector('bdi').dir])(document.getElementById('site'))",
+   "label": "the site is a plain link, left to right",
+   "equals": [
+    "https://cpab.cyclone9.dev/",
+    "_blank",
+    "noopener noreferrer",
+    "ltr"
+   ]
+  },
+  {
+   "eval": "[...document.querySelectorAll('[data-t]')].filter(e=>!e.textContent.trim()).length",
+   "label": "every string is filled",
+   "equals": 0
+  },
+  {
+   "eval": "document.getElementById('open-settings').scrollIntoView({block:'center',behavior:'instant'})",
+   "label": "scroll to the links"
+  },
+  {
+   "wait": 400
+  },
+  {
+   "click": "#open-settings",
+   "settle": 1200
+  },
+  {
+   "eval": "location.pathname",
+   "label": "Open Settings goes to Settings",
+   "equals": "/settings/settings.html"
+  },
+  {
+   "eval": "document.getElementById('show-welcome').scrollIntoView({block:'center',behavior:'instant'})",
+   "label": "scroll to About"
+  },
+  {
+   "wait": 600
+  },
+  {
+   "click": "#show-welcome",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.runtime.getContexts({contextTypes:['TAB'],documentUrls:[chrome.runtime.getURL('welcome/welcome.html')]}).then(c=>c.length)",
+   "label": "Show the welcome page opens it from Settings",
+   "equals": 1
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,language:'fa',theme:'light'}}))",
+   "label": "Persian, light"
+  },
+  {
+   "open": "welcome/welcome.html",
+   "settle": 1200
+  },
+  {
+   "eval": "[document.documentElement.lang, document.documentElement.dir, document.documentElement.dataset.theme, getComputedStyle(document.body).fontFamily.split(',')[0].replace(/\"/g,''), document.fonts.check('16px Vazirmatn', 'تبلیغ')]",
+   "label": "Persian page: right to left, light, Vazirmatn",
+   "equals": [
+    "fa",
+    "rtl",
+    "light",
+    "Vazirmatn",
+    true
+   ]
+  },
+  {
+   "eval": "getComputedStyle(document.querySelector('#site bdi')).direction",
+   "label": "the URL stays left to right in Persian",
+   "equals": "ltr"
+  },
+  {
+   "eval": "document.documentElement.scrollWidth <= document.documentElement.clientWidth",
+   "label": "no sideways scroll",
+   "equals": true
+  }
+ ]
+}

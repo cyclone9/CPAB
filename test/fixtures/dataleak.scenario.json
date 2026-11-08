@@ -312,14 +312,27 @@
    "settle": 1200
   },
   {
-   "eval": "(()=>{const s=document.getElementById('dataleak');return {checked:s.checked,title:document.getElementById('dataleak-title').textContent,meta:document.getElementById('dataleak-meta').textContent,source:document.getElementById('dataleak-source').textContent,href:document.getElementById('dataleak-source').href}})()",
-   "label": "settings row",
+   "eval": "(()=>{const s=document.getElementById('dataleak');const credit=[...document.querySelectorAll('#sources #credits li')].find(li=>li.querySelector('.credit-title').textContent==='Have I Been Pwned breaches');return {checked:s.checked,title:document.getElementById('dataleak-title').textContent,meta:document.getElementById('dataleak-meta').textContent,sourceLinkInProtection:document.querySelector('#protection #dataleak-source')!==null,credit:credit?[...credit.querySelectorAll('a')].map(a=>[a.textContent,a.href]):null}})()",
+   "label": "settings row, and the source credited under Sources and credits",
    "equals": {
     "checked": true,
     "title": "Data-leak notice",
     "meta": "929 sitesList dated Nov 7, 2026",
-    "source": "Source: Have I Been Pwned",
-    "href": "https://haveibeenpwned.com/"
+    "sourceLinkInProtection": false,
+    "credit": [
+     [
+      "Homepage",
+      "https://haveibeenpwned.com/PwnedWebsites"
+     ],
+     [
+      "CC BY 4.0",
+      "https://creativecommons.org/licenses/by/4.0/"
+     ],
+     [
+      "Source",
+      "https://haveibeenpwned.com/PwnedWebsites"
+     ]
+    ]
    }
   },
   {

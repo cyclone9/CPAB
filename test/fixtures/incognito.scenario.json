@@ -1,0 +1,135 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733",
+  "--disable-site-isolation-trials",
+  "--disable-features=HttpsFirstBalancedModeAutoEnable,HttpsFirstModeIncognito,HttpsUpgrades"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "open": "http://probe.localhost/probe.html",
+   "settle": 800
+  },
+  {
+   "allowIncognito": true
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "incognito": true
+  },
+  {
+   "sw": "chrome.extension.inIncognitoContext",
+   "label": "split mode: an incognito worker of its own",
+   "equals": true
+  },
+  {
+   "sw": "chrome.runtime.getContexts({contextTypes:['TAB'],documentUrls:[chrome.runtime.getURL('welcome/welcome.html')]}).then(c=>c.length)",
+   "label": "allowing incognito doesn't reopen the welcome page",
+   "regular": true,
+   "equals": 0
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectBlocked": "ads-probe"
+  },
+  {
+   "open": "http://0000a.net/harmful-page?x=1",
+   "settle": 1500
+  },
+  {
+   "eval": "[location.origin+location.pathname, document.getElementById('domain').textContent, document.documentElement.dataset.ready]",
+   "label": "incognito: a harmful site shows CPAB's warning page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/warning/warning.html",
+    "0000a.net",
+    ""
+   ]
+  },
+  {
+   "click": "#continue",
+   "settle": 2000
+  },
+  {
+   "eval": "location.href",
+   "label": "incognito: Continue once opens the site",
+   "equals": "http://0000a.net/harmful-page?x=1"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,adult:true},blockedSites:['ownblock.localhost']}})).then(()=>'set')",
+   "label": "a settings change made in incognito"
+  },
+  {
+   "wait": 2500
+  },
+  {
+   "sw": "chrome.declarativeNetRequest.getEnabledRulesets().then(r=>r.includes('adult-hagezi-nsfw'))",
+   "label": "the regular worker applies it",
+   "regular": true,
+   "equals": true
+  },
+  {
+   "sw": "chrome.storage.local.get('rulesetProblems').then(({rulesetProblems})=>rulesetProblems)",
+   "label": "and nothing is reported as refused",
+   "regular": true,
+   "equals": {}
+  },
+  {
+   "open": "http://005149.cn/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "[location.origin+location.pathname, new URL(location.href).searchParams.get('list')]",
+   "label": "incognito: an adult site shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html",
+    "adult-hagezi-nsfw"
+   ]
+  },
+  {
+   "open": "http://ownblock.localhost/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "[location.origin+location.pathname, new URL(location.href).searchParams.get('list')]",
+   "label": "incognito: a site you blocked shows CPAB's blocked page",
+   "equals": [
+    "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/blocked/blocked.html",
+    "own"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({settings})=>chrome.storage.local.set({settings:{...settings,groups:{...settings.groups,adult:false},blockedSites:[],pausedSites:['page.fixtures.localhost']}})).then(()=>'set')",
+   "label": "pause a site from the regular side",
+   "regular": true
+  },
+  {
+   "wait": 2000
+  },
+  {
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "settle": 1500
+  },
+  {
+   "expectLoaded": "ads-probe"
+  },
+  {
+   "open": "settings/settings.html",
+   "settle": 1200
+  },
+  {
+   "eval": "[location.protocol, document.documentElement.dataset.ready]",
+   "label": "Settings opens in an incognito tab",
+   "equals": [
+    "chrome-extension:",
+    ""
+   ]
+  }
+ ]
+}

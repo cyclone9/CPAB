@@ -1,0 +1,74 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title data-t="welcomeTitle">CPAB</title>
+  <link rel="icon" href="../icons/icon-32.png">
+  <link rel="stylesheet" href="../assets/tokens.css">
+  <link rel="stylesheet" href="../assets/ui.css">
+  <link rel="stylesheet" href="welcome.css">
+  <script type="module" src="welcome.js"></script>
+</head>
+<body>
+  <main class="welcome">
+    <img class="logo" data-logo alt="" width="134" height="29">
+
+    <header class="hero">
+      <h1 class="tagline" data-t="tagline"></h1>
+      <p class="muted" data-t="motto"></p>
+      <p class="intro" data-t="welcomeIntro"></p>
+    </header>
+
+    <section class="card" aria-labelledby="does">
+      <h2 id="does" data-t="welcomeDoesHeading"></h2>
+      <ul class="points">
+        <li data-t="welcomeDoesAds"></li>
+        <li data-t="welcomeDoesPopups"></li>
+        <li data-t="welcomeDoesHarmful"></li>
+        <li data-t="welcomeDoesAdult"></li>
+        <li data-t="welcomeDoesDataLeak"></li>
+      </ul>
+      <p class="small muted" data-t="welcomeDoesSwitches"></p>
+    </section>
+
+    <section class="card" aria-labelledby="limits">
+      <h2 id="limits" data-t="welcomeLimitsHeading"></h2>
+      <ul class="points">
+        <li data-t="welcomeLimitsMiss"></li>
+        <li data-t="welcomeLimitsBreak"></li>
+        <li data-t="welcomeLimitsYoutube"></li>
+        <li data-t="welcomeLimitsUpdates"></li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="privacy">
+      <h2 id="privacy" data-t="welcomePrivacyHeading"></h2>
+      <ul class="points">
+        <li data-t="welcomePrivacyBrowsing"></li>
+        <li data-t="welcomePrivacyAccount"></li>
+        <li data-t="welcomePrivacyRequests"></li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="pause">
+      <h2 id="pause" data-t="welcomePauseHeading"></h2>
+      <ol class="steps">
+        <li data-t="welcomePauseStep1"></li>
+        <li data-t="welcomePauseStep2"></li>
+      </ol>
+      <p class="small muted" data-t="welcomePinHint"></p>
+    </section>
+
+    <footer class="actions">
+      <a id="open-settings" class="button button-primary" href="../settings/settings.html" data-t="welcomeOpenSettings"></a>
+      <p class="small">
+        <span class="muted" data-t="welcomeSite"></span>
+        <a id="site" href="https://cpab.cyclone9.dev/" target="_blank" rel="noopener noreferrer"><bdi dir="ltr">https://cpab.cyclone9.dev/</bdi></a>
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

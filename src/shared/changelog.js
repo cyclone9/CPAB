@@ -6,6 +6,22 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.2.9',
+    date: '2026-11-08',
+    en: [
+      'A welcome page opens once after a fresh install. It says what CPAB does, what it can\'t do, what it never collects and how to pause it on a site. About in Settings can open it again.',
+      'Warning and blocked pages now open in incognito tabs too, instead of Chrome\'s error page. For that, turn on Allow in Incognito on CPAB\'s details page in chrome://extensions.',
+      'The data-leak line in the popup is now red.',
+      'Settings has a new Sources and credits section with the authors, licence and date of every list. It replaces the credits that were under About.',
+    ],
+    fa: [
+      'بعد از نصب تازه، یک صفحهٔ خوش‌آمد فقط یک بار باز می‌شود. می‌گوید تبلیغ‌شکن چه می‌کند، چه کاری از آن برنمی‌آید، چه چیزی را هرگز جمع نمی‌کند و چطور آن را روی یک سایت متوقف کنید. از «درباره» در تنظیمات می‌توانید دوباره بازش کنید.',
+      'صفحه‌های هشدار و مسدودی حالا در زبانه‌های ناشناس هم باز می‌شوند، نه صفحهٔ خطای Chrome. برای این کار در صفحهٔ جزئیات تبلیغ‌شکن در chrome://extensions گزینهٔ Allow in Incognito را روشن کنید.',
+      'خط نشت داده در پنجرهٔ کوچک افزونه حالا قرمز است.',
+      'تنظیمات بخش تازهٔ «منبع‌ها و سازندگان» را دارد که سازنده، مجوز و تاریخ هر فهرست را می‌گوید و جای اعتبارهای قبلیِ بخش «درباره» را گرفته است.',
+    ],
+  },
+  {
     version: '0.2.8',
     date: '2026-11-07',
     en: [
