@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 # Third-party notices
 
-CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work below ships inside the extension and keeps its own licence.
+CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work below ships inside the extension and keeps its own licence. The filter lists are also kept in the lists repository, https://github.com/cyclone9/CPAB-Lists, each snapshot as its own file with its source and licence.
 
 <!-- lists:start -->
 ## EasyList

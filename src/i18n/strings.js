@@ -138,6 +138,8 @@ export const STRINGS = {
     creditsConverted: 'Converted by CPAB',
     creditsEmpty: 'The credits couldn\'t be read.',
     creditsIntro: 'The lists and data CPAB uses, who makes them, and the licence each one comes under.',
+    creditsRepo: 'Lists repository',
+    creditsRepoNote: 'Every list CPAB uses is there as its own file, with its source and licence.',
     changelogIntro: 'What changed in the last three versions.',
     changelogCurrent: 'Current',
 
@@ -341,6 +343,8 @@ export const STRINGS = {
     creditsConverted: 'تبدیل‌شده با تبلیغ‌شکن',
     creditsEmpty: 'اطلاعات منبع‌ها و سازندگان خوانده نشد.',
     creditsIntro: 'فهرست‌ها و داده‌هایی که تبلیغ‌شکن به کار می‌برد، سازندگانشان و مجوزی که هر کدام با آن منتشر شده است.',
+    creditsRepo: 'مخزن فهرست‌ها',
+    creditsRepoNote: 'هر فهرستی که تبلیغ‌شکن به کار می‌برد، آنجا در فایلی جداگانه و همراه با منبع و مجوزش آمده است.',
     changelogIntro: 'تغییرهای سه نسخهٔ آخر.',
     changelogCurrent: 'نسخهٔ فعلی',
 

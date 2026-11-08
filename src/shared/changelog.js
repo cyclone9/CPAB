@@ -6,6 +6,16 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.3.0',
+    date: '2026-11-08',
+    en: [
+      'Sources and credits in Settings links to the lists repository on GitHub, where every list CPAB uses is kept as its own file with its source and licence.',
+    ],
+    fa: [
+      'بخش «منبع‌ها و سازندگان» در تنظیمات حالا به مخزن فهرست‌ها در GitHub پیوند دارد. هر فهرستی که تبلیغ‌شکن به کار می‌برد، آنجا در فایلی جداگانه و همراه با منبع و مجوزش نگه داشته می‌شود.',
+    ],
+  },
+  {
     version: '0.2.10',
     date: '2026-11-08',
     en: [

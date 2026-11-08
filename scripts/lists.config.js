@@ -118,7 +118,7 @@ export const LISTS = [
       checks: {
         licenceStated: 'The repository LICENSE on GitHub is the AGPLv3 text, byte-identical to lists/LICENSE.AGPL-3.0.txt (SHA-256 8486a10c...f07ef), and the list headers point to it.',
         licenceAccepted: 'AGPL-3.0 is on the accepted set.',
-        notRefused: 'No NonCommercial or NoDerivatives term. The README of the earlier Codeberg copy asks that the list not be uploaded to GitHub: a request, not a licence term, and CPAB keeps the snapshot off GitHub until the owner decides otherwise.',
+        notRefused: 'No NonCommercial or NoDerivatives term. The README of the earlier Codeberg copy asks that the list not be uploaded to GitHub: a request, not a licence term, and it concerns only that copy. The owner lifted the earlier hold on 2026-11-04 (D12), and the snapshot goes into the public CPAB-Lists repository only when the owner approves its first push (2026-11-08).',
         attribution: 'Named in settings and THIRD-PARTY-NOTICES.md, with a link to the source.',
         aggregated: 'Not an aggregate: PersianBlocker/PersianBlocker is a GitHub fork of MasterKia/PersianBlocker, carrying on that project\'s own list under the same licence.',
         ownFile: 'The converted rules are one file of their own, with the AGPL text beside them.',
