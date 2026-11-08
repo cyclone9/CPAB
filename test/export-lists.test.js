@@ -31,6 +31,28 @@ test('the export has the top files and one folder per source list', () => {
   assert.deepEqual(readdirSync(join(target, 'sources')).sort(), sources.map(({ name }) => name).sort());
 });
 
+test('the issue forms land in .github/ISSUE_TEMPLATE/ as copies, with no email address', () => {
+  const forms = join(root, 'scripts', 'lists-repo', '.github', 'ISSUE_TEMPLATE');
+  const names = readdirSync(forms).sort();
+  assert.deepEqual(names, ['broken-site.yml', 'config.yml', 'suggest-site.yml']);
+  assert.deepEqual(readdirSync(join(target, '.github', 'ISSUE_TEMPLATE')).sort(), names);
+  for (const name of names) {
+    const copy = read(join(target, '.github', 'ISSUE_TEMPLATE', name));
+    assert.ok(copy.equals(read(join(forms, name))), name);
+    assert.doesNotMatch(copy.toString(), /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z]{2,}/, name);
+  }
+});
+
+test('an issue form holding an email address stops the export before it writes', () => {
+  const forms = join(work, 'forms');
+  mkdirSync(forms);
+  writeFileSync(join(forms, 'broken-site.yml'), 'name: Broken site\ncontact: someone@example.com\n');
+  const fresh = join(work, 'fresh-forms');
+  assert.throws(() => exportLists(fresh, { readmeDir, templateDir: forms }), /holds an email address/);
+  assert.throws(() => exportLists(fresh, { readmeDir, templateDir: join(work, 'no-forms') }), /issue forms come from there/);
+  assert.ok(!existsSync(fresh));
+});
+
 test('snapshots, records and CPAB\'s own files are byte-identical copies', () => {
   for (const list of sources) {
     assert.ok(read(join(target, 'sources', list.name, snapshotName(list))).equals(read(join(root, 'lists', list.listFile))), list.name);

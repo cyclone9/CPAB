@@ -1,0 +1,474 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733",
+  "--disable-site-isolation-trials",
+  "--disable-features=HttpsFirstBalancedModeAutoEnable,HttpsFirstModeIncognito,HttpsUpgrades"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "open": "http://www.report.localhost:8733/private/page?token=secret#frag",
+   "settle": 800
+  },
+  {
+   "initScript": "if (location.protocol === 'chrome-extension:' && chrome.tabs) { const query = chrome.tabs.query.bind(chrome.tabs); chrome.tabs.unstubbedQuery = query; chrome.tabs.query = async (info) => (await query(info)).map((t) => ({ ...t, url: \"http://www.report.localhost:8733/private/page?token=secret#frag\" })); window.close = () => {}; }"
+  },
+  {
+   "viewport": [
+    340,
+    900
+   ]
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 1000
+  },
+  {
+   "eval": "[document.getElementById('domain').textContent, !document.getElementById('report').hidden, document.getElementById('report-panel').hidden, document.getElementById('report').textContent]",
+   "label": "popup: Report this site under Pause, panel closed",
+   "equals": [
+    "report.localhost",
+    true,
+    true,
+    "Report this site"
+   ]
+  },
+  {
+   "click": "#report",
+   "settle": 600
+  },
+  {
+   "eval": "(() => { const g = (i) => document.getElementById(i); const text = g('report-text').textContent; return { button: getComputedStyle(g('report')).display !== 'none', panel: !g('report-panel').hidden, expanded: g('report').getAttribute('aria-expanded'), pauseShown: getComputedStyle(g('pause')).display !== 'none', kind: document.querySelector('input[name=\"report-kind\"]:checked')?.value ?? null, focus: document.activeElement.name || document.activeElement.id, firstLines: text.split('\\n').slice(0, 2), cpabLine: /^CPAB: CPAB 0\\.3\\.6, Chrome \\d+$/m.test(text), lines: text.split('\\n').slice(4), dir: g('report-text').dir, overflow: document.documentElement.scrollWidth > innerWidth }; })()",
+   "label": "panel open: broken by default, preview with the host only",
+   "equals": {
+    "button": false,
+    "panel": true,
+    "expanded": "true",
+    "pauseShown": false,
+    "kind": "broken",
+    "focus": "report-kind",
+    "firstLines": [
+     "Title: Broken site: report.localhost",
+     "Site: report.localhost"
+    ],
+    "cpabLine": true,
+    "lines": [
+     "EasyList",
+     "AdGuard Base filter",
+     "PersianBlocker",
+     "CPAB's own rules",
+     "EasyPrivacy",
+     "HaGeZi Multi Light",
+     "AdGuard Popups filter",
+     "AdGuard Widgets filter",
+     "Fanboy's Social Blocking List",
+     "Harmful sites: on",
+     "Exceptions for Iranian sites: on"
+    ],
+    "dir": "ltr",
+    "overflow": false
+   }
+  },
+  {
+   "eval": "document.querySelector('#report-open').scrollIntoView({ block: 'center', behavior: 'instant' })",
+   "label": "scroll to #report-open"
+  },
+  {
+   "click": "#report-open",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then((ts) => ts.map((t) => t.pendingUrl || t.url || '').filter((u) => u.startsWith('https://github.com/'))).then((urls) => urls.length)",
+   "label": "Open made exactly one GitHub tab",
+   "equals": 1
+  },
+  {
+   "eval": "(async () => { const urls = await chrome.tabs.unstubbedQuery({}).then((ts) => ts.map((t) => t.pendingUrl || t.url || '').filter((u) => u.startsWith('https://github.com/'))); if (urls.length !== 1) return { count: urls.length }; const u = new URL(urls[0]); const text = document.getElementById('report-text').textContent; return { count: 1, base: u.origin + u.pathname, keys: [...u.searchParams.keys()], template: u.searchParams.get('template'), site: u.searchParams.get('site'), title: u.searchParams.get('title'), inPreview: [...u.searchParams].filter(([k]) => k !== 'template').every(([, v]) => text.includes(v)), leaks: ['private', 'token', 'secret', 'frag', 'harmful-page', 'x=1', 'NSFW', 'Adult'].filter((w) => decodeURIComponent(u.href).includes(w)) }; })()",
+   "label": "its address is the preview, field for field",
+   "equals": {
+    "count": 1,
+    "base": "https://github.com/cyclone9/CPAB-Lists/issues/new",
+    "keys": [
+     "template",
+     "title",
+     "site",
+     "cpab",
+     "lists"
+    ],
+    "template": "broken-site.yml",
+    "site": "report.localhost",
+    "title": "Broken site: report.localhost",
+    "inPreview": true,
+    "leaks": []
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then((ts) => chrome.tabs.remove(ts.filter((t) => (t.pendingUrl || t.url || '').startsWith('https://github.com/')).map((t) => t.id))).then(() => 'closed')",
+   "label": "close the GitHub tabs"
+  },
+  {
+   "eval": "document.querySelector('input[name=\"report-kind\"][value=\"missed\"]').scrollIntoView({ block: 'center', behavior: 'instant' })",
+   "label": "scroll to input[name=\"report-kind\"][value=\"missed\"]"
+  },
+  {
+   "click": "input[name=\"report-kind\"][value=\"missed\"]",
+   "settle": 400
+  },
+  {
+   "eval": "document.getElementById('report-text').textContent.split('\\n')[0]",
+   "label": "the choice rebuilds the preview",
+   "equals": "Title: Suggest a site: report.localhost"
+  },
+  {
+   "eval": "document.querySelector('#report-open').scrollIntoView({ block: 'center', behavior: 'instant' })",
+   "label": "scroll to #report-open"
+  },
+  {
+   "click": "#report-open",
+   "settle": 1200
+  },
+  {
+   "eval": "(async () => { const urls = await chrome.tabs.unstubbedQuery({}).then((ts) => ts.map((t) => t.pendingUrl || t.url || '').filter((u) => u.startsWith('https://github.com/'))); if (urls.length !== 1) return { count: urls.length }; const u = new URL(urls[0]); const text = document.getElementById('report-text').textContent; return { count: 1, base: u.origin + u.pathname, keys: [...u.searchParams.keys()], template: u.searchParams.get('template'), site: u.searchParams.get('site'), title: u.searchParams.get('title'), inPreview: [...u.searchParams].filter(([k]) => k !== 'template').every(([, v]) => text.includes(v)), leaks: ['private', 'token', 'secret', 'frag', 'harmful-page', 'x=1', 'NSFW', 'Adult'].filter((w) => decodeURIComponent(u.href).includes(w)) }; })()",
+   "label": "suggest: its own form",
+   "equals": {
+    "count": 1,
+    "base": "https://github.com/cyclone9/CPAB-Lists/issues/new",
+    "keys": [
+     "template",
+     "title",
+     "site",
+     "cpab",
+     "lists"
+    ],
+    "template": "suggest-site.yml",
+    "site": "report.localhost",
+    "title": "Suggest a site: report.localhost",
+    "inPreview": true,
+    "leaks": []
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then((ts) => chrome.tabs.remove(ts.filter((t) => (t.pendingUrl || t.url || '').startsWith('https://github.com/')).map((t) => t.id))).then(() => 'closed')",
+   "label": "close the GitHub tabs"
+  },
+  {
+   "eval": "document.querySelector('#report-copy').scrollIntoView({ block: 'center', behavior: 'instant' })",
+   "label": "scroll to #report-copy"
+  },
+  {
+   "click": "#report-copy",
+   "settle": 500
+  },
+  {
+   "eval": "[document.getElementById('report-status').textContent, document.getElementById('report-status').getAttribute('role')]",
+   "label": "Copy: status line (a headless page may refuse the clipboard)"
+  },
+  {
+   "eval": "document.querySelector('#report-cancel').scrollIntoView({ block: 'center', behavior: 'instant' })",
+   "label": "scroll to #report-cancel"
+  },
+  {
+   "click": "#report-cancel",
+   "settle": 400
+  },
+  {
+   "eval": "[document.getElementById('report-panel').hidden, document.activeElement.id, getComputedStyle(document.getElementById('pause')).display !== 'none', document.getElementById('report').getAttribute('aria-expanded')]",
+   "label": "Cancel closes the panel and returns focus",
+   "equals": [
+    true,
+    "report",
+    true,
+    "false"
+   ]
+  },
+  {
+   "sw": "chrome.tabs.query({}).then((ts) => ts.map((t) => t.pendingUrl || t.url || '').filter((u) => u.startsWith('https://github.com/'))).then((urls) => urls.length)",
+   "label": "Cancel and Copy open nothing",
+   "equals": 0
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({ settings }) => chrome.storage.local.set({ settings: { ...settings, ...{\"groups\":{\"ads\":true,\"trackers\":false,\"popups\":true,\"widgets\":true,\"harmful\":true,\"adult\":true},\"pausedSites\":[\"report.localhost\"],\"allowedSites\":[\"allowed.localhost\"],\"blockedSites\":[\"mine.localhost\"],\"statsTopSites\":true} } })).then(() => 'set')",
+   "label": "Adult sites on, Trackers off, this site paused, own site lists filled"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 1000
+  },
+  {
+   "click": "#report",
+   "settle": 600
+  },
+  {
+   "eval": "document.getElementById('report-text').textContent.split('\\n').slice(4)",
+   "label": "paused first, Trackers gone, no Adult sites, no own sites",
+   "equals": [
+    "CPAB is paused on this site",
+    "EasyList",
+    "AdGuard Base filter",
+    "PersianBlocker",
+    "CPAB's own rules",
+    "AdGuard Popups filter",
+    "AdGuard Widgets filter",
+    "Fanboy's Social Blocking List",
+    "Harmful sites: on",
+    "Exceptions for Iranian sites: on"
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({ settings }) => chrome.storage.local.set({ settings: { ...settings, ...{\"master\":false,\"pausedSites\":[]} } })).then(() => 'set')",
+   "label": "master switch off"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "eval": "document.getElementById('report-text').textContent.split('\\n')[4]",
+   "label": "the open panel follows: CPAB is off",
+   "equals": "CPAB is off"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({ settings }) => chrome.storage.local.set({ settings: { ...settings, ...{\"master\":true,\"groups\":{\"ads\":true,\"trackers\":true,\"popups\":true,\"widgets\":true,\"harmful\":true,\"adult\":false},\"pausedSites\":[],\"allowedSites\":[],\"blockedSites\":[],\"statsTopSites\":false,\"language\":\"fa\",\"theme\":\"light\"} } })).then(() => 'set')",
+   "label": "back to defaults, Persian, light"
+  },
+  {
+   "wait": 1200
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 1000
+  },
+  {
+   "click": "#report",
+   "settle": 600
+  },
+  {
+   "eval": "(() => { const g = (i) => document.getElementById(i); return { dir: document.documentElement.dir, button: g('report').textContent, preDir: g('report-text').dir, preAlign: getComputedStyle(g('report-text')).direction, first: g('report-text').textContent.split('\\n')[0], noteLatin: [...g('report-note').querySelectorAll('bdi')].map((b) => b.dir + ':' + b.textContent), overflow: document.documentElement.scrollWidth > innerWidth, font: document.fonts.check('15px Vazirmatn', 'تبلیغ') }; })()",
+   "label": "Persian: RTL page, LTR preview in English",
+   "equals": {
+    "dir": "rtl",
+    "button": "گزارش این سایت",
+    "preDir": "ltr",
+    "preAlign": "ltr",
+    "first": "Title: Broken site: report.localhost",
+    "noteLatin": [
+     "ltr:github.com"
+    ],
+    "overflow": false,
+    "font": true
+   }
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({ settings }) => chrome.storage.local.set({ settings: { ...settings, ...{\"language\":\"en\",\"theme\":\"dark\"} } })).then(() => 'set')",
+   "label": "English, dark"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({ settings }) => chrome.storage.local.set({ settings: { ...settings, ...{\"blockedSites\":[\"mine.localhost\"]} } })).then(() => 'set')",
+   "label": "a site the person blocked"
+  },
+  {
+   "initScript": "if (location.protocol === 'chrome-extension:' && chrome.tabs) { const query = chrome.tabs.query; chrome.tabs.query = async (info) => (await query(info)).map((t) => ({ ...t, url: chrome.runtime.getURL('blocked/blocked.html?list=own&h=mine.localhost') })); }"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 1000
+  },
+  {
+   "click": "#report",
+   "settle": 600
+  },
+  {
+   "eval": "[document.querySelector('input[name=\"report-kind\"]:checked').value, document.getElementById('report-text').textContent.split('\\n')[0], document.getElementById('report-text').textContent.includes('mine.localhost') && !document.getElementById('report-text').textContent.includes('blocked')]",
+   "label": "own blocked page: suggest is the default",
+   "equals": [
+    "missed",
+    "Title: Suggest a site: mine.localhost",
+    true
+   ]
+  },
+  {
+   "initScript": "if (location.protocol === 'chrome-extension:' && chrome.tabs) { const query = chrome.tabs.query; chrome.tabs.query = async (info) => (await query(info)).map((t) => ({ ...t, url: chrome.runtime.getURL('blocked/blocked.html?list=adult-hagezi-nsfw&h=005149.cn') })); }"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 1000
+  },
+  {
+   "eval": "[document.getElementById('site').hidden, !document.getElementById('restricted').hidden]",
+   "label": "Adult blocked page: no site, so no report",
+   "equals": [
+    true,
+    true
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({ settings }) => chrome.storage.local.set({ settings: { ...settings, ...{\"blockedSites\":[]} } })).then(() => 'set')",
+   "label": "no blocked sites"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "open": "http://www.0000a.net/harmful-page?x=1#top",
+   "settle": 1500
+  },
+  {
+   "eval": "[location.pathname, document.getElementById('report').hidden, document.getElementById('report').open, document.querySelector('#report summary').textContent]",
+   "label": "warning page: Report a wrong warning, closed",
+   "equals": [
+    "/warning/warning.html",
+    false,
+    false,
+    "Report a wrong warning"
+   ]
+  },
+  {
+   "click": "#report summary",
+   "settle": 400
+  },
+  {
+   "eval": "(() => { const lines = document.getElementById('report-text').textContent.split('\\n'); return [lines[0], lines[1], /^CPAB: CPAB 0\\.3\\.6, Chrome \\d+$/.test(lines[2]), lines.slice(3)]; })()",
+   "label": "the wrong-warning preview names the list that warned",
+   "equals": [
+    "Title: Wrong warning: 0000a.net",
+    "Site: 0000a.net",
+    true,
+    [
+     "Lists:",
+     "Harmful-site warning from: HaGeZi Threat Intelligence Feeds - mini"
+    ]
+   ]
+  },
+  {
+   "eval": "document.querySelector('#report-open').scrollIntoView({ block: 'center', behavior: 'instant' })",
+   "label": "scroll to #report-open"
+  },
+  {
+   "click": "#report-open",
+   "settle": 1200
+  },
+  {
+   "eval": "(async () => { const urls = await chrome.tabs.unstubbedQuery({}).then((ts) => ts.map((t) => t.pendingUrl || t.url || '').filter((u) => u.startsWith('https://github.com/'))); if (urls.length !== 1) return { count: urls.length }; const u = new URL(urls[0]); const text = document.getElementById('report-text').textContent; return { count: 1, base: u.origin + u.pathname, keys: [...u.searchParams.keys()], template: u.searchParams.get('template'), site: u.searchParams.get('site'), title: u.searchParams.get('title'), inPreview: [...u.searchParams].filter(([k]) => k !== 'template').every(([, v]) => text.includes(v)), leaks: ['private', 'token', 'secret', 'frag', 'harmful-page', 'x=1', 'NSFW', 'Adult'].filter((w) => decodeURIComponent(u.href).includes(w)) }; })()",
+   "label": "warning: the address has the host and the list, no path or query",
+   "equals": {
+    "count": 1,
+    "base": "https://github.com/cyclone9/CPAB-Lists/issues/new",
+    "keys": [
+     "template",
+     "title",
+     "site",
+     "cpab",
+     "lists"
+    ],
+    "template": "broken-site.yml",
+    "site": "0000a.net",
+    "title": "Wrong warning: 0000a.net",
+    "inPreview": true,
+    "leaks": []
+   }
+  },
+  {
+   "sw": "chrome.tabs.query({}).then((ts) => chrome.tabs.remove(ts.filter((t) => (t.pendingUrl || t.url || '').startsWith('https://github.com/')).map((t) => t.id))).then(() => 'closed')",
+   "label": "close the GitHub tabs"
+  },
+  {
+   "eval": "location.pathname",
+   "label": "the warning page stays",
+   "equals": "/warning/warning.html"
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({ settings }) => chrome.storage.local.set({ settings: { ...settings, ...{\"groups\":{\"ads\":true,\"trackers\":true,\"popups\":true,\"widgets\":true,\"harmful\":true,\"adult\":true}} } })).then(() => 'set')",
+   "label": "Adult sites on"
+  },
+  {
+   "wait": 2500
+  },
+  {
+   "open": "http://005149.cn/probe.html",
+   "settle": 1500
+  },
+  {
+   "eval": "[location.pathname, !!document.getElementById('report'), !!document.getElementById('report-open'), document.body.innerText.includes('Report')]",
+   "label": "the Adult blocked page offers no report",
+   "equals": [
+    "/blocked/blocked.html",
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "sw": "chrome.storage.local.get('settings').then(({ settings }) => chrome.storage.local.set({ settings: { ...settings, ...{\"groups\":{\"ads\":true,\"trackers\":true,\"popups\":true,\"widgets\":true,\"harmful\":true,\"adult\":false}} } })).then(() => 'set')",
+   "label": "Adult sites off"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "open": "http://www.report.localhost:8733/private/page?token=secret#frag",
+   "settle": 800
+  },
+  {
+   "allowIncognito": true
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "incognito": true
+  },
+  {
+   "initScript": "if (location.protocol === 'chrome-extension:' && chrome.tabs) { const query = chrome.tabs.query.bind(chrome.tabs); chrome.tabs.unstubbedQuery = query; chrome.tabs.query = async (info) => (await query(info)).map((t) => ({ ...t, url: \"http://www.report.localhost:8733/private/page?token=secret#frag\" })); window.close = () => {}; }"
+  },
+  {
+   "open": "http://www.report.localhost:8733/private/page?token=secret#frag",
+   "settle": 800
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 1000
+  },
+  {
+   "click": "#report",
+   "settle": 600
+  },
+  {
+   "eval": "[chrome.extension.inIncognitoContext, document.getElementById('domain').textContent, document.getElementById('report-panel').hidden]",
+   "label": "incognito: the popup page names the site",
+   "equals": [
+    true,
+    "report.localhost",
+    false
+   ]
+  },
+  {
+   "eval": "document.querySelector('#report-open').scrollIntoView({ block: 'center', behavior: 'instant' })",
+   "label": "scroll to #report-open"
+  },
+  {
+   "click": "#report-open",
+   "settle": 1500
+  },
+  {
+   "eval": "chrome.tabs.unstubbedQuery({}).then((ts) => ts.map((t) => [t.incognito, (t.pendingUrl || t.url || '').slice(0, 60)]))",
+   "label": "incognito: tabs seen from the popup page"
+  },
+  {
+   "sw": "chrome.tabs.query({}).then((ts) => ts.filter((t) => (t.pendingUrl || t.url || '').startsWith('https://github.com/')).map((t) => [t.incognito, new URL(t.pendingUrl || t.url).searchParams.get('site')]))",
+   "label": "incognito: the GitHub tab opens in the incognito window",
+   "equals": [
+    [
+     true,
+     "report.localhost"
+    ]
+   ]
+  }
+ ]
+}

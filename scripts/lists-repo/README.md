@@ -35,6 +35,10 @@ Every list under `sources/` belongs to its authors and keeps its own licence. Th
 
 PersianBlocker comes from https://github.com/PersianBlocker/PersianBlocker at a pinned commit, under AGPL-3.0.
 
+## Reporting a site
+
+In CPAB, press Report this site in the toolbar popup. It shows the text it will send, then opens a prefilled issue here. You can also open an issue yourself with the Broken site form (CPAB breaks a page) or the Suggest a site form (ads, popups or trackers get through). Issues are public, so write the site's name, not the full address of a private page.
+
 ## Updates
 
 The snapshots are updated by hand for now. There are no automatic updates and no schedule.

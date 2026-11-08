@@ -2,9 +2,10 @@
 import { formatNumber, formatYears, t } from '../i18n/i18n.js';
 import { adultRunning, countBlocked, harmfulRunning, splitBlocked } from '../shared/blocking.js';
 import { BREACH_SOURCE, CPAB_LEAKS_FILE, DATALEAK_FILE, LEAKFA_FILE, breachNotice, cpabLeakNotice, findBreaches, leakfaNotice } from '../shared/dataleak.js';
-import { fillWithDomains, applyPage } from '../shared/page.js';
+import { fillWithDomains, fillWithLatin, applyPage } from '../shared/page.js';
 import { addSite, findSiteEntry, siteFromUrl } from '../shared/domains.js';
 import { BLOCKED_PAGE, OWN_BLOCKED_LIST, readBlocked as readBlockedPage } from '../shared/harmful.js';
+import { REPORT_KINDS, browserLabel, buildReport } from '../shared/report.js';
 import { loadSettings, normalizeSettings, onSettingsChange, updateSettings } from '../shared/settings.js';
 import { UPDATE_KEY, newerVersion } from '../shared/updates.js';
 
@@ -113,6 +114,27 @@ function renderBlocked(language) {
   }));
 }
 
+// Report this site (F18, F34). Nothing leaves until Open: then the tab's address carries exactly the
+// previewed text. On the person's own blocked page the likelier report is a site to add, not a broken one.
+const report = { open: false, kind: tab?.url?.startsWith(chrome.runtime.getURL(BLOCKED_PAGE)) ? 'missed' : 'broken', lists: null };
+
+function currentReport() {
+  return buildReport({
+    kind: report.kind, site, version: chrome.runtime.getManifest().version, browser: browserLabel(navigator), settings, lists: report.lists,
+  });
+}
+
+function renderReport(language) {
+  byId('site').toggleAttribute('data-reporting', report.open);
+  byId('report').setAttribute('aria-expanded', String(report.open));
+  byId('report-panel').hidden = !report.open;
+  if (!report.open) return;
+  for (const input of document.querySelectorAll('input[name="report-kind"]')) input.checked = input.value === report.kind;
+  byId('report-text').textContent = currentReport().text;
+  if (language === 'fa') fillWithLatin(byId('report-note'), t(language, 'reportNote'));
+  else byId('report-note').textContent = t(language, 'reportNote');
+}
+
 function render() {
   const language = applyPage(settings);
   byId('master').checked = settings.master;
@@ -145,6 +167,11 @@ function render() {
   if (harmful || adult) stays.textContent = t(language, harmful && adult ? 'stateProtectionStays' : harmful ? 'stateHarmfulStays' : 'stateAdultStays');
 
   byId('reload-offer').hidden = settings.master === opened.master && entry === opened.paused;
+  renderReport(language);
+}
+
+function reportStatus(key) {
+  byId('report-status').textContent = key ? t(document.documentElement.lang, key) : '';
 }
 
 async function save(change) {
@@ -171,6 +198,48 @@ byId('pause').addEventListener('click', () => save((current) => {
 byId('reload').addEventListener('click', async () => {
   await chrome.tabs.reload(tab.id);
   window.close();
+});
+
+byId('report').addEventListener('click', async () => {
+  // The titles in the credits, read from the package only when a report is wanted.
+  report.lists ??= await fetch('../rules/summary.json').then((response) => response.json()).then((summary) => summary.lists, () => []);
+  report.open = true;
+  reportStatus(null);
+  render();
+  document.querySelector('input[name="report-kind"]:checked')?.focus();
+});
+
+for (const input of document.querySelectorAll('input[name="report-kind"]')) {
+  input.addEventListener('change', () => {
+    if (!REPORT_KINDS.includes(input.value)) return;
+    report.kind = input.value;
+    reportStatus(null);
+    render();
+  });
+}
+
+byId('report-open').addEventListener('click', async () => {
+  try {
+    await chrome.tabs.create({ url: currentReport().url, openerTabId: tab.id });
+    window.close();
+  } catch {
+    reportStatus('reportOpenError');
+  }
+});
+
+byId('report-copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(currentReport().text);
+    reportStatus('reportCopied');
+  } catch {
+    reportStatus('reportCopyError');
+  }
+});
+
+byId('report-cancel').addEventListener('click', () => {
+  report.open = false;
+  render();
+  byId('report').focus();
 });
 
 byId('new-version-link').addEventListener('click', async (event) => {

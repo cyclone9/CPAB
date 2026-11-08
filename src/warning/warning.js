@@ -3,7 +3,8 @@
 // logs its address.
 import { t } from '../i18n/i18n.js';
 import { readWarning } from '../shared/harmful.js';
-import { applyPage, fillWithDomains } from '../shared/page.js';
+import { applyPage, fillWithDomains, fillWithLatin } from '../shared/page.js';
+import { browserLabel, buildReport } from '../shared/report.js';
 import { loadSettings, normalizeSettings } from '../shared/settings.js';
 
 const byId = (id) => document.getElementById(id);
@@ -22,7 +23,48 @@ function render() {
   else reason.textContent = t(language, url ? 'warningReasonUnnamed' : 'warningNoAddress');
   byId('continue').hidden = !url;
   byId('note').hidden = !url;
+  renderReport(language);
 }
+
+// Report a wrong warning: the site's name and the list that warned, never the stopped page's address.
+function currentReport() {
+  return buildReport({
+    kind: 'warning', site: url.href, version: chrome.runtime.getManifest().version, browser: browserLabel(navigator), settings, lists, warnedBy: list,
+  });
+}
+
+function renderReport(language) {
+  let text = null;
+  try {
+    text = url ? currentReport().text : null;
+  } catch {
+    // An address with no site to name, such as an IP literal in brackets, can't be reported.
+  }
+  byId('report').hidden = !text;
+  if (!text) return;
+  byId('report-text').textContent = text;
+  if (language === 'fa') fillWithLatin(byId('report-note'), t(language, 'reportNote'));
+  else byId('report-note').textContent = t(language, 'reportNote');
+}
+
+const reportStatus = (key) => { byId('report-status').textContent = t(document.documentElement.lang, key); };
+
+byId('report-open').addEventListener('click', async () => {
+  try {
+    await chrome.tabs.create({ url: currentReport().url });
+  } catch {
+    reportStatus('reportOpenError');
+  }
+});
+
+byId('report-copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(currentReport().text);
+    reportStatus('reportCopied');
+  } catch {
+    reportStatus('reportCopyError');
+  }
+});
 
 // With nothing to go back to, as in a tab opened for this address, the tab closes instead.
 byId('back').addEventListener('click', async () => {

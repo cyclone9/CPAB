@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+blank_issues_enabled: true
+contact_links:
+  - name: CPAB site / سایت تبلیغ‌شکن
+    url: https://cpab.cyclone9.dev/
+    about: What CPAB is and how to install it. / تبلیغ‌شکن چیست و چطور نصب می‌شود.

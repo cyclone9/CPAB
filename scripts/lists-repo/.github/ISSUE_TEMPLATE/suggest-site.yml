@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: Suggest a site / پیشنهاد یک سایت
+description: Ads, popups or trackers that CPAB misses, or a site to look at. / تبلیغ، پاپ‌آپ یا ردیابی که تبلیغ‌شکن جا می‌اندازد، یا سایتی که باید بررسی شود.
+title: "Suggest a site: "
+labels: [suggestion]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This report is public. Write the site's name, not the full address of a private page.
+
+        این گزارش عمومی است. نام سایت را بنویسید، نه نشانی کامل یک صفحهٔ خصوصی را.
+  - type: input
+    id: site
+    attributes:
+      label: Site / سایت
+      description: The site's name only, such as example.com. / فقط نام سایت، مثل example.com.
+      placeholder: example.com
+    validations:
+      required: true
+  - type: dropdown
+    id: what
+    attributes:
+      label: What gets through? / چه چیزی رد می‌شود؟
+      options:
+        - Ads / تبلیغ
+        - Popups / پاپ‌آپ
+        - Trackers or widgets / ردیاب یا ابزارک
+        - The site itself looks harmful / خود سایت مضر به نظر می‌رسد
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details / جزئیات
+      description: Where on the page, and what it looks like. You can write in English or Persian. / کجای صفحه و چه شکلی است؟ می‌توانید انگلیسی یا فارسی بنویسید.
+  - type: input
+    id: cpab
+    attributes:
+      label: CPAB and browser version / نسخهٔ تبلیغ‌شکن و مرورگر
+      placeholder: CPAB 0.3.6, Chrome 157
+  - type: textarea
+    id: lists
+    attributes:
+      label: Lists / فهرست‌ها
+      description: Filled in by CPAB's Report this site button. / دکمهٔ گزارش این سایت در تبلیغ‌شکن این بخش را پر می‌کند.

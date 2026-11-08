@@ -221,7 +221,7 @@
    "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
    "label": "the Persian title takes Leakfa's Persian name",
    "equals": [
-    "CPAB - Ad Blocker\nنام این سایت در فهرست نشت‌های دادهٔ لیکفا آمده است: ⁨ایرانسل⁩."
+    "CPAB - Ad Blocker\nلیکفا این سایت را دچار نشت داده می‌داند: ⁨ایرانسل⁩."
    ]
   },
   {
@@ -436,7 +436,7 @@
    "equals": {
     "hibp": false,
     "leakfa": true,
-    "line": "نام این سایت در فهرست نشت‌های دادهٔ لیکفا آمده است: ایرانسل.",
+    "line": "لیکفا این سایت را دچار نشت داده می‌داند: ایرانسل.",
     "link": "https://github.com/Leakfarsi/Leakfa-Alert/tree/domains",
     "linkText": "منبع: لیکفا",
     "target": "_blank",
@@ -516,7 +516,7 @@
      "CPAB's own rules",
      "CPAB's own leak list"
     ],
-    "by": "By CPAB, for leaks the other sources miss, each with a public source",
+    "by": "Written by CPAB for leaks the other sources miss. Each entry links to a public source.",
     "links": [
      "Homepage",
      "GPL-3.0-or-later"

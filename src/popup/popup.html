@@ -47,6 +47,24 @@
       </div>
 
       <button id="pause" class="button" type="button"></button>
+      <button id="report" class="button" type="button" data-t="reportButton" aria-expanded="false" aria-controls="report-panel"></button>
+
+      <div id="report-panel" class="report" hidden>
+        <fieldset class="report-kinds">
+          <legend class="eyebrow" data-t="reportKindLegend"></legend>
+          <label><input type="radio" name="report-kind" value="broken"><span data-t="reportKindBroken"></span></label>
+          <label><input type="radio" name="report-kind" value="missed"><span data-t="reportKindMissed"></span></label>
+        </fieldset>
+        <p id="report-text-label" class="eyebrow" data-t="reportPreviewLabel"></p>
+        <pre id="report-text" class="report-text" dir="ltr" tabindex="0" aria-labelledby="report-text-label"></pre>
+        <p id="report-note" class="small muted"></p>
+        <div class="report-actions">
+          <button id="report-open" class="button button-primary" type="button" data-t="reportOpen"></button>
+          <button id="report-copy" class="button" type="button" data-t="reportCopy"></button>
+          <button id="report-cancel" class="button" type="button" data-t="reportCancel"></button>
+        </div>
+        <p id="report-status" class="small" role="status"></p>
+      </div>
 
       <div id="reload-offer" class="offer" hidden>
         <p class="small" data-t="reloadPrompt"></p>

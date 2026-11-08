@@ -29,6 +29,20 @@
       </div>
       <p id="error" class="error" role="alert" hidden data-t="warningContinueError"></p>
     </div>
+
+    <details id="report" class="report" hidden>
+      <summary data-t="warningReport"></summary>
+      <div class="report-body">
+        <p id="report-text-label" class="small muted" data-t="reportPreviewLabel"></p>
+        <pre id="report-text" class="report-text" dir="ltr" aria-labelledby="report-text-label"></pre>
+        <p id="report-note" class="small muted"></p>
+        <div class="actions">
+          <button id="report-open" class="button" type="button" data-t="reportOpen"></button>
+          <button id="report-copy" class="button" type="button" data-t="reportCopy"></button>
+        </div>
+        <p id="report-status" class="small" role="status"></p>
+      </div>
+    </details>
   </main>
 </body>
 </html>

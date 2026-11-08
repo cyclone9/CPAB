@@ -6,6 +6,18 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.3.6',
+    date: '2026-11-08',
+    en: [
+      'The popup has a Report this site button. Choose whether CPAB breaks the site or lets ads, popups or trackers through, read the exact text the report carries (the site\'s name, CPAB\'s and Chrome\'s versions and the lists that are on), then open it as a GitHub issue in CPAB-Lists or copy it. Nothing leaves until you press Open.',
+      'The Harmful sites warning page has Report a wrong warning, with the site\'s name and the list that warned. Never the page\'s full address.',
+    ],
+    fa: [
+      'پنجرهٔ کوچک افزونه دکمهٔ «گزارش این سایت» را دارد. انتخاب کنید که تبلیغ‌شکن سایت را خراب می‌کند یا تبلیغ، پاپ‌آپ یا ردیاب از آن رد می‌شود، متن دقیق گزارش را بخوانید (نام سایت، نسخهٔ تبلیغ‌شکن و کروم و فهرست‌های روشن)، بعد آن را در گیت‌هاب در مخزن CPAB-Lists باز یا کپی کنید. تا «باز کردن» را نزنید چیزی بیرون نمی‌رود.',
+      'صفحهٔ هشدار سایت‌های مضر حالا «گزارش هشدار نادرست» را دارد، با نام سایت و فهرستی که هشدار داد. هرگز نشانی کامل صفحه را نمی‌فرستد.',
+    ],
+  },
+  {
     version: '0.3.5',
     date: '2026-11-08',
     en: [
