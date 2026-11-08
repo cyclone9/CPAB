@@ -1,0 +1,19 @@
+! Title: CPAB own leak list
+! Homepage: https://cyclone9.dev/cpab
+! License: GPL-3.0-or-later
+!
+! Sites with a known data leak that the other data-leak sources miss, written here by hand. The
+! data-leak notice shows each one as its own line, "Listed by CPAB", with a link to its source.
+!
+! One entry per line, five fields split by |:
+!   domain | English name | Persian name | YYYY-MM | https source
+! - domain: the site's host, without www. An entry covers that host and everything under it.
+! - The names are plain text, up to 80 characters, with no < or >.
+! - YYYY-MM: the month the leak became public, in the Gregorian calendar.
+! - The source is an https page about the leak: a news report or the company's own notice. Never a
+!   page that holds or links to the leaked data.
+! Put a comment above each entry with the date it was added and why:
+! ! 2026-11-08, added: news report on the leak
+! example.ir | Example | نمونه | 2026-10 | https://news.example.com/report
+!
+! The build drops any line that breaks these rules and prints why.

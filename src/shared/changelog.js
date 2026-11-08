@@ -6,6 +6,18 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.3.5',
+    date: '2026-11-08',
+    en: [
+      'The data-leak notice now also uses Leakfa\'s list of breached Iranian sites. On a listed site the popup and the toolbar tooltip add a line that names Leakfa as the source, with the site\'s name in your interface language. The check still runs on your device against a copy inside the extension.',
+      'CPAB now has its own leak list for leaks the other sources miss. Each entry has the month it became public and a link to a public report, and shows as its own line, "Listed by CPAB". The list starts empty.',
+    ],
+    fa: [
+      'اعلان نشت داده حالا فهرست لیکفا از سایت‌های ایرانیِ دچار نشت داده را هم به کار می‌برد. روی سایتی که در این فهرست است، پنجرهٔ کوچک افزونه و راهنمای دکمهٔ نوار ابزار خطی اضافه می‌کنند که لیکفا را منبع آن می‌داند و نام سایت را به زبان رابط نشان می‌دهد. بررسی همچنان روی همین دستگاه و با نسخه‌ای که درون افزونه است انجام می‌شود.',
+      'تبلیغ‌شکن حالا فهرست نشت‌های خودش را هم دارد، برای نشت‌هایی که منبع‌های دیگر ندارند. هر مورد ماهی را که نشت در آن علنی شد و پیوندی به یک گزارش عمومی دارد و در خطی جدا نشان داده می‌شود که با «در فهرست نشت‌های تبلیغ‌شکن» شروع می‌شود. این فهرست فعلاً خالی است.',
+    ],
+  },
+  {
     version: '0.3.4',
     date: '2026-11-08',
     en: [

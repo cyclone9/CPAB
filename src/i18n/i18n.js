@@ -31,6 +31,12 @@ export function formatDate(language, date) {
   return new Intl.DateTimeFormat(LOCALES[language], { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`));
 }
 
+// A YYYY-MM month in the Gregorian calendar in both languages, as "March 2025" or «مارس ۲۰۲۵».
+export function formatMonth(language, month) {
+  return new Intl.DateTimeFormat(LOCALES[language], { year: 'numeric', month: 'long', calendar: 'gregory', timeZone: 'UTC' })
+    .format(new Date(`${month}-01T00:00:00Z`));
+}
+
 // A moment, such as a check's time, as a date and time on this device's clock.
 export function formatDateTime(language, time) {
   return new Intl.DateTimeFormat(LOCALES[language], { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(time));

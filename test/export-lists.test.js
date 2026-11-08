@@ -4,14 +4,14 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdir
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, test } from 'node:test';
-import { exportLists } from '../scripts/export-lists.js';
-import { LISTS } from '../scripts/lists.config.js';
+import { exportLists, snapshotName } from '../scripts/export-lists.js';
+import { DATALEAK_LISTS, LISTS } from '../scripts/lists.config.js';
 
 const root = new URL('..', import.meta.url).pathname;
 const work = mkdtempSync(join(tmpdir(), 'cpab-export-'));
 const readmeDir = join(work, 'readmes');
 const target = join(work, 'out');
-const sources = LISTS.filter((list) => !list.ownFormat);
+const sources = [...LISTS.filter((list) => !list.ownFormat), ...DATALEAK_LISTS.filter((list) => list.name === 'leakfa-breaches')];
 const read = (path) => readFileSync(path);
 const tree = (dir, prefix = '') => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => (entry.isDirectory()
   ? tree(join(dir, entry.name), `${prefix}${entry.name}/`) : [`${prefix}${entry.name}`])).sort();
@@ -25,7 +25,7 @@ before(() => {
 after(() => rmSync(work, { recursive: true, force: true }));
 
 test('the export has the top files and one folder per source list', () => {
-  for (const name of ['README.md', 'README.fa.md', 'LICENSE', 'SOURCES.md', 'cpab-own.txt', 'cpab-exceptions.txt']) {
+  for (const name of ['README.md', 'README.fa.md', 'LICENSE', 'SOURCES.md', 'cpab-own.txt', 'cpab-exceptions.txt', 'cpab-leaks.txt']) {
     assert.ok(existsSync(join(target, name)), name);
   }
   assert.deepEqual(readdirSync(join(target, 'sources')).sort(), sources.map(({ name }) => name).sort());
@@ -33,14 +33,14 @@ test('the export has the top files and one folder per source list', () => {
 
 test('snapshots, records and CPAB\'s own files are byte-identical copies', () => {
   for (const list of sources) {
-    assert.ok(read(join(target, 'sources', list.name, `${list.name}.txt`)).equals(read(join(root, 'lists', list.listFile))), list.name);
+    assert.ok(read(join(target, 'sources', list.name, snapshotName(list))).equals(read(join(root, 'lists', list.listFile))), list.name);
     assert.ok(read(join(target, 'sources', list.name, 'meta.json')).equals(read(join(root, 'lists', list.metaFile))), list.name);
   }
-  for (const name of ['cpab-own.txt', 'cpab-exceptions.txt']) assert.ok(read(join(target, name)).equals(read(join(root, 'lists', name))), name);
+  for (const name of ['cpab-own.txt', 'cpab-exceptions.txt', 'cpab-leaks.txt']) assert.ok(read(join(target, name)).equals(read(join(root, 'lists', name))), name);
   assert.ok(read(join(target, 'LICENSE')).equals(read(join(root, 'LICENSE'))));
 });
 
-test('GPL and AGPL lists carry their licence text, CC lists don\'t', () => {
+test('GPL, AGPL and MIT lists carry their licence text, CC lists don\'t', () => {
   const gpl = read(join(root, 'LICENSE'));
   const agpl = read(join(root, 'lists', 'LICENSE.AGPL-3.0.txt'));
   for (const list of sources) {
@@ -49,10 +49,13 @@ test('GPL and AGPL lists carry their licence text, CC lists don\'t', () => {
     if (spdx.startsWith('CC-BY')) assert.ok(!existsSync(file), list.name);
     else if (spdx.startsWith('AGPL-3.0')) assert.ok(read(file).equals(agpl), list.name);
     else if (spdx.startsWith('GPL-3.0')) assert.ok(read(file).equals(gpl), list.name);
+    else if (spdx === 'MIT') assert.ok(read(file).equals(read(join(root, 'lists', list.licence.copy))), list.name);
     else assert.fail(`${list.name}: unexpected licence ${spdx}`);
   }
   assert.ok(existsSync(join(target, 'sources', 'persianblocker', 'LICENSE.txt')));
   assert.ok(!existsSync(join(target, 'sources', 'easylist', 'LICENSE.txt')));
+  assert.match(readFileSync(join(target, 'sources', 'leakfa-breaches', 'LICENSE.txt'), 'utf8'), /^MIT License\n\nCopyright \(c\) 2026 Leakfa/);
+  assert.ok(existsSync(join(target, 'sources', 'leakfa-breaches', 'leakfa-breaches.json')));
 });
 
 test('the breach catalogue and CPAB\'s own list stay out of sources', () => {

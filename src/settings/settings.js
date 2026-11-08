@@ -279,7 +279,7 @@ function creditText(text, className, dir = 'ltr') {
 }
 
 function renderCredits() {
-  // CPAB's own rules come first, right under the lists repository; the other lists keep their order.
+  // CPAB's own rules and leak list come first, right under the lists repository; the other lists keep their order.
   const shown = (lists ?? []).filter((list) => list.available).sort((a, b) => Number(b.own === true) - Number(a.own === true));
   byId('credits').replaceChildren(...shown.map((list) => {
     const item = document.createElement('li');
@@ -294,13 +294,14 @@ function renderCredits() {
     const facts = document.createElement('p');
     facts.className = 'small muted';
     const date = formatDate(language, list.snapshotDate);
+    const [ownTitle, ownBy] = list.group === 'dataleak' ? ['creditsOwnLeaksTitle', 'creditsOwnLeaksBy'] : ['creditsOwnTitle', 'creditsOwnBy'];
     facts.textContent = list.own
       ? format(language, 'creditsOwnUpdated', { date })
       : `${format(language, 'metaSnapshot', { date })} · ${t(language, 'creditsConverted')}`;
 
     item.append(
-      list.own ? creditText(t(language, 'creditsOwnTitle'), 'credit-title', null) : creditText(list.title, 'credit-title'),
-      list.own ? creditText(t(language, 'creditsOwnBy'), 'small muted', null) : creditText(list.attribution, 'small muted'),
+      list.own ? creditText(t(language, ownTitle), 'credit-title', null) : creditText(list.title, 'credit-title'),
+      list.own ? creditText(t(language, ownBy), 'small muted', null) : creditText(list.attribution, 'small muted'),
       links,
       facts,
     );
@@ -309,11 +310,14 @@ function renderCredits() {
   byId('credits-empty').hidden = shown.length > 0;
 }
 
+// One switch for both sources: the sites they list together, and the newer of their snapshots.
 function renderDataLeak() {
   byId('dataleak').checked = settings.dataLeak;
-  const [list] = inGroup('dataleak');
-  fillMeta(byId('dataleak-meta'), list?.available
-    ? [format(language, 'metaSites', { count: formatNumber(language, list.domains) }), format(language, 'metaSnapshot', { date: formatDate(language, list.snapshotDate) })]
+  const available = inGroup('dataleak').filter((list) => list.available);
+  const sites = available.reduce((total, list) => total + list.domains, 0);
+  const newest = available.map((list) => list.snapshotDate).sort().at(-1);
+  fillMeta(byId('dataleak-meta'), available.length
+    ? [format(language, 'metaSites', { count: formatNumber(language, sites) }), format(language, 'metaSnapshot', { date: formatDate(language, newest) })]
     : [t(language, 'groupUnavailable')]);
 }
 

@@ -11,13 +11,15 @@
 <div dir="ltr">
 
 ```
-README.md, README.fa.md, LICENSE   # LICENSE is GPLv3, for cpab-own.txt and cpab-exceptions.txt
+README.md, README.fa.md, LICENSE   # LICENSE is GPLv3, for cpab-own.txt, cpab-exceptions.txt and cpab-leaks.txt
 SOURCES.md                         # generated: every list with attribution, homepage, source URL, licence, snapshot date or commit, SHA-256
 cpab-own.txt                       # CPAB's own rules, written by hand from reports
 cpab-exceptions.txt                # domains the "Exceptions for Iranian sites" switch allows, each with a dated reason
+cpab-leaks.txt                     # CPAB's own data-leak list, written by hand, each entry with a public source
 sources/<name>/<name>.txt          # an unmodified snapshot of each list CPAB uses
 sources/<name>/meta.json           # where it came from and when
 sources/<name>/LICENSE.txt         # the licence text, where the licence needs a copy
+sources/<name>/<name>.json         # same as the .txt snapshot, for lists that are JSON (the Leakfa data-leak list)
 ```
 
 </div>
@@ -49,9 +51,27 @@ sources/<name>/LICENSE.txt         # the licence text, where the licence needs a
 
 فایل `cpab-exceptions.txt` دامنه‌هایی را فهرست می‌کند که کلید «استثناهای سایت‌های ایرانی» در تبلیغ‌شکن آزاد می‌گذارد، هر کدام با دلیلی که تاریخ دارد.
 
+## فهرست نشت‌های خود تبلیغ‌شکن
+
+فایل `cpab-leaks.txt` سایت‌هایی را نام می‌برد که نشت داده‌شان شناخته‌شده است و منبع‌های دیگر نشت داده آن‌ها را ندارند. اعلان نشت داده در تبلیغ‌شکن اگر سایتی در این فایل باشد، آن را در خطی جدا و با عبارت «در فهرست نشت‌های تبلیغ‌شکن» نشان می‌دهد. هر مورد یک خط است با پنج بخش که با `|` جدا شده‌اند:
+
+<div dir="ltr">
+
+```
+domain | English name | Persian name | YYYY-MM | https source
+```
+
+</div>
+
+دامنه همان میزبان سایت است، بدون `www`، و یک مورد خود آن میزبان و هر چه زیر آن است را در بر می‌گیرد. ماه همان ماهی است که نشت علنی شد. هر مورد باید یک منبع عمومی با نشانی https داشته باشد، مثلاً گزارش یک خبرگزاری یا اطلاعیهٔ خود شرکت، و آن منبع نباید خودش داده‌های نشت‌شده را داشته باشد یا به آن‌ها پیوند بدهد. خطی که از این قاعده‌ها پیروی نکند در ساخت تبلیغ‌شکن کنار گذاشته می‌شود.
+
+## نسخهٔ ذخیره‌شدهٔ لیکفا
+
+پوشهٔ `sources/leakfa-breaches/` فهرست لیکفا از سایت‌های ایرانیِ دچار نشت داده را دارد (مجوز MIT، https://github.com/Leakfarsi/Leakfa-Alert). این تنها فهرست اینجاست که JSON است: فایل `sources/leakfa-breaches/leakfa-breaches.json` و کنارش `meta.json` و `LICENSE.txt`، مثل بقیه. تبلیغ‌شکن آنچه لیکفا فهرست کرده را نشان می‌دهد و درستی آن را تأیید نمی‌کند.
+
 ## مجوز
 
-فایل‌های `cpab-own.txt` و `cpab-exceptions.txt` با مجوز GPL-3.0-or-later منتشر شده‌اند؛ متنش در `LICENSE` است. هر فهرست زیر `sources/` همان مجوز خودش را دارد، همان‌طور که `SOURCES.md` ثبت کرده است.
+فایل‌های `cpab-own.txt`، `cpab-exceptions.txt` و `cpab-leaks.txt` با مجوز GPL-3.0-or-later منتشر شده‌اند؛ متنش در `LICENSE` است. هر فهرست زیر `sources/` همان مجوز خودش را دارد، همان‌طور که `SOURCES.md` ثبت کرده است.
 
 نام‌های CPAB، CyClone Power Ad Blocker، CyClone و «تبلیغ‌شکن» و آرم‌های تبلیغ‌شکن مجوز داده نشده‌اند. این مجوز هیچ حقی در قالب علامت تجاری برای آن‌ها نمی‌دهد.
 

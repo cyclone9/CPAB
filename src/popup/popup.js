@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import { formatNumber, formatYears, t } from '../i18n/i18n.js';
 import { adultRunning, countBlocked, harmfulRunning, splitBlocked } from '../shared/blocking.js';
-import { BREACH_SOURCE, DATALEAK_FILE, breachNotice, findBreaches } from '../shared/dataleak.js';
+import { BREACH_SOURCE, CPAB_LEAKS_FILE, DATALEAK_FILE, LEAKFA_FILE, breachNotice, cpabLeakNotice, findBreaches, leakfaNotice } from '../shared/dataleak.js';
 import { fillWithDomains, applyPage } from '../shared/page.js';
 import { addSite, findSiteEntry, siteFromUrl } from '../shared/domains.js';
 import { BLOCKED_PAGE, OWN_BLOCKED_LIST, readBlocked as readBlockedPage } from '../shared/harmful.js';
@@ -38,19 +38,19 @@ async function readBlocked() {
 
 const blocked = await readBlocked();
 
-// The file is in the package and read only while the switch is on. Nothing loads from the source's
-// site unless the link is pressed.
-async function readNotice() {
+// The files are in the package and read only while the switch is on. Nothing loads from a source's
+// site unless its link is pressed.
+async function readDomains(file) {
   if (!site || !settings.dataLeak) return null;
   try {
-    const { domains } = await fetch(`../${DATALEAK_FILE}`).then((response) => response.json());
-    return breachNotice(findBreaches(site, domains));
+    return (await fetch(`../${file}`).then((response) => response.json())).domains;
   } catch {
     return null;
   }
 }
 
-const notice = await readNotice();
+const [breachDomains, leakfaDomains, ownDomains] = await Promise.all([readDomains(DATALEAK_FILE), readDomains(LEAKFA_FILE), readDomains(CPAB_LEAKS_FILE)]);
+const notice = breachNotice(findBreaches(site, breachDomains));
 
 // The new-version notice (F21), from the last daily check. It follows the updates switch.
 const update = await chrome.storage.local.get(UPDATE_KEY).then((stored) => stored[UPDATE_KEY] ?? null, () => null);
@@ -61,16 +61,40 @@ function renderNewVersion(language) {
   if (version) fillWithDomains(byId('new-version-link'), t(language, 'popupNewVersion'), { version });
 }
 
+// HIBP's line first, then Leakfa's, then CPAB's own, never merged: each keeps its own source link.
 function renderNotice(language) {
+  const leakfa = leakfaNotice(language, site, leakfaDomains);
+  const own = cpabLeakNotice(language, site, ownDomains);
   const box = byId('dataleak');
-  box.hidden = !settings.dataLeak || !notice;
+  box.hidden = !settings.dataLeak || (!notice && !leakfa && !own);
   if (box.hidden) return;
-  // The years go in first as plain text, so only the breach's name is set apart left to right.
-  const line = t(language, 'dataLeakLine').replace('{years}', () => formatYears(language, notice.years));
-  fillWithDomains(byId('dataleak-line'), line, { breach: notice.label });
-  const source = byId('dataleak-source');
-  source.href = notice.link;
-  fillWithDomains(source, t(language, 'dataLeakSource'), { source: BREACH_SOURCE });
+  byId('dataleak-hibp').hidden = !notice;
+  if (notice) {
+    // The years go in first as plain text, so only the breach's name is set apart left to right.
+    const line = t(language, 'dataLeakLine').replace('{years}', () => formatYears(language, notice.years));
+    fillWithDomains(byId('dataleak-line'), line, { breach: notice.label });
+    const source = byId('dataleak-source');
+    source.href = notice.link;
+    fillWithDomains(source, t(language, 'dataLeakSource'), { source: BREACH_SOURCE });
+  }
+  byId('dataleak-leakfa').hidden = !leakfa;
+  if (leakfa) {
+    const line = byId('dataleak-leakfa-line');
+    fillWithDomains(line, t(language, 'leakfaLine'), { breach: leakfa.label });
+    // Leakfa's Persian names are Persian, so the name takes the direction of its own text.
+    line.querySelector('bdi').dir = 'auto';
+    byId('dataleak-leakfa-source').href = leakfa.link;
+  }
+  byId('dataleak-cpab').hidden = !own;
+  if (own) {
+    // The month goes in as plain text, so only the name is set apart.
+    const line = byId('dataleak-cpab-line');
+    fillWithDomains(line, t(language, 'cpabLeakLine').replace('{date}', () => own.date), { breach: own.label });
+    line.querySelector('bdi').dir = 'auto';
+    const source = byId('dataleak-cpab-source');
+    source.href = own.link;
+    fillWithDomains(source, t(language, 'dataLeakSource'), { source: new URL(own.link).hostname });
+  }
 }
 
 function renderBlocked(language) {

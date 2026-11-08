@@ -7,6 +7,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { convertBreaches, newestAdded } from './convert-breaches.js';
+import { convertLeakfa } from './convert-leakfa.js';
 import { hostsToFilters } from './convert.js';
 import { AGPL_TEXT, DATALEAK_LISTS, LISTS } from './lists.config.js';
 import { noticeEntry } from './notices.js';
@@ -42,6 +43,7 @@ function checkTitle(list, text, source) {
 }
 
 function checkSnapshot(list, text) {
+  if (list.minEntries) return;
   if (text.length < MIN_LIST_BYTES) throw new Error(`${list.title}: only ${text.length} bytes, expected a full list`);
 }
 
@@ -88,8 +90,28 @@ async function downloadCatalogue(list) {
   return { text, catalogue: { total: read, kept, newestAddedDate: newestAdded(catalogue) } };
 }
 
+// A catalogue kept in a repository: fetched at the last commit that changed it, with the licence file
+// from that same commit, since MIT asks for its text to travel with every copy.
+async function downloadPinnedCatalogue(list) {
+  const { commitsApi, raw, path, licence } = list.pinned;
+  const commits = JSON.parse(await download(commitsApi, { accept: 'application/vnd.github+json' }));
+  const [latest] = Array.isArray(commits) ? commits : [];
+  const commit = latest?.sha;
+  if (!/^[0-9a-f]{40}$/.test(commit ?? '')) throw new Error(`${commitsApi}: no commit in the answer`);
+  const commitDate = /^\d{4}-\d{2}-\d{2}/.exec(latest.commit?.committer?.date ?? '')?.[0] ?? null;
+  const text = await download(`${raw}/${commit}/${path}`);
+  const { read, kept } = convertLeakfa(JSON.parse(text));
+  if (read < list.minEntries) throw new Error(`${list.title}: only ${read} sites, expected at least ${list.minEntries}`);
+  if (kept === 0) throw new Error(`${list.title}: no site passes the filter`);
+  const licenceText = await download(`${raw}/${commit}/${licence}`);
+  if (!/^MIT License\b/.test(licenceText.trim()) || !licenceText.includes('Permission is hereby granted')) {
+    throw new Error(`${raw}/${commit}/${licence} is not the MIT text`);
+  }
+  return { text, commit, licenceText, catalogue: { commitDate, total: read, kept } };
+}
+
 async function downloadList(list) {
-  if (list.group === 'dataleak') return downloadCatalogue(list);
+  if (list.group === 'dataleak') return list.pinned ? downloadPinnedCatalogue(list) : downloadCatalogue(list);
   if (list.repository) return downloadRepository(list);
   if (list.pinned) return downloadPinned(list);
   const text = await download(list.url);
@@ -98,7 +120,7 @@ async function downloadList(list) {
 }
 
 function record(list, { text, commit, files, catalogue }, snapshotDate) {
-  const { name, group, ruleset, listFile, rulesFile, metaFile, required, url, repository, commitApi, pinned, fileTitle, cssStyles, harmful, adult, plainRules, fetchHeaders, ...details } = list;
+  const { name, group, ruleset, listFile, rulesFile, metaFile, required, url, repository, commitApi, pinned, fileTitle, cssStyles, harmful, adult, plainRules, fetchHeaders, minEntries, ...details } = list;
   return {
     name,
     group,
@@ -146,6 +168,7 @@ const fresh = new Map(snapshots.map(({ list, snapshot }) => {
   const meta = record(list, snapshot, today);
   writeFileSync(join(listsDir, list.listFile), snapshot.text);
   writeFileSync(join(listsDir, list.metaFile), `${JSON.stringify(meta, null, 2)}\n`);
+  if (snapshot.licenceText) writeFileSync(join(listsDir, list.licence.copy), snapshot.licenceText);
   console.log(`${list.title}: ${snapshot.text.length} bytes, snapshot ${today}, version ${meta.snapshot.listVersion ?? 'not stated'}`);
   return [list, meta];
 }));

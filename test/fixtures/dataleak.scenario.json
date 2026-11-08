@@ -102,6 +102,47 @@
    ]
   },
   {
+   "open": "http://irancell.ir/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "a Leakfa site sets its own line, without a year",
+   "equals": [
+    "CPAB - Ad Blocker\nLeakfa lists this site as breached: ⁨Irancell⁩."
+   ]
+  },
+  {
+   "open": "http://www.esale.ikco.ir/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "a Leakfa subdomain entry matches",
+   "equals": [
+    "CPAB - Ad Blocker\nLeakfa lists this site as breached: ⁨Iran Khodro Online Sales⁩."
+   ]
+  },
+  {
+   "open": "http://ikco.ir/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "but not its parent",
+   "equals": [
+    "CPAB - Ad Blocker"
+   ]
+  },
+  {
+   "sw": "fetch(chrome.runtime.getURL('rules/leakfa-breaches.json')).then(r=>r.json()).then(d=>({sites:Object.keys(d.domains).length,platforms:['telegram.org','facebook.com','instagram.com','x.com'].filter(h=>Object.hasOwn(d.domains,h))}))",
+   "label": "the global platforms are not in the packaged Leakfa file (their pages are HSTS-preloaded, so no fixture can stand in)",
+   "equals": {
+    "sites": 97,
+    "platforms": []
+   }
+  },
+  {
    "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"dataLeak\":false}}})).then(()=>'set')",
    "label": "switch off"
   },
@@ -173,6 +214,17 @@
    ]
   },
   {
+   "open": "http://irancell.ir/probe.html",
+   "settle": 1200
+  },
+  {
+   "sw": "chrome.tabs.query({}).then(ts=>Promise.all(ts.filter(t=>/^https?:/.test(t.url||'')).map(t=>chrome.action.getTitle({tabId:t.id}))))",
+   "label": "the Persian title takes Leakfa's Persian name",
+   "equals": [
+    "CPAB - Ad Blocker\nنام این سایت در فهرست نشت‌های دادهٔ لیکفا آمده است: ⁨ایرانسل⁩."
+   ]
+  },
+  {
    "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"language\":\"en\"}}})).then(()=>'set')",
    "label": "English"
   },
@@ -211,6 +263,83 @@
    "eval": "[...performance.getEntriesByType('resource')].map(e=>new URL(e.name).protocol).filter(p=>p!=='chrome-extension:')",
    "label": "the popup loads nothing from outside",
    "equals": []
+  },
+  {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://www.irancell.ir/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-leakfa-source');return {hibp:!document.getElementById('dataleak-hibp').hidden,leakfa:!document.getElementById('dataleak-leakfa').hidden,line:document.getElementById('dataleak-leakfa-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,bdi:[...document.querySelectorAll('#dataleak-leakfa bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup: Leakfa line with its own source link",
+   "equals": {
+    "hibp": false,
+    "leakfa": true,
+    "line": "Leakfa lists this site as breached: Irancell.",
+    "link": "https://github.com/Leakfarsi/Leakfa-Alert/tree/domains",
+    "linkText": "Source: Leakfa",
+    "target": "_blank",
+    "rel": "noopener noreferrer",
+    "bdi": [
+     "auto:Irancell"
+    ]
+   }
+  },
+  {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://telegram.org/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-leakfa-source');return {hibp:!document.getElementById('dataleak-hibp').hidden,leakfa:!document.getElementById('dataleak-leakfa').hidden,line:document.getElementById('dataleak-leakfa-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,bdi:[...document.querySelectorAll('#dataleak-leakfa bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup: a dropped global platform shows nothing",
+   "equals": null
+  },
+  {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://instagram.com/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-leakfa-source');return {hibp:!document.getElementById('dataleak-hibp').hidden,leakfa:!document.getElementById('dataleak-leakfa').hidden,line:document.getElementById('dataleak-leakfa-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,bdi:[...document.querySelectorAll('#dataleak-leakfa bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup: HIBP only on a dropped platform it lists",
+   "equals": {
+    "hibp": true,
+    "leakfa": false,
+    "line": "",
+    "link": "",
+    "linkText": "Source: Leakfa",
+    "target": "_blank",
+    "rel": "noopener noreferrer",
+    "bdi": []
+   }
+  },
+  {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://linkedin.com/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-leakfa-source');return {hibp:!document.getElementById('dataleak-hibp').hidden,leakfa:!document.getElementById('dataleak-leakfa').hidden,line:document.getElementById('dataleak-leakfa-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,bdi:[...document.querySelectorAll('#dataleak-leakfa bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup: an HIBP-only site has no Leakfa line",
+   "equals": {
+    "hibp": true,
+    "leakfa": false,
+    "line": "",
+    "link": "",
+    "linkText": "Source: Leakfa",
+    "target": "_blank",
+    "rel": "noopener noreferrer",
+    "bdi": []
+   }
   },
   {
    "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://x.pizza.dominos.be/\" }];"
@@ -295,6 +424,29 @@
    }
   },
   {
+   "initScript": "chrome.tabs.query = async () => [{ id: 999999, url: \"http://irancell.ir/\" }];"
+  },
+  {
+   "open": "popup/popup.html",
+   "settle": 800
+  },
+  {
+   "eval": "(()=>{const b=document.getElementById('dataleak');if(b.hidden)return null;const a=document.getElementById('dataleak-leakfa-source');return {hibp:!document.getElementById('dataleak-hibp').hidden,leakfa:!document.getElementById('dataleak-leakfa').hidden,line:document.getElementById('dataleak-leakfa-line').textContent,link:a.href,linkText:a.textContent,target:a.target,rel:a.rel,bdi:[...document.querySelectorAll('#dataleak-leakfa bdi')].map(e=>e.dir+':'+e.textContent)}})()",
+   "label": "popup: Leakfa line in Persian with the Persian name",
+   "equals": {
+    "hibp": false,
+    "leakfa": true,
+    "line": "نام این سایت در فهرست نشت‌های دادهٔ لیکفا آمده است: ایرانسل.",
+    "link": "https://github.com/Leakfarsi/Leakfa-Alert/tree/domains",
+    "linkText": "منبع: لیکفا",
+    "target": "_blank",
+    "rel": "noopener noreferrer",
+    "bdi": [
+     "auto:ایرانسل"
+    ]
+   }
+  },
+  {
    "sw": "chrome.storage.local.get('settings').then(s=>chrome.storage.local.set({settings:{...s.settings,...{\"language\":\"en\"}}})).then(()=>'set')",
    "label": "English"
   },
@@ -317,7 +469,7 @@
    "equals": {
     "checked": true,
     "title": "Data-leak notice",
-    "meta": "929 sitesList dated Nov 7, 2026",
+    "meta": "1,026 sitesList dated Nov 8, 2026",
     "sourceLinkInProtection": false,
     "credit": [
      [
@@ -334,6 +486,52 @@
      ]
     ]
    }
+  },
+  {
+   "eval": "(()=>{const li=[...document.querySelectorAll('#sources #credits li')].find(li=>li.querySelector('.credit-title').textContent==='Leakfa breached Iranian sites');return li?{by:li.querySelectorAll('p')[1].textContent,links:[...li.querySelectorAll('a')].map(a=>[a.textContent,a.href])}:null})()",
+   "label": "Leakfa credited under Sources and credits, with the MIT text in the package",
+   "equals": {
+    "by": "Leakfa (https://leakfa.com/)",
+    "links": [
+     [
+      "Homepage",
+      "https://leakfa.com/"
+     ],
+     [
+      "MIT",
+      "chrome-extension://hgfgdeboohokimlkibkjlhgppmpdpgal/rules/LICENSE.MIT-Leakfa.txt"
+     ],
+     [
+      "Source",
+      "https://github.com/Leakfarsi/Leakfa-Alert/tree/domains"
+     ]
+    ]
+   }
+  },
+  {
+   "eval": "(()=>{const titles=[...document.querySelectorAll('#credits .credit-title')].map(e=>e.textContent);const li=[...document.querySelectorAll('#credits li')].find(li=>li.querySelector('.credit-title').textContent==='CPAB\\'s own leak list');return {first:titles.slice(0,2),by:li&&li.querySelectorAll('p')[1].textContent,links:li&&[...li.querySelectorAll('a')].map(a=>a.textContent)}})()",
+   "label": "CPAB's own leak list is credited with CPAB's own rules",
+   "equals": {
+    "first": [
+     "CPAB's own rules",
+     "CPAB's own leak list"
+    ],
+    "by": "By CPAB, for leaks the other sources miss, each with a public source",
+    "links": [
+     "Homepage",
+     "GPL-3.0-or-later"
+    ]
+   }
+  },
+  {
+   "eval": "fetch('../rules/LICENSE.MIT-Leakfa.txt').then(r=>r.text()).then(t=>t.split('\\n').slice(0,3).join('|'))",
+   "label": "the MIT text ships beside the file",
+   "equals": "MIT License||Copyright (c) 2026 Leakfa"
+  },
+  {
+   "eval": "document.getElementById('dataleak-desc').textContent.includes('Have I Been Pwned')&&document.getElementById('dataleak-desc').textContent.includes('Leakfa')",
+   "label": "the switch description names both sources",
+   "equals": true
   },
   {
    "eval": "[...document.querySelectorAll('#credits .credit-title')].map(e=>e.textContent).includes('Have I Been Pwned breaches')",

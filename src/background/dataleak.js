@@ -3,28 +3,36 @@
 // on a listed site. Chrome clears a tab's own action values each time the tab commits a new page, so
 // nothing needs undoing when it moves on. The badge stays the blocked count.
 import { resolveLanguage } from '../i18n/i18n.js';
-import { DATALEAK_FILE, breachNotice, findBreaches, noticeTitle } from '../shared/dataleak.js';
+import { CPAB_LEAKS_FILE, DATALEAK_FILE, LEAKFA_FILE, breachNotice, cpabLeakNotice, findBreaches, leakfaNotice, noticeTitle } from '../shared/dataleak.js';
 import { siteFromUrl } from '../shared/domains.js';
 import { loadSettings, onSettingsChange } from '../shared/settings.js';
 
-// Kept while this worker lives, so a run of page loads parses the file once.
-let loaded = null;
-function breachDomains() {
-  loaded ??= fetch(chrome.runtime.getURL(DATALEAK_FILE)).then((response) => response.json()).then(({ domains }) => domains)
-    .catch((error) => {
-      loaded = null;
-      throw error;
-    });
-  return loaded;
+// Kept while this worker lives, so a run of page loads parses each file once.
+const loaded = new Map();
+function domainsIn(file) {
+  if (!loaded.has(file)) {
+    loaded.set(file, fetch(chrome.runtime.getURL(file)).then((response) => response.json()).then(({ domains }) => domains)
+      .catch((error) => {
+        loaded.delete(file);
+        throw error;
+      }));
+  }
+  return loaded.get(file);
 }
 
 async function noticeFor(url, settings) {
   const site = url ? siteFromUrl(url) : null;
   if (!settings.dataLeak || !site) return null;
-  const notice = breachNotice(findBreaches(site, await breachDomains()));
-  if (!notice) return null;
+  // A build without Leakfa's snapshot still has the other lines.
+  const [breaches, leakfa, own] = await Promise.all([
+    domainsIn(DATALEAK_FILE), domainsIn(LEAKFA_FILE).catch(() => null), domainsIn(CPAB_LEAKS_FILE),
+  ]);
   const language = resolveLanguage(settings.language, chrome.i18n.getUILanguage());
-  return noticeTitle(language, await chrome.action.getTitle({}), notice);
+  const notice = breachNotice(findBreaches(site, breaches));
+  const leak = leakfaNotice(language, site, leakfa);
+  const ownLeak = cpabLeakNotice(language, site, own);
+  if (!notice && !leak && !ownLeak) return null;
+  return noticeTitle(language, await chrome.action.getTitle({}), notice, leak, ownLeak);
 }
 
 async function markTab(tabId, url) {

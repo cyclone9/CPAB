@@ -3,9 +3,11 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { breachHost, convertBreaches, formatBreachReport, isPublicSuffixLike, newestAdded } from '../scripts/convert-breaches.js';
+import { convertCpabLeaks, sourceUrl } from '../scripts/convert-cpab-leaks.js';
+import { GLOBAL_PLATFORMS, convertLeakfa, formatLeakfaReport } from '../scripts/convert-leakfa.js';
 import { DATALEAK_LISTS, LISTS } from '../scripts/lists.config.js';
-import { formatYears } from '../src/i18n/i18n.js';
-import { DATALEAK_FILE, breachNotice, findBreaches, noticeTitle, siteLabel } from '../src/shared/dataleak.js';
+import { formatMonth, formatYears } from '../src/i18n/i18n.js';
+import { CPAB_LEAKS_FILE, DATALEAK_FILE, LEAKFA_FILE, LEAKFA_PAGE, breachNotice, cpabLeakNotice, findBreaches, leakfaNotice, noticeTitle, siteLabel } from '../src/shared/dataleak.js';
 import { siteFromUrl } from '../src/shared/domains.js';
 import { DEFAULTS, normalizeSettings } from '../src/shared/settings.js';
 
@@ -189,9 +191,8 @@ test('the notice is on by default, and only its own switch turns it off', () => 
 });
 
 test('the breach list has its admission record and stays out of the rulesets', () => {
-  assert.equal(DATALEAK_LISTS.length, 1);
+  assert.deepEqual(DATALEAK_LISTS.map(({ name }) => name), ['hibp-breaches', 'leakfa-breaches', 'cpab-leaks']);
   const [list] = DATALEAK_LISTS;
-  assert.equal(list.name, 'hibp-breaches');
   assert.equal(list.group, 'dataleak');
   assert.equal(`rules/${list.rulesFile}`, DATALEAK_FILE);
   assert.equal(list.licence.spdx, 'CC-BY-4.0');
@@ -218,4 +219,221 @@ test('the snapshot converts to the counts its record states', { skip: !existsSyn
       assert.ok(Number.isInteger(year));
     }
   }
+});
+
+const leak = (fields) => ({
+  name_en: 'Irancell',
+  name_fa: 'ایرانسل',
+  description_en: '<b>Text from outside</b>',
+  description_fa: 'متن',
+  relatedURL: 'https://extension.leakfarsi.workers.dev/leaks#irancell',
+  companyResponse: 'ignored',
+  ...fields,
+});
+
+test('Leakfa keeps only the host and the two names, sorted by host', () => {
+  const result = convertLeakfa({ timestamp: '2026-09-10', domains: {
+    'www.Irancell.ir': leak({}),
+    'esale.ikco.ir': leak({ name_en: 'Iran Khodro', name_fa: 'ایران‌خودرو' }),
+  } });
+  assert.deepEqual(result.data, { domains: { 'esale.ikco.ir': ['Iran Khodro', 'ایران‌خودرو'], 'irancell.ir': ['Irancell', 'ایرانسل'] } });
+  assert.equal(result.read, 2);
+  assert.equal(result.kept, 2);
+  assert.deepEqual(result.dropped, {});
+  assert.ok(!/outside|workers\.dev|ignored|متن/.test(JSON.stringify(result.data)));
+});
+
+test('Leakfa entries are dropped with one reason each, the global platforms last', () => {
+  const result = convertLeakfa({ domains: {
+    'a.ir': 'not an object',
+    'b.ir': null,
+    'c.ir': [],
+    '1.2.3.4': leak({}),
+    'co.ir': leak({}),
+    'ac.ir': leak({}),
+    'd.ir/path': leak({}),
+    'e.ir': leak({ name_fa: '' }),
+    'f.ir': leak({ name_en: undefined }),
+    'g.ir': leak({ name_en: '<script>' }),
+    'h.ir': leak({ name_fa: `راست‮چپ` }),
+    'i.ir': leak({ name_en: 'x'.repeat(81) }),
+    'telegram.org': leak({}),
+    'facebook.com': leak({}),
+    'www.instagram.com': leak({}),
+    'x.com': leak({}),
+    'telegram.org.ir': leak({}),
+  } });
+  assert.deepEqual(Object.keys(result.data.domains), ['telegram.org.ir']);
+  assert.deepEqual(result.dropped, {
+    'not a record': 3,
+    'domain not a site host': 4,
+    'name missing or not plain text': 5,
+    'global platform': 4,
+  });
+  assert.deepEqual([...GLOBAL_PLATFORMS].sort(), ['facebook.com', 'instagram.com', 'telegram.org', 'x.com']);
+  assert.equal(formatLeakfaReport('Leakfa', result), 'Leakfa: read 17, kept 1\n  dropped, not a record: 3\n  dropped, domain not a site host: 4\n  dropped, name missing or not plain text: 5\n  dropped, global platform: 4');
+  for (const bad of [null, [], {}, { domains: [] }, { domains: 'x' }]) assert.throws(() => convertLeakfa(bad), /no domains object/);
+});
+
+const LEAKFA = { 'irancell.ir': ['Irancell', 'ایرانسل'], 'esale.ikco.ir': ['Iran Khodro', 'ایران‌خودرو'], 'linkedin.com': ['LinkedIn Iran', 'لینکدین'] };
+
+test('the Leakfa notice names the site in the interface language and links one fixed page', () => {
+  assert.deepEqual(leakfaNotice('en', 'irancell.ir', LEAKFA), { label: 'Irancell', link: LEAKFA_PAGE });
+  assert.deepEqual(leakfaNotice('fa', 'my.irancell.ir', LEAKFA), { label: 'ایرانسل', link: LEAKFA_PAGE });
+  assert.equal(LEAKFA_PAGE, 'https://github.com/Leakfarsi/Leakfa-Alert/tree/domains');
+  assert.equal(leakfaNotice('en', 'ikco.ir', LEAKFA), null);
+  assert.equal(leakfaNotice('en', 'notirancell.ir', LEAKFA), null);
+  assert.equal(leakfaNotice('en', 'irancell.ir', null), null);
+  assert.equal(leakfaNotice('en', null, LEAKFA), null);
+  assert.equal(leakfaNotice('en', '__proto__', JSON.parse('{"__proto__":["X","Y"]}')), null);
+});
+
+test('the tooltip gives HIBP\'s line first, then Leakfa\'s, with no year on Leakfa\'s', () => {
+  const notice = breachNotice(findBreaches('linkedin.com', DOMAINS));
+  const both = noticeTitle('en', 'CPAB - Ad Blocker', notice, leakfaNotice('en', 'linkedin.com', LEAKFA));
+  assert.equal(both, 'CPAB - Ad Blocker\nListed in a known data breach: ⁨LinkedIn⁩ (2012, 2021).\nLeakfa lists this site as breached: ⁨LinkedIn Iran⁩.');
+  const only = noticeTitle('fa', 'CPAB - Ad Blocker', null, leakfaNotice('fa', 'irancell.ir', LEAKFA));
+  assert.equal(only.split('\n').length, 2);
+  assert.ok(only.includes('⁨ایرانسل⁩'));
+  assert.ok(!/\d|میلادی/.test(only.split('\n')[1].replace(/[۰-۹]/g, '0')));
+  assert.equal(noticeTitle('en', 'CPAB', notice), 'CPAB\nListed in a known data breach: ⁨LinkedIn⁩ (2012, 2021).');
+});
+
+test('Leakfa has its own admission record, MIT text and file, and is optional', () => {
+  const list = DATALEAK_LISTS.find(({ name }) => name === 'leakfa-breaches');
+  assert.equal(`rules/${list.rulesFile}`, LEAKFA_FILE);
+  assert.notEqual(LEAKFA_FILE, DATALEAK_FILE);
+  assert.equal(list.required, false);
+  assert.equal(list.licence.spdx, 'MIT');
+  assert.equal(list.licence.copy, 'LICENSE.MIT-Leakfa.txt');
+  assert.equal(list.sourceLink, LEAKFA_PAGE);
+  assert.equal(list.attribution, 'Leakfa (https://leakfa.com/)');
+  assert.match(list.pinned.commitsApi, /\/repos\/Leakfarsi\/Leakfa-Alert\/commits\?sha=domains&path=leaks\.json&per_page=1$/);
+  assert.equal(Object.keys(list.admission.checks).length, 7);
+});
+
+const leakfaSnapshot = new URL('../lists/leakfa-breaches.json', import.meta.url);
+test('the Leakfa snapshot converts to the counts its record states', { skip: !existsSync(leakfaSnapshot) }, () => {
+  const meta = JSON.parse(readFileSync(new URL('../lists/leakfa-breaches.meta.json', import.meta.url), 'utf8'));
+  const result = convertLeakfa(JSON.parse(readFileSync(leakfaSnapshot, 'utf8')));
+  assert.equal(result.read, meta.snapshot.total);
+  assert.equal(result.kept, meta.snapshot.kept);
+  assert.deepEqual(result.dropped, { 'global platform': meta.snapshot.total - meta.snapshot.kept });
+  const hibp = JSON.parse(readFileSync(snapshot, 'utf8'));
+  const breached = convertBreaches(hibp, { now: NOW }).data.domains;
+  for (const [host, names] of Object.entries(result.data.domains)) {
+    assert.equal(breachHost(host), host);
+    assert.equal(names.length, 2);
+    assert.ok(!Object.hasOwn(breached, host), `${host} is in both catalogues`);
+  }
+});
+
+const OWN_NOW = new Date('2026-11-08T00:00:00Z');
+const ownLine = (fields = {}) => {
+  const entry = { domain: 'example.ir', en: 'Example', fa: 'نمونه', month: '2026-10', source: 'https://news.example.com/report', ...fields };
+  return [entry.domain, entry.en, entry.fa, entry.month, entry.source].join(' | ');
+};
+const ownConvert = (lines) => convertCpabLeaks(lines.join('\n'), { now: OWN_NOW });
+
+test('CPAB\'s own leak list reads one entry per line and skips comments and blank lines', () => {
+  const result = ownConvert([
+    '! Title: CPAB own leak list',
+    '! example.ir | Example | نمونه | 2026-10 | https://news.example.com/report',
+    '',
+    '! 2026-11-08, added: news report',
+    ownLine({ domain: 'www.Shop.example.ir', en: ' Shop ', fa: 'فروشگاه‌ ما' }),
+    '   ',
+    ownLine({ domain: 'a.ir', month: '2000-01', source: 'https://a.ir/notice?id=1#top' }),
+  ]);
+  assert.equal(result.read, 2);
+  assert.equal(result.kept, 2);
+  assert.deepEqual(result.dropped, {});
+  assert.deepEqual(result.data, { domains: {
+    'a.ir': ['Example', 'نمونه', '2000-01', 'https://a.ir/notice?id=1#top'],
+    'shop.example.ir': ['Shop', 'فروشگاه‌ ما', '2026-10', 'https://news.example.com/report'],
+  } });
+});
+
+test('the shipped own leak list is empty but for its header, and builds cleanly', () => {
+  const text = readFileSync(new URL('../lists/cpab-leaks.txt', import.meta.url), 'utf8');
+  assert.deepEqual(convertCpabLeaks(text), { read: 0, kept: 0, dropped: {}, data: { domains: {} } });
+  assert.match(text, /^! License: GPL-3\.0-or-later$/m);
+  assert.deepEqual(convertCpabLeaks(''), { read: 0, kept: 0, dropped: {}, data: { domains: {} } });
+});
+
+test('own entries are dropped with one reason each', () => {
+  const result = ownConvert([
+    'example.ir | Example | نمونه | 2026-10',
+    `${ownLine()} | extra`,
+    ownLine({ domain: '1.2.3.4' }),
+    ownLine({ domain: 'co.ir' }),
+    ownLine({ domain: 'https://b.ir' }),
+    ownLine({ domain: 'b.ir', en: '' }),
+    ownLine({ domain: 'c.ir', fa: '<b>x</b>' }),
+    ownLine({ domain: 'd.ir', en: 'x'.repeat(81) }),
+    ownLine({ domain: 'e.ir', month: '2026-13' }),
+    ownLine({ domain: 'f.ir', month: '2026-12' }),
+    ownLine({ domain: 'g.ir', month: '1999-12' }),
+    ownLine({ domain: 'h.ir', month: '2026-1' }),
+    ownLine({ domain: 'i.ir', source: 'http://news.example.com/' }),
+    ownLine({ domain: 'j.ir', source: 'javascript:alert(1)' }),
+    ownLine({ domain: 'k.ir', source: 'https://user:pass@news.example.com/' }),
+    ownLine({ domain: 'l.ir', source: 'https://1.2.3.4/' }),
+    ownLine({ domain: 'm.ir', source: 'https://news.example.com:8443/' }),
+    ownLine({ domain: 'n.ir', source: '' }),
+    ownLine({ domain: 'o.ir' }),
+    ownLine({ domain: 'www.o.ir', en: 'Again' }),
+  ]);
+  assert.deepEqual(Object.keys(result.data.domains), ['o.ir']);
+  assert.deepEqual(result.dropped, {
+    'not five fields': 2,
+    'domain not a site host': 3,
+    'name missing or not plain text': 3,
+    'month not YYYY-MM up to now': 4,
+    'source not an https address': 6,
+    'site listed twice': 1,
+  });
+  assert.equal(formatLeakfaReport('CPAB', result).split('\n')[0], 'CPAB: read 20, kept 1');
+  assert.equal(sourceUrl('https://News.Example.com/a b'), null);
+  assert.equal(sourceUrl('https://News.Example.com/a'), 'https://news.example.com/a');
+});
+
+test('the month reads as words in both languages, Gregorian in Persian too', () => {
+  assert.equal(formatMonth('en', '2025-03'), 'March 2025');
+  assert.equal(formatMonth('fa', '2025-03'), 'مارس ۲۰۲۵');
+  assert.equal(formatMonth('fa', '2026-11'), 'نوامبر ۲۰۲۶');
+});
+
+const OWN = { 'irancell.ir': ['Irancell', 'ایرانسل', '2025-03', 'https://news.example.com/irancell'] };
+
+test('the own notice names the site, the month and its own source page', () => {
+  assert.deepEqual(cpabLeakNotice('en', 'shop.irancell.ir', OWN), { label: 'Irancell', date: 'March 2025', link: 'https://news.example.com/irancell' });
+  assert.deepEqual(cpabLeakNotice('fa', 'irancell.ir', OWN), { label: 'ایرانسل', date: 'مارس ۲۰۲۵', link: 'https://news.example.com/irancell' });
+  assert.equal(cpabLeakNotice('en', 'example.ir', OWN), null);
+  assert.equal(cpabLeakNotice('en', 'irancell.ir', null), null);
+  assert.equal(CPAB_LEAKS_FILE, `rules/${DATALEAK_LISTS.find(({ name }) => name === 'cpab-leaks').rulesFile}`);
+});
+
+test('three sources give three lines: HIBP, then Leakfa, then CPAB\'s own', () => {
+  const hibp = breachNotice([{ domain: 'irancell.ir', name: 'Irancell', title: 'Irancell', year: 2022 }]);
+  const en = noticeTitle('en', 'CPAB', hibp, leakfaNotice('en', 'irancell.ir', LEAKFA), cpabLeakNotice('en', 'irancell.ir', OWN));
+  assert.equal(en, [
+    'CPAB',
+    'Listed in a known data breach: ⁨Irancell⁩ (2022).',
+    'Leakfa lists this site as breached: ⁨Irancell⁩.',
+    'Listed by CPAB: ⁨Irancell⁩ (March 2025).',
+  ].join('\n'));
+  const fa = noticeTitle('fa', 'CPAB', null, null, cpabLeakNotice('fa', 'irancell.ir', OWN));
+  assert.equal(fa, 'CPAB\nدر فهرست نشت‌های تبلیغ‌شکن: ⁨ایرانسل⁩ (مارس ۲۰۲۵ میلادی).');
+});
+
+test('CPAB\'s own leak list is an own list under GPL, with a record beside it', () => {
+  const list = DATALEAK_LISTS.find(({ name }) => name === 'cpab-leaks');
+  assert.equal(list.ownFormat, true);
+  assert.equal(list.required, true);
+  assert.equal(list.licence.spdx, 'GPL-3.0-or-later');
+  assert.equal(list.url, undefined, 'never fetched');
+  const meta = JSON.parse(readFileSync(new URL(`../lists/${list.metaFile}`, import.meta.url), 'utf8'));
+  assert.equal(meta.title, 'CPAB\'s own leak list');
+  assert.equal(meta.licence.spdx, 'GPL-3.0-or-later');
 });

@@ -5,6 +5,8 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } fr
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { convertBreaches, formatBreachReport } from './convert-breaches.js';
+import { convertCpabLeaks } from './convert-cpab-leaks.js';
+import { convertLeakfa, formatLeakfaReport } from './convert-leakfa.js';
 import { convertList, formatReport } from './convert.js';
 import { exceptedSelectors, finishCss, formatCssReport, readCss } from './convert-css.js';
 import { parseExceptions } from './convert-exceptions.js';
@@ -14,7 +16,6 @@ import { describeFiles, servedFiles } from './data-files.js';
 import { AGPL_TEXT, DATALEAK_LISTS, LISTS } from './lists.config.js';
 import { EXCEPTIONS_FILE } from '../src/shared/blocking.js';
 import { CSS_INDEX, seedEntries, storedBytes } from '../src/shared/css.js';
-import { DATALEAK_FILE } from '../src/shared/dataleak.js';
 import { POPUP_INDEX } from '../src/shared/popups.js';
 import { LIMITS, checkTotals } from '../src/shared/update-schema.js';
 
@@ -111,24 +112,37 @@ function convertCss(lists) {
   }));
 }
 
-// The data-leak notice's data: no rules, just a file the popup and the worker read.
-function convertDataLeak(list) {
+// The data-leak notice's data: no rules, just a file per source that the popup and the worker read.
+function convertDataLeak(rulesDir, list) {
   const source = join(root, 'lists', list.listFile);
-  if (!existsSync(source)) throw new Error(`lists/${list.listFile} is missing. Run npm run lists -- ${list.name}.`);
+  if (!existsSync(source)) {
+    if (list.required) throw new Error(`lists/${list.listFile} is missing. Run npm run lists -- ${list.name}.`);
+    console.log(`${list.title}: no snapshot in lists/, so this build leaves it out of the data-leak notice`);
+    return { group: list.group, title: list.title, available: false, listed: false };
+  }
   const meta = readJson(join(root, 'lists', list.metaFile));
-  const result = convertBreaches(readJson(source), { now: new Date(`${meta.snapshot.date}T00:00:00Z`) });
-  writeFileSync(join(dist, DATALEAK_FILE), JSON.stringify(result.data));
-  console.log(formatBreachReport(list.title, result));
+  const snapshotDay = new Date(`${meta.snapshot.date}T00:00:00Z`);
+  const result = {
+    'hibp-breaches': () => convertBreaches(readJson(source), { now: snapshotDay }),
+    'leakfa-breaches': () => convertLeakfa(readJson(source)),
+    // The month check runs against the build's own day, since the owner adds entries without a new record.
+    'cpab-leaks': () => convertCpabLeaks(readFileSync(source, 'utf8')),
+  }[list.name]();
+  writeFileSync(join(rulesDir, list.rulesFile), JSON.stringify(result.data));
+  // MIT asks for its text with every copy.
+  if (meta.licence.copy) cpSync(join(root, 'lists', meta.licence.copy), join(rulesDir, meta.licence.copy));
+  console.log(list.name === 'hibp-breaches' ? formatBreachReport(list.title, result) : formatLeakfaReport(list.title, result));
   return {
     group: list.group,
     available: true,
     listed: false,
+    own: list.ownFormat === true,
     descriptionKey: null,
     title: meta.title,
     attribution: meta.attribution,
     homepage: meta.homepage,
     sourceLink: list.sourceLink ?? null,
-    licence: { name: meta.licence.name, url: meta.licence.url, copy: null },
+    licence: { name: meta.licence.name, url: meta.licence.url, copy: meta.licence.copy ?? null },
     snapshotDate: meta.snapshot.date,
     read: result.read,
     converted: result.kept,
@@ -171,7 +185,7 @@ const css = convertCss(present);
 const cancelledPopups = new Set(present.flatMap((list) => popupBadfilters(readFileSync(join(root, 'lists', list.listFile), 'utf8'))));
 const lists = LISTS.map((list) => convertInto(rulesDir, list, css.get(list), cancelledPopups));
 writeCssIndex(present, css);
-const dataLeak = DATALEAK_LISTS.map(convertDataLeak);
+const dataLeak = DATALEAK_LISTS.map((list) => convertDataLeak(rulesDir, list));
 
 const regexRules = lists.reduce((total, { rulesList = [] }) => total + rulesList.filter(({ condition }) => condition.regexFilter).length, 0);
 const staticRules = lists.reduce((total, { rulesList = [] }) => total + rulesList.length, 0);

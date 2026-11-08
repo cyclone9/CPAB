@@ -8,7 +8,7 @@ import { normalizeDomain } from '../src/shared/domains.js';
 const NAME = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/;
 const MAX_TITLE = 80;
 // Control characters, markup and the bidi controls that could reorder the popup line around a title.
-const UNSAFE_TITLE = /[\u0000-\u001f\u007f-\u009f<>‎‏‪-‮⁦-⁩]/;
+export const UNSAFE_TITLE = /[\u0000-\u001f\u007f-\u009f<>‎‏‪-‮⁦-⁩]/;
 const FIRST_YEAR = 2000;
 const IPV4 = /^\d{1,3}(?:\.\d{1,3}){3}$/;
 

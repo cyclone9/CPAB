@@ -138,6 +138,18 @@ CPAB's own code is under GPL-3.0-or-later (see `LICENSE` and `NOTICE`). The work
 - **Licence of the list:** The API documentation, section "License - breach & paste APIs", puts the breach data under CC BY 4.0. The Terms of Use, clause 1.3, let the unauthenticated breach catalogue endpoints, /breaches included, be used for any lawful purpose, including within commercial products and for the benefit of third parties. Clause 2.1(a)(iv) asks for clear and visible attribution with a hyperlink to haveibeenpwned.com.
 - **Snapshot:** 2026-11-07, SHA-256 cd399da32e80af36470515e11f38c2daddbec48801859084cf27bfbb73ecfad7
 - **Changes:** filtered to verified breaches with a domain; reduced to name, title and year, by CPAB's build
+
+## Leakfa breached Iranian sites
+
+- **Title:** Leakfa breached Iranian sites
+- **Attribution:** Leakfa (https://leakfa.com/)
+- **Homepage:** https://leakfa.com/
+- **Source:** https://raw.githubusercontent.com/Leakfarsi/Leakfa-Alert/domains/leaks.json
+- **Licence of the converted file:** MIT, SPDX `MIT`, https://github.com/Leakfarsi/Leakfa-Alert/blob/domains/LICENSE
+- **Licence of the list:** LICENSE on the domains branch of Leakfarsi/Leakfa-Alert, the branch whose only content is leaks.json: the MIT text, "Copyright (c) 2026 Leakfa", since the branch's first commit cfff97a (2026-07-02). The main branch carries the same LICENSE and both READMEs say the project is released under MIT. Read on 2026-11-08.
+- **Snapshot:** 2026-11-08, commit e38bd2af25912896d658caba6a26c0642b7a9cba
+- **Changes:** reduced to domain and the site's English and Persian names; descriptions, related links and company-response ratings dropped; four global platforms dropped, by CPAB's build
+- **Copy in the package:** `rules/LICENSE.MIT-Leakfa.txt`, beside the rule file
 <!-- lists:end -->
 
 ## Vazirmatn

@@ -7,13 +7,15 @@ The filter lists that CPAB - CyClone Power Ad Blocker uses, each as its own file
 ## What is here
 
 ```
-README.md, README.fa.md, LICENSE   # LICENSE is GPLv3, for cpab-own.txt and cpab-exceptions.txt
+README.md, README.fa.md, LICENSE   # LICENSE is GPLv3, for cpab-own.txt, cpab-exceptions.txt and cpab-leaks.txt
 SOURCES.md                         # generated: every list with attribution, homepage, source URL, licence, snapshot date or commit, SHA-256
 cpab-own.txt                       # CPAB's own rules, written by hand from reports
 cpab-exceptions.txt                # domains the "Exceptions for Iranian sites" switch allows, each with a dated reason
+cpab-leaks.txt                     # CPAB's own data-leak list, written by hand, each entry with a public source
 sources/<name>/<name>.txt          # an unmodified snapshot of each list CPAB uses
 sources/<name>/meta.json           # where it came from and when
 sources/<name>/LICENSE.txt         # the licence text, where the licence needs a copy
+sources/<name>/<name>.json         # same as the .txt snapshot, for lists that are JSON (the Leakfa data-leak list)
 ```
 
 Only PersianBlocker's snapshot is changed: its parts are joined into one file, each under a `! ==== name ====` line, and its hosts-file part is rewritten to `||domain^` rules. Its `meta.json` and `SOURCES.md` say so.
@@ -43,8 +45,22 @@ The snapshots are updated by hand for now. There are no automatic updates and no
 
 `cpab-exceptions.txt` lists the domains that CPAB's "Exceptions for Iranian sites" switch allows, each with a dated reason.
 
+## CPAB's own leak list
+
+`cpab-leaks.txt` names sites with a known data leak that the other data-leak sources miss. CPAB's data-leak notice shows a match as its own line, "Listed by CPAB". One entry per line, five fields split by `|`:
+
+```
+domain | English name | Persian name | YYYY-MM | https source
+```
+
+The domain is the site's host without `www`; an entry covers that host and everything under it. The month is when the leak became public. Every entry needs a public https source, such as a news report or the company's own notice, and the source never holds or links to the leaked data. A line that breaks these rules is dropped by CPAB's build.
+
+## The Leakfa snapshot
+
+`sources/leakfa-breaches/` holds Leakfa's list of breached Iranian sites (MIT, https://github.com/Leakfarsi/Leakfa-Alert), the one list here that is JSON: `sources/leakfa-breaches/leakfa-breaches.json`, with `meta.json` and `LICENSE.txt` beside it like the others. CPAB shows what Leakfa lists and does not vouch for it.
+
 ## Licence
 
-`cpab-own.txt` and `cpab-exceptions.txt` are under GPL-3.0-or-later; the text is in `LICENSE`. Every list under `sources/` stays under its own licence, as `SOURCES.md` records.
+`cpab-own.txt`, `cpab-exceptions.txt` and `cpab-leaks.txt` are under GPL-3.0-or-later; the text is in `LICENSE`. Every list under `sources/` stays under its own licence, as `SOURCES.md` records.
 
 The names CPAB, CyClone Power Ad Blocker, CyClone and «تبلیغ‌شکن», and the CPAB logos, are not licensed. The licence grants no trademark rights in them.

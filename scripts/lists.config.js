@@ -492,6 +492,83 @@ export const DATALEAK_LISTS = [
       },
     },
   },
+  // Iranian sites only; scripts/convert-leakfa.js keeps the host and the two names.
+  {
+    name: 'leakfa-breaches',
+    group: 'dataleak',
+    listFile: 'leakfa-breaches.json',
+    metaFile: 'leakfa-breaches.meta.json',
+    rulesFile: 'leakfa-breaches.json',
+    required: false,
+    title: 'Leakfa breached Iranian sites',
+    url: 'https://raw.githubusercontent.com/Leakfarsi/Leakfa-Alert/domains/leaks.json',
+    // The file's own timestamp field is older than its last commit, so the commit identifies a snapshot.
+    pinned: {
+      commitsApi: 'https://api.github.com/repos/Leakfarsi/Leakfa-Alert/commits?sha=domains&path=leaks.json&per_page=1',
+      raw: 'https://raw.githubusercontent.com/Leakfarsi/Leakfa-Alert',
+      path: 'leaks.json',
+      licence: 'LICENSE',
+    },
+    // The file is about 70 KB, so a count of sites stands in for the byte check: 101 on 2026-11-08.
+    minEntries: 50,
+    homepage: 'https://leakfa.com/',
+    sourceLink: 'https://github.com/Leakfarsi/Leakfa-Alert/tree/domains',
+    attribution: 'Leakfa (https://leakfa.com/)',
+    changes: 'reduced to domain and the site\'s English and Persian names; descriptions, related links and company-response ratings dropped; four global platforms dropped',
+    licence: {
+      name: 'MIT',
+      spdx: 'MIT',
+      url: 'https://github.com/Leakfarsi/Leakfa-Alert/blob/domains/LICENSE',
+      copy: 'LICENSE.MIT-Leakfa.txt',
+      source: 'LICENSE on the domains branch of Leakfarsi/Leakfa-Alert, the branch whose only content is leaks.json: the MIT text, "Copyright (c) 2026 Leakfa", since the branch\'s first commit cfff97a (2026-07-02). The main branch carries the same LICENSE and both READMEs say the project is released under MIT. Read on 2026-11-08.',
+    },
+    admission: {
+      reviewed: '2026-11-08',
+      result: 'admitted, with care',
+      checks: {
+        licenceStated: 'LICENSE on the domains branch (SHA-256 6a9010e2d580692e9d520a1c80b54dd537c8ab444224b70ef450e65ca53887cc at commit e38bd2a): MIT, Copyright (c) 2026 Leakfa. No header in the JSON, no other terms in the repository. Leakfa\'s own extension downloads this file from the same branch, so the data is the licensed work.',
+        licenceAccepted: 'MIT is on the accepted set.',
+        notRefused: 'No NonCommercial or NoDerivatives term, nothing forbids redistribution or restricts the audience. Care: MIT asks that the copyright and permission notice go with every copy, so the MIT text ships beside the converted file and in CPAB-Lists. Care: the descriptions might paraphrase third-party reporting, so CPAB ships none of them; domains and site names are facts within Leakfa\'s grant.',
+        attribution: 'Leakfa (https://leakfa.com/), with a link, on the popup\'s source line, in the switch description, in the credits and in THIRD-PARTY-NOTICES.md.',
+        aggregated: 'Not an aggregate of other lists: Leakfa\'s own catalogue of incidents it reported. relatedURL fields point only to Leakfa\'s own workers.dev pages (61 to extension.leakfarsi.workers.dev/leaks, 40 to telegram.leakfarsi.workers.dev mirrors of its channel); those pages could not be read through Cloudflare\'s challenge, so CPAB ships no relatedURL and links one fixed page instead.',
+        ownFile: 'The reduced data is one file of its own, rules/leakfa-breaches.json, never merged with the HIBP file, under MIT with LICENSE.MIT-Leakfa.txt beside it.',
+        retrievable: 'Fetched from raw.githubusercontent.com at the newest commit that changed leaks.json on the domains branch, recorded as listCommit; the file\'s own timestamp field is stale and not used.',
+      },
+    },
+  },
+  // Written here, not fetched: its record is lists/cpab-leaks.meta.json, kept by hand.
+  // scripts/convert-cpab-leaks.js reads it.
+  {
+    name: 'cpab-leaks',
+    group: 'dataleak',
+    listFile: 'cpab-leaks.txt',
+    metaFile: 'cpab-leaks.meta.json',
+    rulesFile: 'cpab-leaks.json',
+    required: true,
+    ownFormat: true,
+    title: 'CPAB\'s own leak list',
+    homepage: 'https://cyclone9.dev/cpab',
+    attribution: 'CPAB, written by hand',
+    licence: {
+      name: 'GPL-3.0-or-later',
+      spdx: 'GPL-3.0-or-later',
+      url: 'https://www.gnu.org/licenses/gpl-3.0.html',
+      source: 'CPAB\'s own list, under the same licence as its code.',
+    },
+    admission: {
+      reviewed: '2026-11-08',
+      result: 'own list',
+      checks: {
+        licenceStated: 'The file header says GPL-3.0-or-later.',
+        licenceAccepted: 'CPAB\'s own licence.',
+        notRefused: 'No term limits it.',
+        attribution: 'Named in settings as CPAB\'s own leak list.',
+        aggregated: 'Not an aggregate: every entry is written by hand from a public https source, never copied from another catalogue and never from leaked data.',
+        ownFile: 'One output file of its own, rules/cpab-leaks.json.',
+        retrievable: 'The file is in this repository.',
+      },
+    },
+  },
 ];
 
 // Stored under this name beside the rule file, because AGPLv3 needs the text with the work.
