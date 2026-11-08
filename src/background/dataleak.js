@@ -38,10 +38,11 @@ async function noticeFor(url, settings) {
 async function markTab(tabId, url) {
   const title = await noticeFor(url, await loadSettings());
   if (!title) return;
-  // A tab that reached another site while the file loaded gets its own event for that page.
-  const tab = await chrome.tabs.get(tabId);
-  if (siteFromUrl(tab.url ?? '') !== siteFromUrl(url)) return;
-  await chrome.action.setTitle({ tabId, title });
+  // A tab that reached another site while the file loaded gets its own event for that page. A tab that closed,
+  // or was swapped for another one, in the meantime has nothing left to mark.
+  const tab = await chrome.tabs.get(tabId).catch(() => null);
+  if (!tab || siteFromUrl(tab.url ?? '') !== siteFromUrl(url)) return;
+  await chrome.action.setTitle({ tabId, title }).catch(() => {});
 }
 
 // After the switch or the language changes, and after an update, which drops every tab's title.
@@ -55,7 +56,8 @@ async function markAllTabs(settings) {
   }));
 }
 
-const onError = () => console.error('CPAB could not update the data-leak notice');
+// The reason only, never the page's address.
+const onError = (error) => console.error('CPAB could not update the data-leak notice:', error?.message ?? String(error));
 
 // A page prerendered in the background isn't the page the tab shows.
 chrome.webNavigation.onCommitted.addListener(({ tabId, frameId, url, documentLifecycle }) => {
