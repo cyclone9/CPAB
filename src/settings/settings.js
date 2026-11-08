@@ -270,7 +270,8 @@ function creditText(text, className, dir = 'ltr') {
 }
 
 function renderCredits() {
-  const shown = (lists ?? []).filter((list) => list.available);
+  // CPAB's own rules come first, right under the lists repository; the other lists keep their order.
+  const shown = (lists ?? []).filter((list) => list.available).sort((a, b) => Number(b.own === true) - Number(a.own === true));
   byId('credits').replaceChildren(...shown.map((list) => {
     const item = document.createElement('li');
     const links = document.createElement('p');

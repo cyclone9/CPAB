@@ -3,8 +3,8 @@
 ## Unreleased
 
 - About in Settings and the READMEs say which browsers CPAB runs in: Chrome (tested), other Chromium-based browsers (should work, not tested) and Firefox (coming soon).
-- About in Settings links to the source code at https://github.com/cyclone9/CPAB.
-- Sources and credits in Settings calls `lists/cpab-own.txt` "CPAB's own rules" in both languages and says it is written by hand, with the date it was last updated, instead of "List dated" and "Converted by CPAB".
+- About in Settings links to the source code at https://github.com/cyclone9/CPAB and the lists repository at https://github.com/cyclone9/CPAB-Lists, and the welcome page link has its own row.
+- Sources and credits in Settings lists `lists/cpab-own.txt` first, right under the lists repository, calls it "CPAB's own rules" in both languages and says it is written by hand, with the date it was last updated, instead of "List dated" and "Converted by CPAB".
 - In the Persian settings page, the English list credits in Sources and credits are isolated left to right, so brackets such as "(https://easylist.to/)" stay with their URL.
 - `npm run export-lists -- <folder>` writes the lists repository `cyclone9/CPAB-Lists`: each source list as a byte-identical snapshot in `sources/<name>/` with its record and, for GPL and AGPL lists, its licence text, plus a generated `SOURCES.md`, CPAB's own two files and `LICENSE`. Sources and credits in Settings links to that repository.
 - Added Statistics in Settings: what was blocked in this browser today, yesterday, over the last 7 days and over the last 30 days, harmful-site warnings included, with a Top 5 sites list behind its own switch (off by default) and a Clear button. Daily totals stay in `storage.local` for 30 days; site names for Top 5 sites are deleted after 14 days. Counts hold no addresses and skip incognito windows. The extension now asks for the `webRequest` permission, which only observes blocked requests and adds no new warning in Chrome.
