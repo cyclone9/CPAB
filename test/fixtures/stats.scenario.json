@@ -268,7 +268,7 @@
    ]
   },
   {
-   "eval": "(async()=>{const {stats}=await chrome.storage.local.get('stats');const n=Object.values(stats.days).reduce((t,d)=>t+d.blocked,0);return document.getElementById('stats-today').textContent===new Intl.NumberFormat('en').format(n)&&document.getElementById('stats-this-week').textContent===new Intl.NumberFormat('en').format(n)})()",
+   "eval": "(async()=>{const {stats}=await chrome.storage.local.get('stats');const n=Object.values(stats.days).reduce((t,d)=>t+d.blocked,0);return document.getElementById('stats-today').textContent===new Intl.NumberFormat('en').format(n)&&document.getElementById('stats-last-7-days').textContent===new Intl.NumberFormat('en').format(n)})()",
    "label": "today and the last 7 days show the stored count",
    "equals": true
   },

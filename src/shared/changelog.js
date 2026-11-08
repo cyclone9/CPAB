@@ -6,6 +6,24 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.3.1',
+    date: '2026-11-08',
+    en: [
+      'Statistics shows four counts: today, yesterday, the last 7 days and the last 30 days. Daily totals are now kept for 30 days. Top 5 sites still covers the last 14 days, and older site names are deleted.',
+      'Sources and credits names CPAB\'s own rules as such and says they are written by hand.',
+      'In Persian, the English list credits in Sources and credits read left to right, so brackets stay with their URL.',
+      'About in Settings links to the source code on GitHub.',
+      'About in Settings lists the browsers: Chrome is tested, other Chromium-based browsers should work but are not tested, and Firefox is coming soon.',
+    ],
+    fa: [
+      'بخش «آمار» حالا چهار شمارش دارد: امروز، دیروز، ۷ روز گذشته و ۳۰ روز گذشته. جمع‌های روزانه حالا ۳۰ روز نگه داشته می‌شوند. «۵ سایت اول» همچنان ۱۴ روز گذشته را در بر می‌گیرد و نام سایت‌های قدیمی‌تر پاک می‌شود.',
+      'بخش «منبع‌ها و سازندگان» قانون‌های خود تبلیغ‌شکن را با همین نام نشان می‌دهد و می‌گوید دستی نوشته شده‌اند.',
+      'در نسخهٔ فارسی، اعتبارنامهٔ انگلیسی فهرست‌ها در «منبع‌ها و سازندگان» از چپ به راست نمایش داده می‌شود، پس پرانتزها کنار نشانی خودشان می‌مانند.',
+      'بخش «درباره» در تنظیمات به کد منبع در GitHub پیوند دارد.',
+      'بخش «درباره» مرورگرها را نام می‌برد: کروم آزمایش شده، مرورگرهای دیگر مبتنی بر کرومیوم باید کار کنند اما آزمایش نشده‌اند و فایرفاکس به‌زودی می‌آید.',
+    ],
+  },
+  {
     version: '0.3.0',
     date: '2026-11-08',
     en: [

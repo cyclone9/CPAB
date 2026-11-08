@@ -5,7 +5,8 @@
 // they can be tested, apart from the three at the end.
 
 export const STATS_KEY = 'stats';
-export const STATS_DAYS = 14;
+export const STATS_DAYS = 30;
+export const STATS_SITE_DAYS = 14;
 export const STATS_SITES_PER_DAY = 100;
 export const TOP_SITES = 5;
 
@@ -53,15 +54,16 @@ const largest = (sites, limit) => Object.entries(sites)
   .sort(([siteA, a], [siteB, b]) => b - a || (siteA < siteB ? -1 : 1))
   .slice(0, limit);
 
-// Keeps the 14 newest days that are still inside the last 14 days, and the 100 largest sites of each,
-// or no sites at all while Top 5 is off.
+// Keeps the days inside the last 30, and the 100 largest sites of each day inside the last 14 (D16
+// allows site names for 14 days only), or no sites at all while Top 5 is off.
 export function pruneStats(stats, today, keepSites) {
   const oldest = dayBefore(today, STATS_DAYS - 1);
+  const oldestSites = dayBefore(today, STATS_SITE_DAYS - 1);
   const keys = Object.keys(stats.days).filter((key) => key >= oldest).sort().reverse().slice(0, STATS_DAYS);
   const days = {};
   for (const key of keys.sort()) {
     const { blocked, sites } = stats.days[key];
-    days[key] = keepSites && sites ? { blocked, sites: Object.fromEntries(largest(sites, STATS_SITES_PER_DAY)) } : { blocked };
+    days[key] = keepSites && sites && key >= oldestSites ? { blocked, sites: Object.fromEntries(largest(sites, STATS_SITES_PER_DAY)) } : { blocked };
   }
   return { days };
 }
@@ -70,21 +72,24 @@ const blockedOn = (stats, key) => stats.days[key]?.blocked ?? 0;
 const sumDays = (stats, today, from, count) => Array.from({ length: count }, (_, index) => blockedOn(stats, dayBefore(today, from + index)))
   .reduce((total, blocked) => total + blocked, 0);
 
-// "This week" is the last 7 days with today, and "last week" the 7 days before those, not calendar
-// weeks: weeks start on different days in Iran and elsewhere, and 14 stored days cover exactly these.
+// The last 7 and the last 30 days both include today. They are rolling days, not calendar weeks or
+// months, which start on different days in Iran and elsewhere.
 export function statsTotals(stats, today) {
   return {
     today: blockedOn(stats, dayKey(today)),
     yesterday: blockedOn(stats, dayBefore(today, 1)),
-    thisWeek: sumDays(stats, today, 0, 7),
-    lastWeek: sumDays(stats, today, 7, 7),
+    last7Days: sumDays(stats, today, 0, 7),
+    last30Days: sumDays(stats, today, 0, STATS_DAYS),
   };
 }
 
-// The sites with the most blocked over every stored day, largest first, as [site, count].
-export function topSites(stats, limit = TOP_SITES) {
+// The sites with the most blocked over the last 14 days, largest first, as [site, count]. Days are
+// pruned only on a write, so an older day can still hold sites here.
+export function topSites(stats, today, limit = TOP_SITES) {
+  const oldest = dayBefore(today, STATS_SITE_DAYS - 1);
   const total = {};
-  for (const { sites } of Object.values(stats.days)) {
+  for (const [key, { sites }] of Object.entries(stats.days)) {
+    if (key < oldest) continue;
     for (const [site, count] of Object.entries(sites ?? {})) total[site] = (total[site] ?? 0) + count;
   }
   return largest(total, limit);

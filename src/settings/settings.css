@@ -260,6 +260,7 @@ label.row-list.is-later:hover { background: transparent; }
 .credits li { display: grid; gap: 0.0625rem; padding-block: 0.75rem; padding-inline: 1.125rem; }
 .credits li + li { border-block-start: 1px solid var(--line); }
 .credits p { overflow-wrap: anywhere; }
+[dir="rtl"] .credits p[dir="ltr"] { text-align: right; }
 .credit-title { font-weight: 500; }
 .credit-links { display: flex; flex-wrap: wrap; gap: 0.125rem 1rem; margin-block-start: 0.25rem; }
 .credits-repo { display: grid; gap: 0.0625rem; padding-block: 0.75rem; padding-inline: 1.125rem; border-block-end: 1px solid var(--line); }

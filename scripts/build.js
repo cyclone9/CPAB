@@ -50,6 +50,7 @@ function convertInto(rulesDir, list, css, cancelledPopups) {
     ruleset: list.ruleset,
     available: true,
     listed: list.listed !== false,
+    own: list.ownFormat === true,
     descriptionKey: list.descriptionKey ?? null,
     title: meta.title,
     attribution: meta.attribution,

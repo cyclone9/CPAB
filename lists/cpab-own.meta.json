@@ -1,9 +1,9 @@
 {
   "name": "cpab-own",
   "group": "ads",
-  "title": "CPAB",
+  "title": "CPAB's own rules",
   "homepage": "https://cyclone9.dev/cpab",
-  "attribution": "CPAB",
+  "attribution": "CPAB, written by hand",
   "licence": {
     "name": "GPL-3.0-or-later",
     "spdx": "GPL-3.0-or-later",
@@ -11,6 +11,6 @@
     "source": "CPAB's own rules, under the same licence as its code."
   },
   "snapshot": {
-    "date": "2026-11-06"
+    "date": "2026-11-07"
   }
 }

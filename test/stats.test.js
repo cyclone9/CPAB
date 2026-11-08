@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   STATS_DAYS,
+  STATS_SITE_DAYS,
   STATS_SITES_PER_DAY,
   dayBefore,
   dayKey,
@@ -48,24 +49,41 @@ test('damaged stored data is read field by field', () => {
   } }), { days: { '2026-11-08': { blocked: 0, sites: { 'a.com': 2 } } } });
 });
 
-test('pruning keeps the last 14 days and the 100 largest sites of a day', () => {
+test('pruning keeps the last 30 days and the 100 largest sites of a day', () => {
+  assert.equal(STATS_DAYS, 30);
   const days = {};
-  for (let back = 0; back < 20; back += 1) days[dayBefore(today, back)] = { blocked: back + 1 };
+  for (let back = 0; back < 40; back += 1) days[dayBefore(today, back)] = { blocked: back + 1 };
   const sites = Object.fromEntries(Array.from({ length: 150 }, (_, index) => [`s${String(index).padStart(3, '0')}.com`, index + 1]));
   days['2026-11-08'] = { blocked: 1, sites };
   const pruned = pruneStats({ days }, today, true);
   const keys = Object.keys(pruned.days);
   assert.equal(keys.length, STATS_DAYS);
-  assert.equal(keys[0], dayBefore(today, 13));
+  assert.equal(keys[0], dayBefore(today, 29));
+  assert.equal(keys[0], '2026-10-10');
   assert.equal(keys.at(-1), '2026-11-08');
+  assert.equal(pruned.days['2026-10-10'].blocked, 30);
   const kept = Object.keys(pruned.days['2026-11-08'].sites);
   assert.equal(kept.length, STATS_SITES_PER_DAY);
   assert.ok(kept.includes('s149.com') && !kept.includes('s049.com'), 'the largest stay');
 });
 
-test('a day left over from weeks ago is dropped, even with fewer than 14 days stored', () => {
-  const pruned = pruneStats({ days: { '2026-10-01': { blocked: 9 }, '2026-11-08': { blocked: 1 } } }, today, true);
-  assert.deepEqual(pruned, { days: { '2026-11-08': { blocked: 1 } } });
+test('a day left over from over a month ago is dropped, even with fewer than 30 days stored', () => {
+  const pruned = pruneStats({ days: { '2026-10-09': { blocked: 9 }, '2026-10-10': { blocked: 4 }, '2026-11-08': { blocked: 1 } } }, today, true);
+  assert.deepEqual(pruned, { days: { '2026-10-10': { blocked: 4 }, '2026-11-08': { blocked: 1 } } });
+});
+
+test('site names are dropped from days older than 14, and the totals of those days stay', () => {
+  assert.equal(STATS_SITE_DAYS, 14);
+  const days = {};
+  for (let back = 0; back < 30; back += 1) days[dayBefore(today, back)] = { blocked: 10, sites: { 'a.com': 3 } };
+  const pruned = pruneStats({ days }, today, true);
+  assert.equal(Object.keys(pruned.days).length, 30);
+  const withSites = Object.keys(pruned.days).filter((key) => 'sites' in pruned.days[key]);
+  assert.equal(withSites.length, 14);
+  assert.equal(withSites[0], dayBefore(today, 13));
+  assert.equal(withSites[0], '2026-10-26');
+  assert.deepEqual(pruned.days['2026-10-25'], { blocked: 10 }, 'day 15 keeps its total and loses its sites');
+  assert.deepEqual(pruned.days['2026-10-26'], { blocked: 10, sites: { 'a.com': 3 } });
 });
 
 test('with Top 5 off no day keeps its sites', () => {
@@ -73,22 +91,26 @@ test('with Top 5 off no day keeps its sites', () => {
   assert.deepEqual(pruneStats(stored, today, false), { days: { '2026-11-07': { blocked: 6 }, '2026-11-08': { blocked: 2 } } });
 });
 
-test('totals: today, yesterday, the last 7 days and the 7 before', () => {
+test('totals: today, yesterday, the last 7 days and the last 30, both with today', () => {
   const days = {};
-  for (let back = 0; back < 14; back += 1) days[dayBefore(today, back)] = { blocked: 10 ** Math.floor(back / 7) * (back + 1) };
-  // Days 0 to 6 hold 1..7, days 7 to 13 hold 80..140.
-  assert.deepEqual(statsTotals({ days }, today), { today: 1, yesterday: 2, thisWeek: 28, lastWeek: 770 });
-  assert.deepEqual(statsTotals({ days: {} }, today), { today: 0, yesterday: 0, thisWeek: 0, lastWeek: 0 });
+  for (let back = 0; back < 31; back += 1) days[dayBefore(today, back)] = { blocked: back + 1 };
+  // Day n back holds n + 1, so the last 7 add 1..7 and the last 30 add 1..30. Day 30 back is outside.
+  assert.deepEqual(statsTotals({ days }, today), { today: 1, yesterday: 2, last7Days: 28, last30Days: 465 });
+  assert.deepEqual(statsTotals({ days: {} }, today), { today: 0, yesterday: 0, last7Days: 0, last30Days: 0 });
+  assert.equal(statsTotals({ days: { '2026-10-10': { blocked: 5 }, '2026-10-09': { blocked: 7 } } }, today).last30Days, 5);
 });
 
-test('Top 5 adds every stored day, largest first, ties by name', () => {
+test('Top 5 adds the days of the last 14, largest first, ties by name', () => {
   const stats = { days: {
     '2026-11-07': { blocked: 30, sites: { 'a.com': 10, 'b.com': 4, 'c.com': 4, 'd.com': 1 } },
     '2026-11-08': { blocked: 20, sites: { 'b.com': 7, 'e.com': 3, 'f.com': 2 } },
     '2026-11-06': { blocked: 5 },
   } };
-  assert.deepEqual(topSites(stats), [['b.com', 11], ['a.com', 10], ['c.com', 4], ['e.com', 3], ['f.com', 2]]);
-  assert.deepEqual(topSites({ days: {} }), []);
+  assert.deepEqual(topSites(stats, today), [['b.com', 11], ['a.com', 10], ['c.com', 4], ['e.com', 3], ['f.com', 2]]);
+  assert.deepEqual(topSites({ days: {} }, today), []);
+  const older = { days: { ...stats.days, '2026-10-25': { blocked: 99, sites: { 'old.com': 99 } }, '2026-10-26': { blocked: 1, sites: { 'edge.com': 1 } } } };
+  assert.deepEqual(topSites(older, today, 10).map(([site]) => site), ['b.com', 'a.com', 'c.com', 'e.com', 'f.com', 'd.com', 'edge.com'],
+    'a day older than 14 that still holds sites is left out');
 });
 
 // The worker module, against a fake chrome that keeps storage.local in memory.

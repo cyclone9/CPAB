@@ -251,11 +251,19 @@ function creditLink(href, text) {
   return link;
 }
 
-function creditText(text, className) {
+// List titles and attributions come from the lists in English, so in Persian the whole line is left to
+// right, not only an isolate inside it: a closing bracket at the end must stay with the URL before it.
+// CPAB's own entry is interface text in the page's language, so it passes no direction and follows the page.
+function creditText(text, className, dir = 'ltr') {
   const line = document.createElement('p');
   line.className = className;
+  if (!dir) {
+    line.textContent = text;
+    return line;
+  }
+  line.dir = dir;
   const content = document.createElement('bdi');
-  content.dir = 'ltr';
+  content.dir = dir;
   content.textContent = text;
   line.append(content);
   return line;
@@ -275,9 +283,17 @@ function renderCredits() {
 
     const facts = document.createElement('p');
     facts.className = 'small muted';
-    facts.textContent = `${format(language, 'metaSnapshot', { date: formatDate(language, list.snapshotDate) })} · ${t(language, 'creditsConverted')}`;
+    const date = formatDate(language, list.snapshotDate);
+    facts.textContent = list.own
+      ? format(language, 'creditsOwnUpdated', { date })
+      : `${format(language, 'metaSnapshot', { date })} · ${t(language, 'creditsConverted')}`;
 
-    item.append(creditText(list.title, 'credit-title'), creditText(list.attribution, 'small muted'), links, facts);
+    item.append(
+      list.own ? creditText(t(language, 'creditsOwnTitle'), 'credit-title', null) : creditText(list.title, 'credit-title'),
+      list.own ? creditText(t(language, 'creditsOwnBy'), 'small muted', null) : creditText(list.attribution, 'small muted'),
+      links,
+      facts,
+    );
     return item;
   }));
   byId('credits-empty').hidden = shown.length > 0;
@@ -323,15 +339,16 @@ function renderChangelog() {
   }));
 }
 
-const STATS_COUNTS = [['stats-today', 'today'], ['stats-yesterday', 'yesterday'], ['stats-this-week', 'thisWeek'], ['stats-last-week', 'lastWeek']];
+const STATS_COUNTS = [['stats-today', 'today'], ['stats-yesterday', 'yesterday'], ['stats-last-7-days', 'last7Days'], ['stats-last-30-days', 'last30Days']];
 
 function renderStats() {
   byId('stats-daily').checked = settings.statsDaily;
   byId('stats-daily-note').hidden = settings.statsDaily;
   byId('stats-top').checked = settings.statsTopSites;
-  const totals = statsTotals(stats, new Date());
+  const now = new Date();
+  const totals = statsTotals(stats, now);
   for (const [id, key] of STATS_COUNTS) byId(id).textContent = formatNumber(language, totals[key]);
-  const sites = settings.statsTopSites ? topSites(stats) : [];
+  const sites = settings.statsTopSites ? topSites(stats, now) : [];
   byId('stats-top-list').replaceChildren(...sites.map(([site, count]) => {
     const item = document.createElement('li');
     item.append(
