@@ -1,0 +1,36 @@
+{
+ "chromeArgs": [
+  "--host-resolver-rules=MAP * 127.0.0.1:8733",
+  "--disable-site-isolation-trials"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "open": "http://www.varzesh3.ir/varzesh3.html",
+   "settle": 500
+  },
+  {
+   "expectBlocked": "v3-banner-probe"
+  },
+  {
+   "eval": "['ad-box','ad-link','news'].map(id=>getComputedStyle(document.getElementById(id)).display)",
+   "label": "varzesh3.ir boxes",
+   "equals": [
+    "none",
+    "none",
+    "inline"
+   ]
+  },
+  {
+   "open": "http://www.varzesh3.com/varzesh3.html",
+   "settle": 500
+  },
+  {
+   "eval": "getComputedStyle(document.getElementById('ad-link')).display",
+   "label": "own link rule stays on .ir",
+   "equals": "inline"
+  }
+ ]
+}

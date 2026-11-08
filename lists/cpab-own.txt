@@ -31,3 +31,11 @@ soft98.ir##.abddm:not(.abdd_ibd > .abddm):cpab-offscreen
 soft98.ir##.abdd:not(.cbd1211 > .abdd, .abddm > .abdd, #sbd > .cbdd > .abdd):cpab-offscreen
 soft98.ir###sbd > hr:has(+ #sbds)
 soft98.ir###sbd > hr:has(+ .cbdd > .abdd)
+!
+! 2026-11-08, owner report, varzesh3.ir: the site moved from varzesh3.com, and the list rules for it
+! still name only the old domain. Its banners now load from biz-cdn.varzesh3.ir/banners/, ad links go
+! through biz.varzesh3.ir/events/click/, and each ad sits in a box marked data-ad. Checked on the
+! site's home page the same day.
+||biz-cdn.varzesh3.ir/banners^
+varzesh3.ir##[data-ad]
+varzesh3.ir##a[href^="https://biz.varzesh3.ir/events/click/"]
