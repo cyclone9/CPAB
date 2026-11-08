@@ -97,6 +97,17 @@ test('version.json is the same bytes for the same inputs, and passes its own che
   }
 });
 
+test('version.json names the newest CPAB version for the new-version notice, and nothing else about it', () => {
+  const fix = fixture();
+  try {
+    const { text } = buildVersion({ ...options(fix), extension: '0.3.4' });
+    assert.deepEqual(checkVersion(text).problems, []);
+    assert.deepEqual(JSON.parse(text).extension, { version: '0.3.4' });
+  } finally {
+    rmSync(fix.dir, { recursive: true, force: true });
+  }
+});
+
 test('Harmful sites data carries domains only, never the redirect rule', () => {
   const rules = JSON.parse(convertAll().harmful);
   assert.ok(rules.some((rule) => rule.action.type === 'redirect'));

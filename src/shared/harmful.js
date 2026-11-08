@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Harmful and Adult sites: where their rules send a page, how the warning and blocked pages read it back,
 // and the Continue once rule. Free of chrome.* calls so it can be tested.
-import { CONTINUE_PRIORITY } from './blocking.js';
+import { ADULT_PRIORITY, CONTINUE_PRIORITY, HARMFUL_PRIORITY, HOST_OF_ADDRESS } from './blocking.js';
 
 export const WARNING_PAGE = 'warning/warning.html';
 export const BLOCKED_PAGE = 'blocked/blocked.html';
@@ -30,6 +30,44 @@ export function adultRedirect(extensionId, listId) {
   if (!/^[a-p]{32}$/.test(extensionId)) throw new Error(`"${extensionId}" is not an extension ID`);
   if (!LIST_ID.test(listId)) throw new Error(`"${listId}" is not a ruleset ID`);
   return { regexSubstitution: `chrome-extension://${extensionId}/${BLOCKED_PAGE}?list=${listId}&h=\\1` };
+}
+
+export const WARN_RULE_ID = 1;
+export const BLOCK_RULE_ID = 2;
+
+// Matches every web address. requestDomains does the choosing; the regex is only there so the
+// redirect can hand the whole address to the warning page.
+export const ANY_WEB_ADDRESS = '^https?://.*';
+
+// A harmful-sites or adult-sites list as rules, from its plain domains: one rule that sends whole hosts
+// to the warning or blocked page before they open, and, for harmful sites, one that blocks what other
+// pages load from listed hosts. scripts/convert-harmful.js builds the shipped rules with it, and the
+// extension builds an updated list's rules with it, so where a page goes is always this code's choice.
+export function hostRules({ listId, extensionId, adult = false, warn, block, excluded }) {
+  const exceptions = new Set(excluded);
+  // Chrome lets excludedRequestDomains win over requestDomains, subdomains included, as an exception does.
+  const condition = (domains, rest) => ({
+    requestDomains: [...domains].filter((domain) => !exceptions.has(domain)).sort(),
+    ...(exceptions.size ? { excludedRequestDomains: [...exceptions].sort() } : {}),
+    ...rest,
+  });
+  const rules = [];
+  const warnCondition = condition(warn, { regexFilter: adult ? HOST_OF_ADDRESS : ANY_WEB_ADDRESS, resourceTypes: ['main_frame'] });
+  if (warnCondition.requestDomains.length) {
+    rules.push({
+      id: WARN_RULE_ID,
+      priority: adult ? ADULT_PRIORITY : HARMFUL_PRIORITY,
+      action: { type: 'redirect', redirect: adult ? adultRedirect(extensionId, listId) : warningRedirect(extensionId, listId) },
+      condition: warnCondition,
+    });
+  }
+  // Adult sites stop whole pages only: a block on what other pages load would show in their counts
+  // and let a page find out the switch is on.
+  const blockCondition = condition(adult ? [] : block, { excludedResourceTypes: ['main_frame'] });
+  if (blockCondition.requestDomains.length) {
+    rules.push({ id: BLOCK_RULE_ID, priority: HARMFUL_PRIORITY, action: { type: 'block' }, condition: blockCondition });
+  }
+  return rules;
 }
 
 // Where a person's own blocked site goes: the same page and the same host-only address as Adult sites.

@@ -28,6 +28,11 @@ const SHA256 = /^[0-9a-f]{64}$/;
 const SOURCE = /^(?:[0-9a-f]{40}|local)$/;
 const GENERATED = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const VERSION = /^\d+\.\d+\.\d+$/;
+
+// Rule ids as scripts/convert.js numbers them: block rules from 1, allow rules from 1,000,001. The
+// extension moves each list into an id range of its own (shared/blocking.js), which these bounds keep apart.
+export const RULE_IDS = Object.freeze({ blockMax: 49999, allowMin: 1000001, allowMax: 1049999 });
 
 // The rule shapes scripts/convert.js writes, and nothing else. Block and allow rules stay off main_frame,
 // so served data can never stop a page from opening, and their priorities stay below the Harmful sites
@@ -112,6 +117,11 @@ function checkRule(rule, index, ids, problems) {
   if (!isObject(rule.action) || Object.keys(rule.action).length !== 1 || !ACTIONS.has(type)) {
     problems.push(`${where}: action ${JSON.stringify(type ?? rule.action)} is not allowed`);
     return;
+  }
+  if (Number.isInteger(rule.id) && (type === 'block'
+    ? rule.id > RULE_IDS.blockMax
+    : rule.id < RULE_IDS.allowMin || rule.id > RULE_IDS.allowMax)) {
+    problems.push(`${where}: id ${rule.id} is outside the ${type === 'block' ? 'block' : 'allow'} range`);
   }
   if (rule.priority !== ACTIONS.get(type)) problems.push(`${where}: priority ${rule.priority} is not allowed for ${type}`);
 
@@ -377,8 +387,13 @@ export function checkVersion(text) {
   const version = parseJson(text, problems);
   if (version === undefined) return { problems };
   if (!isObject(version) || version.schema !== SCHEMA) return { problems: [`schema is not ${SCHEMA}`] };
-  const extra = Object.keys(version).find((key) => !['schema', 'generated', 'source', 'lists'].includes(key));
+  const extra = Object.keys(version).find((key) => !['schema', 'generated', 'source', 'lists', 'extension'].includes(key));
   if (extra) problems.push(`key ${extra} is not allowed`);
+  // The newest version of CPAB, for the new-version notice. A version number only: no link, no text.
+  if ('extension' in version && !(isObject(version.extension) && Object.keys(version.extension).join() === 'version'
+    && VERSION.test(version.extension.version ?? '') && version.extension.version.length <= 32)) {
+    problems.push('invalid extension');
+  }
   if (!GENERATED.test(version.generated ?? '') || Number.isNaN(Date.parse(version.generated))) problems.push('invalid generated time');
   if (!SOURCE.test(version.source ?? '')) problems.push('invalid source');
   if (!isObject(version.lists)) {

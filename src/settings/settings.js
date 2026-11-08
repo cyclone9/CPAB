@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-import { format, formatDate, formatNumber, t } from '../i18n/i18n.js';
+import { format, formatDate, formatDateTime, formatNumber, t } from '../i18n/i18n.js';
 import { EXCEPTIONS_FILE } from '../shared/blocking.js';
 import { recentChangelog } from '../shared/changelog.js';
 import { addSite, findOverlap, normalizeDomain } from '../shared/domains.js';
 import { applyPage, fillWithDomains, fillWithLatin } from '../shared/page.js';
 import { PAGE_SIZE, searchSites } from '../shared/site-search.js';
 import { STATS_KEY, loadStats, onStatsChange, statsTotals, topSites } from '../shared/stats.js';
+import { RELEASE_URL, UPDATE_BASE } from '../shared/update-source.js';
+import { UPDATE_KEY, isHostList, newerVersion } from '../shared/updates.js';
 import {
   GROUP_IDS,
   loadRulesetProblems,
@@ -85,6 +87,9 @@ let problems = await loadRulesetProblems().catch(() => ({}));
 const lists = await fetch('../rules/summary.json').then((response) => response.json()).then((summary) => summary.lists).catch(() => null);
 const exceptions = await fetch(`../${EXCEPTIONS_FILE}`).then((response) => response.json()).then(({ domains }) => domains).catch(() => []);
 let stats = await loadStats().catch(() => ({ days: {} }));
+let update = await chrome.storage.local.get(UPDATE_KEY).then((stored) => stored[UPDATE_KEY] ?? null, () => null);
+// What Check now last answered: 'checking', 'wait', 'unavailable' or null.
+let checkAnswer = null;
 let statsCleared = null;
 let language = 'en';
 
@@ -145,10 +150,14 @@ function fillMeta(element, parts) {
   element.replaceChildren(...parts.map((text) => Object.assign(document.createElement('span'), { textContent: text })));
 }
 
+// An updated list shows its update's date. Its count changes only for Harmful and Adult sites, whose
+// served count is the same measure as the build's: hosts.
 function listFacts(list) {
   if (!list.available) return [t(language, 'groupUnavailable')];
-  return [format(language, 'metaRules', { count: formatNumber(language, list.converted) }),
-    format(language, 'metaSnapshot', { date: formatDate(language, list.snapshotDate) })];
+  const live = update?.lists?.[list.ruleset];
+  const count = live && isHostList(list.ruleset) ? live.files.domains?.count ?? list.converted : list.converted;
+  return [format(language, 'metaRules', { count: formatNumber(language, count) }),
+    format(language, 'metaSnapshot', { date: formatDate(language, live?.snapshot.date ?? list.snapshotDate) })];
 }
 
 // The group's own line, once it has several lists. It counts what really runs, so a group that is on
@@ -365,6 +374,32 @@ function renderStats() {
   status.className = statsCleared === false ? 'error' : 'small muted';
 }
 
+const UPDATE_STATUS = { ok: 'updatesStatusOk', offline: 'updatesStatusOffline', refused: 'updatesStatusRefused' };
+const CHECK_ANSWER = { checking: 'updatesChecking', wait: 'updatesCheckWait', unavailable: 'updatesCheckUnavailable' };
+
+function renderUpdates() {
+  byId('updates-daily').checked = settings.updates;
+  fillWithDomains(byId('updates-desc'), t(language, 'updatesDailyDesc'), { host: new URL(UPDATE_BASE).host });
+  byId('updates-off-note').hidden = settings.updates;
+  const updated = Object.keys(update?.lists ?? {}).length > 0 && update.generated;
+  byId('updates-lists-from').textContent = updated ? formatDate(language, update.generated.slice(0, 10)) : t(language, 'updatesListsBundled');
+  byId('updates-checked').textContent = update?.checkedAt ? formatDateTime(language, update.checkedAt) : t(language, 'updatesNever');
+  byId('updates-status').textContent = t(language, settings.updates ? UPDATE_STATUS[update?.status] ?? 'updatesStatusPending' : 'updatesStatusOff');
+  byId('updates-check').disabled = !settings.updates || checkAnswer === 'checking';
+  byId('updates-check-status').textContent = checkAnswer && settings.updates ? t(language, CHECK_ANSWER[checkAnswer]) : '';
+}
+
+// The new-version notice (F21): a version number from the signed data, and a link that is CPAB's own.
+function renderNewVersion() {
+  const version = settings.updates ? newerVersion(update, chrome.runtime.getManifest().version) : null;
+  byId('new-version').hidden = !version;
+  if (!version) return;
+  fillWithDomains(byId('new-version-line'), t(language, 'aboutNewVersionLine'), { version });
+  byId('new-version-step1').textContent = t(language, 'aboutNewVersionStep1');
+  fillWithDomains(byId('new-version-step2'), t(language, 'aboutNewVersionStep2'), { page: 'chrome://extensions' });
+  byId('new-version-link').href = RELEASE_URL;
+}
+
 function render() {
   language = applyPage(settings);
   nav.setAttribute('aria-label', t(language, nav.dataset.labelKey));
@@ -385,6 +420,8 @@ function render() {
   renderExceptions();
   renderChangelog();
   renderStats();
+  renderUpdates();
+  renderNewVersion();
   byId('name-fa').hidden = language !== 'fa';
   for (const sites of SITE_LISTS) {
     renderSiteList(sites);
@@ -407,6 +444,17 @@ byId('recommended-exceptions').addEventListener('change', (event) => save({ reco
 byId('dataleak').addEventListener('change', (event) => save({ dataLeak: event.target.checked }));
 byId('stats-daily').addEventListener('change', (event) => save({ statsDaily: event.target.checked }));
 byId('stats-top').addEventListener('change', (event) => save({ statsTopSites: event.target.checked }));
+byId('updates-daily').addEventListener('change', (event) => save({ updates: event.target.checked }));
+
+// The worker checks and answers. A page in an incognito window talks to the incognito worker, which
+// leaves updates to the regular one and doesn't answer.
+byId('updates-check').addEventListener('click', async () => {
+  checkAnswer = 'checking';
+  renderUpdates();
+  const answer = await chrome.runtime.sendMessage({ type: 'updateCheck' }).catch(() => null);
+  checkAnswer = !answer ? 'unavailable' : answer.status === 'wait' ? 'wait' : null;
+  renderUpdates();
+});
 
 // The worker clears, so counts it still holds can't come back. A page in an incognito window talks to
 // the incognito worker, which keeps no statistics and doesn't answer: then the page clears them itself.
@@ -511,6 +559,14 @@ onSettingsChange((next) => {
 onStatsChange((next) => {
   stats = next;
   renderStats();
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local' || !changes[UPDATE_KEY]) return;
+  update = changes[UPDATE_KEY].newValue ?? null;
+  renderListRows();
+  renderUpdates();
+  renderNewVersion();
 });
 
 onRulesetProblemsChange((next) => {

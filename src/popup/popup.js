@@ -6,6 +6,7 @@ import { fillWithDomains, applyPage } from '../shared/page.js';
 import { addSite, findSiteEntry, siteFromUrl } from '../shared/domains.js';
 import { BLOCKED_PAGE, OWN_BLOCKED_LIST, readBlocked as readBlockedPage } from '../shared/harmful.js';
 import { loadSettings, normalizeSettings, onSettingsChange, updateSettings } from '../shared/settings.js';
+import { UPDATE_KEY, newerVersion } from '../shared/updates.js';
 
 const byId = (id) => document.getElementById(id);
 
@@ -51,6 +52,15 @@ async function readNotice() {
 
 const notice = await readNotice();
 
+// The new-version notice (F21), from the last daily check. It follows the updates switch.
+const update = await chrome.storage.local.get(UPDATE_KEY).then((stored) => stored[UPDATE_KEY] ?? null, () => null);
+
+function renderNewVersion(language) {
+  const version = settings.updates ? newerVersion(update, chrome.runtime.getManifest().version) : null;
+  byId('new-version').hidden = !version;
+  if (version) fillWithDomains(byId('new-version-link'), t(language, 'popupNewVersion'), { version });
+}
+
 function renderNotice(language) {
   const box = byId('dataleak');
   box.hidden = !settings.dataLeak || !notice;
@@ -82,6 +92,7 @@ function renderBlocked(language) {
 function render() {
   const language = applyPage(settings);
   byId('master').checked = settings.master;
+  renderNewVersion(language);
   byId('site').hidden = !site;
   byId('restricted').hidden = Boolean(site);
   if (!site) return;
@@ -135,6 +146,12 @@ byId('pause').addEventListener('click', () => save((current) => {
 
 byId('reload').addEventListener('click', async () => {
   await chrome.tabs.reload(tab.id);
+  window.close();
+});
+
+byId('new-version-link').addEventListener('click', async (event) => {
+  event.preventDefault();
+  await chrome.tabs.create({ url: chrome.runtime.getURL('settings/settings.html#about') });
   window.close();
 });
 

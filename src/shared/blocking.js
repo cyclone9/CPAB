@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // What the service worker asks of Chrome, kept free of chrome.* calls so it can be tested.
-import { GROUP_RULESETS, PROTECTION_GROUPS } from './settings.js';
+import { GROUP_RULESETS, PROTECTION_GROUPS, RULESET_IDS } from './settings.js';
 
 // chrome.action can't read CSS variables, so these repeat Ink and Citron from tokens.css.
 // test/blocking.test.js fails if the two ever differ.
@@ -47,6 +47,33 @@ const DYNAMIC_RULESET = '_dynamic';
 
 // Block rule ids stay below this and allow rule ids above it, in every static ruleset.
 export const ALLOW_RULE_ID_BASE = 1000000;
+
+// Dynamic rule ids: the person's own rules stay under 1,000 (today 1 to 5). A list updated from
+// cpab.cyclone9.dev runs as a dynamic copy in a range of its own, from its place in RULESET_IDS: block
+// rules at base + 1 and up, allow rules at base + 50,001 and up.
+export const OWN_RULE_ID_MAX = 999;
+const LIST_RANGE = 100000;
+const LIST_ALLOW_OFFSET = 50000;
+
+export const listRuleBase = (ruleset) => {
+  const index = RULESET_IDS.indexOf(ruleset);
+  if (index < 0) throw new Error(`${ruleset} is not a ruleset`);
+  return LIST_RANGE * (index + 1);
+};
+
+// A list's rule as Chrome holds it in its dynamic copy. Ids as scripts/convert.js writes them, which
+// the update schema keeps under 50,000 for block rules and from 1,000,001 to 1,049,999 for allow rules.
+export function dynamicRuleId(ruleset, id) {
+  const base = listRuleBase(ruleset);
+  return id > ALLOW_RULE_ID_BASE ? base + LIST_ALLOW_OFFSET + (id - ALLOW_RULE_ID_BASE) : base + id;
+}
+
+// The list a dynamic rule belongs to, and whether it is one of its allow rules. Null for the person's own.
+export function dynamicRuleList(id) {
+  const index = Math.floor(id / LIST_RANGE) - 1;
+  if (index < 0 || index >= RULESET_IDS.length) return null;
+  return { ruleset: RULESET_IDS[index], allow: id % LIST_RANGE > LIST_ALLOW_OFFSET };
+}
 
 // A ruleset runs only with its group and its own list both on. The master switch stops every group
 // except the protection groups, which only their own switches stop.
@@ -123,11 +150,19 @@ export const BLOCK_GROUPS = Object.freeze([
   Object.freeze({ label: 'groupYourSites', rulesets: Object.freeze([DYNAMIC_RULESET]) }),
 ]);
 
+// Which list a match came from, with an updated list's dynamic copy counted as that list.
+function matchedList({ rulesetId, ruleId }) {
+  if (rulesetId !== DYNAMIC_RULESET) return { ruleset: rulesetId, block: ruleId <= ALLOW_RULE_ID_BASE };
+  const list = dynamicRuleList(ruleId);
+  if (list) return { ruleset: list.ruleset, block: !list.allow };
+  return { ruleset: DYNAMIC_RULESET, block: ruleId === BLOCKED_RULE_ID };
+}
+
 // getMatchedRules also reports allow rules and the pause rule, which block nothing. Adult sites never
 // count anywhere (privacy.md).
-const isBlock = ({ rule }) => !GROUP_RULESETS.adult.includes(rule.rulesetId)
-  && (rule.rulesetId === DYNAMIC_RULESET ? rule.ruleId === BLOCKED_RULE_ID : rule.ruleId <= ALLOW_RULE_ID_BASE);
-const blockMatches = (matches) => matches.filter(isBlock);
+const blockMatches = (matches) => matches
+  .map(({ rule }) => matchedList(rule))
+  .filter(({ ruleset, block }) => block && !GROUP_RULESETS.adult.includes(ruleset));
 
 export function countBlocked(matches) {
   return blockMatches(matches).length;
@@ -137,6 +172,6 @@ export function countBlocked(matches) {
 export function splitBlocked(matches, groups = BLOCK_GROUPS) {
   const blocked = blockMatches(matches);
   return groups
-    .map(({ label, rulesets }) => ({ label, count: blocked.filter(({ rule }) => rulesets.includes(rule.rulesetId)).length }))
+    .map(({ label, rulesets }) => ({ label, count: blocked.filter(({ ruleset }) => rulesets.includes(ruleset)).length }))
     .filter(({ count }) => count > 0);
 }

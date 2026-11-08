@@ -17,7 +17,9 @@
    "label": "permissions",
    "equals": [
     "storage",
+    "unlimitedStorage",
     "activeTab",
+    "alarms",
     "declarativeNetRequest",
     "scripting",
     "webNavigation",

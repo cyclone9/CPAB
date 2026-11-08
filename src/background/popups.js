@@ -4,6 +4,7 @@
 import { EXCEPTIONS_FILE, allowedDomains } from '../shared/blocking.js';
 import { POPUP_INDEX, isAllowedTarget, isBlank, isPaused, isPopupAd, isWebPage, popupLists } from '../shared/popups.js';
 import { loadSettings } from '../shared/settings.js';
+import { UPDATE_KEY, fileKey, isFileKey } from '../shared/updates.js';
 
 const WATCH_PREFIX = 'popupWatch:';
 // A tab still blank after this is no popup in the making, and a person may be using it.
@@ -13,24 +14,46 @@ const watchKey = (tabId) => `${WATCH_PREFIX}${tabId}`;
 
 const packageJson = (path) => fetch(chrome.runtime.getURL(path)).then((response) => response.json());
 
-// Kept while this worker lives, so a burst of tabs parses the data once.
+// Kept while this worker lives, so a burst of tabs parses the data once. A list update empties it.
 const loaded = new Map();
-function cached(path) {
-  if (!loaded.has(path)) loaded.set(path, packageJson(path).catch((error) => {
-    loaded.delete(path);
+function cached(key, read) {
+  if (!loaded.has(key)) loaded.set(key, read().catch((error) => {
+    loaded.delete(key);
     throw error;
   }));
-  return loaded.get(path);
+  return loaded.get(key);
+}
+const cachedFile = (path) => cached(path, () => packageJson(path));
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && Object.keys(changes).some((key) => key === UPDATE_KEY || isFileKey(key))) loaded.clear();
+});
+
+// A list's popup data: from its update when there is one, which both workers see in storage.local,
+// else as it shipped.
+async function popupData(id, file) {
+  const key = fileKey(id, 'popup');
+  const { [key]: stored } = await chrome.storage.local.get(key);
+  return stored?.data ?? (file ? packageJson(file) : null);
+}
+
+// The build's lists with popup data, and any list an update gave popup data to.
+async function popupIndex() {
+  const index = await cachedFile(POPUP_INDEX);
+  const { [UPDATE_KEY]: record } = await chrome.storage.local.get(UPDATE_KEY);
+  const updated = Object.keys(record?.lists ?? {}).filter((id) => record.lists[id].files.popup && !index.lists.some((list) => list.id === id));
+  return { lists: [...index.lists, ...updated.map((id) => ({ id, file: null }))] };
 }
 
 async function isAd(url, pageUrl) {
   const settings = await loadSettings();
   if (isPaused(settings, pageUrl)) return false;
-  const exceptions = settings.recommendedExceptions ? (await cached(EXCEPTIONS_FILE)).domains : [];
+  const exceptions = settings.recommendedExceptions ? (await cachedFile(EXCEPTIONS_FILE)).domains : [];
   if (isAllowedTarget(allowedDomains(settings, exceptions), url)) return false;
-  const index = await cached(POPUP_INDEX);
+  const index = await cached('index', popupIndex);
   const on = popupLists(settings, index);
-  const lists = await Promise.all(index.lists.filter(({ id }) => on.includes(id)).map(({ file }) => cached(file)));
+  const lists = (await Promise.all(index.lists.filter(({ id }) => on.includes(id)).map(({ id, file }) => cached(id, () => popupData(id, file)))))
+    .filter(Boolean);
   return isPopupAd(lists, url, pageUrl);
 }
 

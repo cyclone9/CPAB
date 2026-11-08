@@ -37,6 +37,8 @@ export const DEFAULTS = Object.freeze({
   // Statistics (PRD D16): daily totals on, the Top 5 sites off until the person turns them on.
   statsDaily: true,
   statsTopSites: false,
+  // Daily list updates (F22, F23; PRD D8): on, and disclosed on the first-run page.
+  updates: true,
   language: 'auto',
   theme: 'dark',
   badge: true,
@@ -83,6 +85,7 @@ export function normalizeSettings(stored) {
     dataLeak: flag(value.dataLeak, DEFAULTS.dataLeak),
     statsDaily: flag(value.statsDaily, DEFAULTS.statsDaily),
     statsTopSites: flag(value.statsTopSites, DEFAULTS.statsTopSites),
+    updates: flag(value.updates, DEFAULTS.updates),
     language: LANGUAGES.includes(value.language) ? value.language : DEFAULTS.language,
     theme: THEMES.includes(value.theme) ? value.theme : DEFAULTS.theme,
     badge: flag(value.badge, DEFAULTS.badge),

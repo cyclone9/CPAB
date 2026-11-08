@@ -22,10 +22,11 @@
         <a href="#blocked-sites" data-t="sectionBlockedSites"></a>
         <a href="#allowed" data-t="sectionAllowed"></a>
         <a href="#statistics" data-t="sectionStats"></a>
+        <a href="#updates" data-t="sectionUpdates"></a>
         <a href="#appearance" data-t="sectionAppearance"></a>
         <a href="#about" data-t="sectionAbout"></a>
-        <a href="#sources" data-t="creditsHeading"></a>
         <a href="#changelog" data-t="sectionChangelog"></a>
+        <a href="#sources" data-t="creditsHeading"></a>
       </nav>
     </aside>
 
@@ -310,6 +311,40 @@
         </div>
       </section>
 
+      <section id="updates" class="section">
+        <h2 data-t="sectionUpdates"></h2>
+
+        <div class="panel">
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" id="updates-title" data-t="updatesDaily"></span>
+              <span class="row-desc" id="updates-desc"></span>
+            </span>
+            <input id="updates-daily" class="switch" type="checkbox" role="switch" aria-labelledby="updates-title" aria-describedby="updates-desc">
+          </label>
+          <p id="updates-off-note" class="row-note small" hidden data-t="updatesOffNote"></p>
+          <dl class="facts updates-facts">
+            <div>
+              <dt data-t="updatesListsFrom"></dt>
+              <dd id="updates-lists-from"></dd>
+            </div>
+            <div>
+              <dt data-t="updatesLastChecked"></dt>
+              <dd id="updates-checked"></dd>
+            </div>
+            <div>
+              <dt data-t="updatesStatus"></dt>
+              <dd id="updates-status"></dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="stats-clear">
+          <button id="updates-check" class="button" type="button" data-t="updatesCheckNow"></button>
+          <p id="updates-check-status" class="small muted" role="status"></p>
+        </div>
+      </section>
+
       <section id="appearance" class="section">
         <h2 data-t="sectionAppearance"></h2>
 
@@ -365,13 +400,26 @@
               <dt data-t="aboutVersion"></dt>
               <dd><bdi dir="ltr" id="version"></bdi></dd>
             </div>
+            <div id="new-version" hidden>
+              <dt data-t="aboutNewVersion"></dt>
+              <dd>
+                <p id="new-version-line"></p>
+                <ol class="new-version-steps small">
+                  <li id="new-version-step1"></li>
+                  <li id="new-version-step2"></li>
+                </ol>
+                <p class="small"><a id="new-version-link" target="_blank" rel="noopener"><bdi dir="ltr">GitHub</bdi></a></p>
+              </dd>
+            </div>
             <div>
               <dt data-t="aboutLinks"></dt>
               <dd>
-                <p class="small"><a href="https://cyclone9.dev/cpab" target="_blank" rel="noopener"><bdi dir="ltr">https://cyclone9.dev/cpab</bdi></a></p>
-                <p class="small"><a href="https://cpab.cyclone9.dev/" target="_blank" rel="noopener"><bdi dir="ltr">https://cpab.cyclone9.dev/</bdi></a></p>
-                <p class="small"><a href="https://github.com/cyclone9/CPAB" target="_blank" rel="noopener"><bdi dir="ltr">https://github.com/cyclone9/CPAB</bdi></a></p>
-                <p class="small"><a href="https://github.com/cyclone9/CPAB-Lists" target="_blank" rel="noopener"><bdi dir="ltr">https://github.com/cyclone9/CPAB-Lists</bdi></a></p>
+                <p class="credit-links about-links">
+                  <a href="https://cpab.cyclone9.dev/" target="_blank" rel="noopener" data-t="creditsHomepage"></a>
+                  <a href="https://github.com/cyclone9/CPAB" target="_blank" rel="noopener"><bdi dir="ltr">GitHub</bdi></a>
+                  <a href="https://github.com/cyclone9/CPAB-Lists" target="_blank" rel="noopener" data-t="creditsRepo"></a>
+                  <a href="https://cyclone9.dev/cpab" target="_blank" rel="noopener"><bdi dir="ltr">CyClone</bdi></a>
+                </p>
               </dd>
             </div>
             <div>
@@ -400,29 +448,32 @@
 
       </section>
 
-      <section id="sources" class="section">
-        <h2 data-t="creditsHeading"></h2>
-        <p class="intro" data-t="creditsIntro"></p>
-
-        <div class="panel">
-          <div class="credits-repo">
-            <p class="credit-title"><a href="https://github.com/cyclone9/CPAB-Lists" target="_blank" rel="noopener" data-t="creditsRepo"></a></p>
-            <p class="small muted" data-t="creditsRepoNote"></p>
-            <p class="small"><bdi dir="ltr">https://github.com/cyclone9/CPAB-Lists</bdi></p>
-          </div>
-          <ul id="credits" class="credits"></ul>
-          <div id="credits-empty" class="empty" hidden>
-            <p class="small muted" data-t="creditsEmpty"></p>
-          </div>
-        </div>
-      </section>
-
       <section id="changelog" class="section">
         <h2 data-t="sectionChangelog"></h2>
         <p class="intro" data-t="changelogIntro"></p>
 
         <div class="panel">
           <ol id="changelog-list" class="changelog"></ol>
+        </div>
+      </section>
+
+      <section id="sources" class="section">
+        <h2 data-t="creditsHeading"></h2>
+        <p class="intro" data-t="creditsIntro"></p>
+
+        <div class="panel">
+          <div class="credits-repo">
+            <p class="credit-title" data-t="creditsRepo"></p>
+            <p class="small muted" data-t="creditsRepoNote"></p>
+            <p class="credit-links small">
+              <a href="https://github.com/cyclone9/CPAB-Lists" target="_blank" rel="noopener"><bdi dir="ltr">GitHub</bdi></a>
+              <a href="https://github.com/cyclone9/CPAB-Lists/blob/main/SOURCES.md" target="_blank" rel="noopener"><bdi dir="ltr">SOURCES.md</bdi></a>
+            </p>
+          </div>
+          <ul id="credits" class="credits"></ul>
+          <div id="credits-empty" class="empty" hidden>
+            <p class="small muted" data-t="creditsEmpty"></p>
+          </div>
         </div>
       </section>
     </main>

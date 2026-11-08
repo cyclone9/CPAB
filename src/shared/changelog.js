@@ -6,6 +6,36 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.3.4',
+    date: '2026-11-08',
+    en: [
+      'When a newer version of CPAB is out, the popup says so in one line, and About in Settings links to it with the two steps to install it. The version number comes with the daily list check, so turning Daily list updates off turns this off too.',
+      'Sources and credits is now the last section in Settings, after Changelog.',
+      'The links in About sit in one row.',
+    ],
+    fa: [
+      'وقتی نسخهٔ تازه‌تری از تبلیغ‌شکن بیاید، پنجرهٔ کوچک افزونه در یک خط آن را می‌گوید و بخش «درباره» در تنظیمات به آن پیوند می‌دهد، همراه با دو گام نصبش. شمارهٔ نسخه همراه بررسی روزانهٔ فهرست‌ها می‌آید، پس با خاموش کردن «به‌روزرسانی روزانهٔ فهرست‌ها» این هم خاموش می‌شود.',
+      'بخش «منبع‌ها و سازندگان» حالا آخرین بخش تنظیمات است، بعد از «تاریخچهٔ تغییرات».',
+      'پیوندهای بخش «درباره» حالا در یک ردیف کنار هم‌اند.',
+    ],
+  },
+  {
+    version: '0.3.3',
+    date: '2026-11-08',
+    en: [
+      'The lists now update once a day from cpab.cyclone9.dev. CPAB checks each download\'s signature and contents before using it, keeps the lists it came with when anything is wrong, and downloads only lists that changed. The request carries nothing about you or your browsing.',
+      'Settings has a new Updates section with the Daily list updates switch, when the lists are from, when they were last checked, and a Check now button. Off means CPAB makes no requests at all.',
+      'Hiding rules that apply on every site still change only with a new version of CPAB.',
+      'CPAB now needs Chrome 137 or newer.',
+    ],
+    fa: [
+      'فهرست‌ها حالا روزی یک بار از cpab.cyclone9.dev به‌روز می‌شوند. تبلیغ‌شکن پیش از به کار بردن هر دانلود، امضا و محتوایش را بررسی می‌کند، اگر چیزی درست نباشد همان فهرست‌هایی را نگه می‌دارد که با آن آمده‌اند و فقط فهرست‌هایی را دانلود می‌کند که تغییر کرده‌اند. این درخواست هیچ چیزی دربارهٔ شما یا مرورتان با خود نمی‌برد.',
+      'تنظیمات بخش تازهٔ «به‌روزرسانی» را دارد، با کلید «به‌روزرسانی روزانهٔ فهرست‌ها»، تاریخ فهرست‌ها، زمان آخرین بررسی و دکمهٔ «همین حالا بررسی کن». با خاموش بودن آن، تبلیغ‌شکن هیچ درخواستی نمی‌فرستد.',
+      'قانون‌های پنهان‌سازی که روی همهٔ سایت‌ها اعمال می‌شوند، همچنان فقط با نسخهٔ تازهٔ تبلیغ‌شکن تغییر می‌کنند.',
+      'تبلیغ‌شکن حالا به کروم ۱۳۷ یا بالاتر نیاز دارد.',
+    ],
+  },
+  {
     version: '0.3.2',
     date: '2026-11-08',
     en: [

@@ -8,7 +8,7 @@
 //   --baseline             summary.json of the build that ships; a list that lost over a fifth of its
 //                          rules, domains or CSS against it stops the run
 //   --unsigned             no key and no version.sig, for local tests only
-//   --test-key             sign with a key other than the one in src/shared/update-key.js, for local tests
+//   --test-key             sign with a key other than the one in src/shared/update-source.js, for local tests
 //                          only; refused on GitHub Actions
 //   --generated            the time written into version.json (default: now), as 2026-11-08T03:17:00Z
 // It reads only local files and makes no request.
@@ -21,7 +21,7 @@ import { canonicalJson, servedFiles, sha256 } from './data-files.js';
 import { ExportError, prepareSources, writeSources } from './export-lists.js';
 import { LISTS } from './lists.config.js';
 import { CSS_INDEX } from '../src/shared/css.js';
-import { UPDATE_PUBLIC_KEY } from '../src/shared/update-key.js';
+import { UPDATE_PUBLIC_KEY } from '../src/shared/update-source.js';
 import { SCHEMA, checkVersion } from '../src/shared/update-schema.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -105,7 +105,8 @@ function snapshotOf(meta, sourceSha256) {
 
 // version.json and the files it names, from a build's dist/ and the lists/ it was built from. The same
 // inputs always give the same bytes.
-export function buildVersion({ distDir, listsDir, generated, source, lists = LISTS }) {
+// `extension` is the newest version of CPAB, for the new-version notice: package.json where this runs.
+export function buildVersion({ distDir, listsDir, generated, source, extension, lists = LISTS }) {
   const rulesDir = join(distDir, 'rules');
   const summary = readJson(join(rulesDir, 'summary.json'));
   const cssIndex = readJson(join(distDir, CSS_INDEX));
@@ -137,7 +138,7 @@ export function buildVersion({ distDir, listsDir, generated, source, lists = LIS
       files: described,
     };
   }
-  const text = canonicalJson({ schema: SCHEMA, generated, source, lists: entries });
+  const text = canonicalJson({ schema: SCHEMA, generated, source, ...(extension ? { extension: { version: extension } } : {}), lists: entries });
   const { problems } = checkVersion(text);
   if (problems.length) fail(`version.json fails its check: ${problems.slice(0, 5).join('; ')}`);
   return { text, files, summary };
@@ -164,10 +165,11 @@ export function publish({ out, baseline, unsigned = false, testKey = false, gene
   if (!unsigned) {
     if (!keyText) fail(`${KEY_ENV} is not set; pass --unsigned for a local test`);
     key = loadSigningKey(keyText);
-    if (!testKey && publicKeyBase64(key) !== UPDATE_PUBLIC_KEY) fail('the signing key doesn\'t match UPDATE_PUBLIC_KEY in src/shared/update-key.js');
+    if (!testKey && publicKeyBase64(key) !== UPDATE_PUBLIC_KEY) fail('the signing key doesn\'t match UPDATE_PUBLIC_KEY in src/shared/update-source.js');
   }
 
-  const { text, files, summary } = buildVersion({ distDir, listsDir, generated, source });
+  const extension = readJson(join(root, 'package.json')).version;
+  const { text, files, summary } = buildVersion({ distDir, listsDir, generated, source, extension });
   if (baseline) {
     const problems = shrunk(summary, baseline);
     if (problems.length) fail(`a list shrank too far against the shipped build, so nothing is published:\n  ${problems.join('\n  ')}`);

@@ -5,12 +5,11 @@
 // that names part of a site is never widened to the host. An adult-sites list takes the same path in its
 // own form: one rule to the blocked page, carrying the host only, and nothing blocked for other pages.
 import { createHash } from 'node:crypto';
-import { ADULT_PRIORITY, HARMFUL_PRIORITY, HOST_OF_ADDRESS } from '../src/shared/blocking.js';
-import { adultRedirect, warningRedirect } from '../src/shared/harmful.js';
+import { HOST_OF_ADDRESS } from '../src/shared/blocking.js';
+import { ANY_WEB_ADDRESS, BLOCK_RULE_ID, WARN_RULE_ID, hostRules } from '../src/shared/harmful.js';
 import { PRIVATE_ADDRESS, hasBadfilter, isIgnorable, normalizeRuleDomain, optionNames, parseLine, ruleKey } from './convert.js';
 
-export const WARN_RULE_ID = 1;
-export const BLOCK_RULE_ID = 2;
+export { BLOCK_RULE_ID, WARN_RULE_ID };
 
 // Hosts that give out subdomains to anyone. A list naming one whole would warn on every site it holds,
 // so only entries below them are kept.
@@ -20,11 +19,7 @@ export const SHARED_HOSTING = Object.freeze([
   'amazonaws.com', 'cloudfront.net', 'googleapis.com', 'windows.net', 'dropboxusercontent.com',
 ]);
 
-// Matches every web address. requestDomains does the choosing; the regex is only there so the
-// redirect can hand the whole address to the warning page.
-export const ANY_WEB_ADDRESS = '^https?://.*';
-
-export { HOST_OF_ADDRESS };
+export { ANY_WEB_ADDRESS, HOST_OF_ADDRESS };
 
 // The extension ID Chrome derives from the manifest key: the first 128 bits of the key's SHA-256,
 // one letter a to p per hex digit.
@@ -103,27 +98,7 @@ export function convertHarmful(text, { listId, extensionId: id, plainRules, adul
     if (action.block && !adult) block.add(domain);
   }
 
-  // Chrome lets excludedRequestDomains win over requestDomains, subdomains included, as an exception does.
-  const withExceptions = (domains, condition) => ({
-    requestDomains: [...domains].filter((domain) => !excepted.has(domain)).sort(),
-    ...(excepted.size ? { excludedRequestDomains: [...excepted].sort() } : {}),
-    ...condition,
-  });
-
-  const rules = [];
-  const warnCondition = withExceptions(warn, { regexFilter: adult ? HOST_OF_ADDRESS : ANY_WEB_ADDRESS, resourceTypes: ['main_frame'] });
-  if (warnCondition.requestDomains.length) {
-    rules.push({
-      id: WARN_RULE_ID,
-      priority: adult ? ADULT_PRIORITY : HARMFUL_PRIORITY,
-      action: { type: 'redirect', redirect: adult ? adultRedirect(id, listId) : warningRedirect(id, listId) },
-      condition: warnCondition,
-    });
-  }
-  const blockCondition = withExceptions(block, { excludedResourceTypes: ['main_frame'] });
-  if (blockCondition.requestDomains.length) {
-    rules.push({ id: BLOCK_RULE_ID, priority: HARMFUL_PRIORITY, action: { type: 'block' }, condition: blockCondition });
-  }
+  const rules = hostRules({ listId, extensionId: id, adult, warn, block, excluded: excepted });
 
   const warned = rules.find(({ id: ruleId }) => ruleId === WARN_RULE_ID)?.condition.requestDomains.length ?? 0;
   const blocked = rules.find(({ id: ruleId }) => ruleId === BLOCK_RULE_ID)?.condition.requestDomains.length ?? 0;

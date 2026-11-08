@@ -17,7 +17,7 @@
    "label": "badge text"
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
    "settle": 1500
   },
   {
@@ -49,7 +49,7 @@
    "wait": 500
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
    "settle": 1500
   },
   {
@@ -69,7 +69,7 @@
    "wait": 500
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
    "settle": 1500
   },
   {
@@ -89,7 +89,7 @@
    "wait": 500
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
    "settle": 1500
   },
   {
@@ -113,7 +113,7 @@
    "label": "enabled, master off"
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
    "settle": 1500
   },
   {
@@ -137,7 +137,7 @@
    "label": "dynamic rules"
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
    "settle": 1500
   },
   {
@@ -160,7 +160,7 @@
    "wait": 500
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
    "settle": 1500
   },
   {
@@ -184,7 +184,7 @@
    "label": "dynamic rules, none paused"
   },
   {
-   "open": "http://adnxs.com/main-frame-ads",
+   "open": "http://adcolo.com/main-frame-ads",
    "settle": 1500
   },
   {
@@ -214,7 +214,7 @@
    "label": "main frame title"
   },
   {
-   "open": "http://tapsell.ir/main-frame-iran",
+   "open": "http://adpulse.ir/main-frame-iran",
    "settle": 1500
   },
   {
@@ -247,7 +247,7 @@
    "label": "enabled after the wake"
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Ftrackers-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Firan-probe.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&fetch=http%3A%2F%2Fmparticle.com%2Fexception-block&fetch=http%3A%2F%2Fidentity.mparticle.com%2Fexception-allow&image=http%3A%2F%2Fidentity.mparticle.com%2Fexception-wrong-type.gif",
    "settle": 1500
   },
   {
@@ -290,7 +290,7 @@
    "wait": 500
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif",
    "settle": 1500
   },
   {
@@ -324,7 +324,7 @@
    "label": "dynamic rules, site blocked"
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif",
    "settle": 1500
   },
   {
@@ -386,7 +386,7 @@
    "label": "dynamic rules, master off"
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif",
    "settle": 1500
   },
   {
@@ -416,7 +416,7 @@
    "wait": 500
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif",
    "settle": 1500
   },
   {
@@ -465,7 +465,7 @@
    "wait": 500
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif",
    "settle": 1500
   },
   {
@@ -531,7 +531,7 @@
    "stopWorker": true
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif",
    "settle": 1500
   },
   {
@@ -595,7 +595,7 @@
    "wait": 1000
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif",
    "settle": 1500
   },
   {
@@ -625,7 +625,7 @@
    "wait": 1000
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif",
    "settle": 1500
   },
   {
@@ -648,7 +648,7 @@
    "wait": 500
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadnxs.com%2Fads-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-image.gif&script=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-script.js&fetch=http%3A%2F%2Fsub.my-blocked.localhost%3A8733%2Fmine-fetch&frame=http%3A%2F%2Fmy-blocked.localhost%3A8733%2Fmine-frame&image=http%3A%2F%2Fnotmy-blocked.localhost%3A8733%2Flookalike.gif&image=http%3A%2F%2Funrelated.fixtures.localhost%3A8733%2Funrelated-probe.gif&image=http%3A%2F%2Fadcolo.com%2Fads-probe.gif",
    "settle": 1500
   },
   {
@@ -859,7 +859,7 @@
    "expectLoaded": "excl-probe"
   },
   {
-   "open": "http://optout.networkadvertising.org/probe.html?image=http%3A%2F%2Fadnxs.com%2Fdoc-ads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Fdoc-trackers-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fdoc-iran-probe.gif"
+   "open": "http://optout.networkadvertising.org/probe.html?image=http%3A%2F%2Fadcolo.com%2Fdoc-ads-probe.gif&image=http%3A%2F%2Fhotjar.com%2Fdoc-trackers-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fdoc-iran-probe.gif"
   },
   {
    "expectLoaded": "doc-ads-probe"
@@ -871,13 +871,13 @@
    "expectLoaded": "doc-iran-probe"
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fdoc-ads-probe.gif"
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fdoc-ads-probe.gif"
   },
   {
    "expectBlocked": "doc-ads-probe"
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadnxs.com%2Fdoc-outer-probe.gif&frame=http%3A%2F%2Foptout.networkadvertising.org%2Fprobe.html%3Fimage%3Dhttp%253A%252F%252Fadnxs.com%252Fdoc-inner-probe.gif"
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Fadcolo.com%2Fdoc-outer-probe.gif&frame=http%3A%2F%2Foptout.networkadvertising.org%2Fprobe.html%3Fimage%3Dhttp%253A%252F%252Fadcolo.com%252Fdoc-inner-probe.gif"
   },
   {
    "expectBlocked": "doc-outer-probe"
@@ -893,7 +893,7 @@
    "wait": 500
   },
   {
-   "open": "http://optout.networkadvertising.org/probe.html?image=http%3A%2F%2Fadnxs.com%2Fdoc-ads-probe.gif&image=http%3A%2F%2Fmy-blocked.localhost%2Fdoc-own-probe.gif"
+   "open": "http://optout.networkadvertising.org/probe.html?image=http%3A%2F%2Fadcolo.com%2Fdoc-ads-probe.gif&image=http%3A%2F%2Fmy-blocked.localhost%2Fdoc-own-probe.gif"
   },
   {
    "expectLoaded": "doc-ads-probe"
@@ -970,7 +970,7 @@
    ]
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadcolo.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fpersianblocker-only-probe.gif",
    "settle": 1500
   },
   {
@@ -1012,7 +1012,7 @@
    ]
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadcolo.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fpersianblocker-only-probe.gif",
    "settle": 1500
   },
   {
@@ -1054,7 +1054,7 @@
    ]
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadcolo.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fpersianblocker-only-probe.gif",
    "settle": 1500
   },
   {
@@ -1095,7 +1095,7 @@
    ]
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadcolo.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fpersianblocker-only-probe.gif",
    "settle": 1500
   },
   {
@@ -1134,7 +1134,7 @@
    ]
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadcolo.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fpersianblocker-only-probe.gif",
    "settle": 1500
   },
   {
@@ -1160,7 +1160,7 @@
    "wait": 600
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadcolo.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fpersianblocker-only-probe.gif",
    "settle": 1500
   },
   {
@@ -1186,7 +1186,7 @@
    "wait": 600
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadcolo.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fpersianblocker-only-probe.gif",
    "settle": 1500
   },
   {
@@ -1220,7 +1220,7 @@
    ]
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadcolo.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fpersianblocker-only-probe.gif",
    "settle": 1500
   },
   {
@@ -1647,7 +1647,8 @@
     "recommendedExceptions": true,
     "statsDaily": true,
     "statsTopSites": false,
-    "theme": "light"
+    "theme": "light",
+    "updates": true
    }
   },
   {
@@ -1666,7 +1667,7 @@
    ]
   },
   {
-   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadnxs.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Ftapsell.ir%2Fpersianblocker-only-probe.gif",
+   "open": "http://page.fixtures.localhost:8733/probe.html?image=http%3A%2F%2Ftrambelongedallure.com%2Fadguard-only-probe.gif&image=http%3A%2F%2Fzoomit.ir%2Fads%2Fadguard-iran-probe.gif&image=http%3A%2F%2Fadcolo.com%2Feasylist-only-probe.gif&image=http%3A%2F%2Fhotjar.com%2Feasyprivacy-only-probe.gif&image=http%3A%2F%2Fadpulse.ir%2Fpersianblocker-only-probe.gif",
    "settle": 1500
   },
   {

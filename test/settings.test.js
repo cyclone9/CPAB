@@ -38,6 +38,7 @@ test('the defaults are on, dark, automatic and empty', () => {
     dataLeak: true,
     statsDaily: true,
     statsTopSites: false,
+    updates: true,
     language: 'auto',
     theme: 'dark',
     badge: true,
@@ -57,6 +58,7 @@ test('valid stored values are kept', () => {
     dataLeak: false,
     statsDaily: false,
     statsTopSites: true,
+    updates: false,
     language: 'fa',
     theme: 'light',
     badge: false,
@@ -109,6 +111,7 @@ test('settings saved by 0.1.4 keep every choice and gain the per-list switches',
     dataLeak: true,
     statsDaily: true,
     statsTopSites: false,
+    updates: true,
   });
 });
 
@@ -136,6 +139,7 @@ test('settings saved by 0.2.2 keep every choice and gain HaGeZi, allowed address
     dataLeak: true,
     statsDaily: true,
     statsTopSites: false,
+    updates: true,
   });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['ads', 'iran', 'cpab-own', 'trackers-hagezi-light', 'widgets-adguard', 'widgets-fanboy-social', ...HARMFUL]);
 });
@@ -191,6 +195,7 @@ test('settings saved by 0.2.4 keep every choice and gain the Widgets group and l
     dataLeak: true,
     statsDaily: true,
     statsTopSites: false,
+    updates: true,
   });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), ['ads', 'iran', 'cpab-own', 'widgets-adguard', 'widgets-fanboy-social', ...HARMFUL]);
   assert.deepEqual(normalizeSettings(normal), normal);
@@ -214,7 +219,7 @@ test('settings saved by 0.2.7 keep every choice and gain the data-leak notice, o
     badge: false,
   };
   const normal = normalizeSettings(saved);
-  assert.deepEqual(normal, { ...saved, dataLeak: true, statsDaily: true, statsTopSites: false });
+  assert.deepEqual(normal, { ...saved, dataLeak: true, statsDaily: true, statsTopSites: false, updates: true });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), wantedRulesets(normalizeSettings({ ...saved, dataLeak: false }), RULESET_IDS));
   assert.equal(normalizeSettings({ ...saved, dataLeak: false }).dataLeak, false);
 });
@@ -225,7 +230,7 @@ test('settings saved by 0.2.9 gain daily totals, on, and Top 5, off', () => {
   delete saved.statsDaily;
   delete saved.statsTopSites;
   const normal = normalizeSettings(saved);
-  assert.deepEqual(normal, { ...saved, statsDaily: true, statsTopSites: false });
+  assert.deepEqual(normal, { ...saved, statsDaily: true, statsTopSites: false, updates: true });
   assert.deepEqual(wantedRulesets(normal, RULESET_IDS), wantedRulesets(normalizeSettings({ ...saved, statsDaily: false, statsTopSites: true }), RULESET_IDS));
 });
 

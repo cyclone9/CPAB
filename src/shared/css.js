@@ -14,15 +14,16 @@ export const scriptList = (id) => id.slice(SCRIPT_ID_PREFIX.length);
 
 const excludePattern = (domain) => `*://*.${domain}/*`;
 
-// One registered script per list that has generic rules and is switched on.
-export function wantedScripts(settings, index) {
+// One registered script per list that has generic rules and is switched on. `genericOff` holds an
+// updated list's sites where its generic CSS is off, in place of the build's.
+export function wantedScripts(settings, index, genericOff = {}) {
   const on = wantedRulesets(settings, index.lists.map(({ id }) => id));
   const paused = settings.pausedSites.map(excludePattern);
-  return index.lists.filter(({ id, generic }) => generic && on.includes(id)).map(({ id, generic, genericOff }) => ({
+  return index.lists.filter(({ id, generic }) => generic && on.includes(id)).map(({ id, generic, genericOff: built }) => ({
     id: `${SCRIPT_ID_PREFIX}${id}`,
     css: [generic],
     matches: ['<all_urls>'],
-    excludeMatches: [...new Set([...genericOff.map(excludePattern), ...paused])].sort(),
+    excludeMatches: [...new Set([...(genericOff[id] ?? built).map(excludePattern), ...paused])].sort(),
     runAt: 'document_start',
     allFrames: true,
     persistAcrossSessions: true,
