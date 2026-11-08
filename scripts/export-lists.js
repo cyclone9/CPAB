@@ -20,7 +20,7 @@ const OWN_FILES = ['cpab-own.txt', 'cpab-exceptions.txt'];
 // The same test as the CPAB repository's guard, plus what must never appear in text CPAB writes.
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/;
 
-class ExportError extends Error {}
+export class ExportError extends Error {}
 const fail = (message) => { throw new ExportError(message); };
 
 const sha256 = (buffer) => createHash('sha256').update(buffer).digest('hex');
@@ -101,13 +101,15 @@ function sourcesText(entries) {
   ].join('\n');
 }
 
-// Reads and checks everything before the target is touched, so a failed run leaves it as it was.
-function collect({ repoRoot, listsDir, readmeDir }) {
-  const readmes = ['README.md', 'README.fa.md'].map((name) => {
+function collectReadmes({ repoRoot, readmeDir }) {
+  return ['README.md', 'README.fa.md'].map((name) => {
     const path = join(readmeDir, name);
     if (!existsSync(path)) fail(`${relative(repoRoot, path) || path} is missing: the lists repository's README comes from there`);
     return { name, path };
   });
+}
+
+function collectSources({ repoRoot, listsDir }) {
   const entries = LISTS.filter((list) => !list.ownFormat).map((list) => {
     const metaPath = join(listsDir, list.metaFile);
     const snapshotPath = join(listsDir, list.listFile);
@@ -126,41 +128,57 @@ function collect({ repoRoot, listsDir, readmeDir }) {
     if (!existsSync(path)) fail(`${name} is missing from the lists folder`);
     return { name, path };
   });
-  return { readmes, entries, own };
+  return { entries, own };
 }
 
 function checkText(name, text, authored) {
   if (authored && EMAIL.test(text)) fail(`${name} holds an email address`);
 }
 
-export function exportLists(target, { repoRoot = root, listsDir = join(repoRoot, 'lists'), readmeDir = join(repoRoot, 'scripts', 'lists-repo') } = {}) {
-  if (!target) fail('usage: npm run export-lists -- <target folder>');
-  const real = checkTarget(target, repoRoot);
-  const { readmes, entries, own } = collect({ repoRoot, listsDir, readmeDir });
+// Every source snapshot with its record and licence text, CPAB's own two files and SOURCES.md, read and
+// checked. scripts/publish-data.js serves the same set beside the converted lists.
+export function prepareSources({ repoRoot = root, listsDir = join(repoRoot, 'lists') } = {}) {
+  const { entries, own } = collectSources({ repoRoot, listsDir });
   const sources = sourcesText(entries);
-
-  for (const { name, path } of [...readmes, ...own]) checkText(name, readFileSync(path, 'utf8'), true);
+  for (const { name, path } of own) checkText(name, readFileSync(path, 'utf8'), true);
   for (const { list, metaPath, snapshotPath } of entries) {
     checkText(list.metaFile, readFileSync(metaPath, 'utf8'), true);
     checkText(list.listFile, readFileSync(snapshotPath, 'utf8'), false);
   }
   checkText('SOURCES.md', sources, true);
+  return { repoRoot, entries, own, sources };
+}
+
+// Writes what prepareSources read into a folder, over whatever an earlier run left there.
+export function writeSources(folder, { repoRoot, entries, own, sources }) {
+  mkdirSync(folder, { recursive: true });
+  for (const { name, path } of own) copyFileSync(path, join(folder, name));
+  copyFileSync(join(repoRoot, 'LICENSE'), join(folder, 'LICENSE'));
+  writeFileSync(join(folder, 'SOURCES.md'), sources);
+  for (const { list, metaPath, snapshotPath, licence } of entries) {
+    const target = join(folder, 'sources', list.name);
+    mkdirSync(target, { recursive: true });
+    copyFileSync(snapshotPath, join(target, `${list.name}.txt`));
+    copyFileSync(metaPath, join(target, 'meta.json'));
+    if (licence) copyFileSync(licence.path, join(target, 'LICENSE.txt'));
+  }
+}
+
+// Reads and checks everything before the target is touched, so a failed run leaves it as it was.
+export function exportLists(target, { repoRoot = root, listsDir = join(repoRoot, 'lists'), readmeDir = join(repoRoot, 'scripts', 'lists-repo') } = {}) {
+  if (!target) fail('usage: npm run export-lists -- <target folder>');
+  const real = checkTarget(target, repoRoot);
+  const readmes = collectReadmes({ repoRoot, readmeDir });
+  const prepared = prepareSources({ repoRoot, listsDir });
+  for (const { name, path } of readmes) checkText(name, readFileSync(path, 'utf8'), true);
 
   mkdirSync(real, { recursive: true });
   rmSync(join(real, 'sources'), { recursive: true, force: true });
   for (const name of TOP_FILES) rmSync(join(real, name), { force: true });
 
-  for (const { name, path } of [...readmes, ...own]) copyFileSync(path, join(real, name));
-  copyFileSync(join(repoRoot, 'LICENSE'), join(real, 'LICENSE'));
-  writeFileSync(join(real, 'SOURCES.md'), sources);
-  for (const { list, metaPath, snapshotPath, licence } of entries) {
-    const folder = join(real, 'sources', list.name);
-    mkdirSync(folder, { recursive: true });
-    copyFileSync(snapshotPath, join(folder, `${list.name}.txt`));
-    copyFileSync(metaPath, join(folder, 'meta.json'));
-    if (licence) copyFileSync(licence.path, join(folder, 'LICENSE.txt'));
-  }
-  return { target: real, lists: entries.map(({ list }) => list.name) };
+  for (const { name, path } of readmes) copyFileSync(path, join(real, name));
+  writeSources(real, prepared);
+  return { target: real, lists: prepared.entries.map(({ list }) => list.name) };
 }
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {

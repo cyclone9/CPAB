@@ -10,11 +10,13 @@ import { exceptedSelectors, finishCss, formatCssReport, readCss } from './conver
 import { parseExceptions } from './convert-exceptions.js';
 import { convertHarmful, extensionId, formatHarmfulReport } from './convert-harmful.js';
 import { convertPopups, formatPopupReport, hasPopupRules, popupBadfilters } from './convert-popup.js';
+import { describeFiles, servedFiles } from './data-files.js';
 import { AGPL_TEXT, DATALEAK_LISTS, LISTS } from './lists.config.js';
 import { EXCEPTIONS_FILE } from '../src/shared/blocking.js';
 import { CSS_INDEX, seedEntries, storedBytes } from '../src/shared/css.js';
 import { DATALEAK_FILE } from '../src/shared/dataleak.js';
 import { POPUP_INDEX } from '../src/shared/popups.js';
+import { LIMITS, checkTotals } from '../src/shared/update-schema.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
@@ -58,6 +60,7 @@ function convertInto(rulesDir, list, css, cancelledPopups) {
     sourceLink: list.sourceLink ?? null,
     licence: { name: meta.licence.name, url: meta.licence.url, copy: meta.licence.copy ?? null },
     snapshotDate: meta.snapshot.date,
+    snapshotSha256: createHash('sha256').update(text).digest('hex'),
   };
 
   if (list.harmful || list.adult) {
@@ -169,7 +172,6 @@ const cancelledPopups = new Set(present.flatMap((list) => popupBadfilters(readFi
 const lists = LISTS.map((list) => convertInto(rulesDir, list, css.get(list), cancelledPopups));
 writeCssIndex(present, css);
 const dataLeak = DATALEAK_LISTS.map(convertDataLeak);
-writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists: [...lists.map(({ popupFile, rulesList, ...list }) => list), ...dataLeak] }));
 
 const regexRules = lists.reduce((total, { rulesList = [] }) => total + rulesList.filter(({ condition }) => condition.regexFilter).length, 0);
 const staticRules = lists.reduce((total, { rulesList = [] }) => total + rulesList.length, 0);
@@ -178,6 +180,21 @@ if (regexRules > MAX_REGEX_RULES) throw new Error(`${regexRules} regex rules, ov
 writeFileSync(join(dist, POPUP_INDEX), JSON.stringify({
   lists: lists.filter(({ popupFile }) => popupFile).map(({ ruleset, popupFile }) => ({ id: ruleset, file: popupFile })),
 }));
+
+// What each list would serve as a list update, checked as an update would be, with the hashes 0.3.3
+// compares against so it never downloads what already ships.
+const cssIndex = JSON.parse(readFileSync(join(dist, CSS_INDEX), 'utf8'));
+const served = [];
+for (const [index, list] of LISTS.entries()) {
+  if (!lists[index].available) continue;
+  const files = describeFiles(list.ruleset, servedFiles(rulesDir, { ...list, licenceCopy: lists[index].licence.copy }, cssIndex));
+  served.push(...files);
+  lists[index].files = Object.fromEntries(files.map(({ kind, name, ...file }) => [kind, { path: name, ...file }]));
+}
+const totals = checkTotals(served);
+console.log(`served data: ${totals.rules} rules of the ${LIMITS.rules} an update may carry, ${(totals.siteBytes / 1024 / 1024).toFixed(2)} MiB of site CSS`);
+if (totals.problems.length) throw new Error(`the list data fails its checks: ${totals.problems.join('; ')}`);
+writeFileSync(join(rulesDir, 'summary.json'), JSON.stringify({ lists: [...lists.map(({ popupFile, rulesList, ...list }) => list), ...dataLeak] }));
 
 const exceptions = parseExceptions(readFileSync(join(root, 'lists', 'cpab-exceptions.txt'), 'utf8'));
 writeFileSync(join(dist, EXCEPTIONS_FILE), JSON.stringify({ domains: exceptions }));

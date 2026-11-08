@@ -69,3 +69,13 @@ export function addSite(sites, domain) {
   const kept = sites.filter((entry) => !entry.endsWith(`.${domain}`));
   return { status: 'added', sites: [...kept, domain].sort() };
 }
+
+const RULE_LABEL = /^[a-z0-9_-]{1,63}$/;
+
+// A domain in a list's rules as the converter writes it: lowercase ASCII, punycode for anything else.
+// Lists name hosts such as _sips._tcp.example.com and suffixes such as gov, so this is wider than a
+// host a person could type.
+export function isRuleDomain(domain) {
+  return typeof domain === 'string' && domain.length > 0 && domain.length <= 253
+    && domain.split('.').every((label) => RULE_LABEL.test(label));
+}

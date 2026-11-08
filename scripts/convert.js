@@ -4,6 +4,7 @@
 // exceptions. Everything else is counted by reason and dropped. Our own code, no dependencies.
 import { domainToASCII } from 'node:url';
 import { ALLOW_RULE_ID_BASE } from '../src/shared/blocking.js';
+import { isRuleDomain } from '../src/shared/domains.js';
 
 const BLOCK_PRIORITY = 1;
 const ALLOW_PRIORITY = 2;
@@ -53,7 +54,6 @@ const REGEX_RULE = /^(?:@@)?\/.+\/(?:\$.*)?$/;
 const DOMAIN_RULE = /^(@@)?\|\|([^/^$*|]+)\^(?:\$(.*))?$/;
 const HOST_ADDRESS = /^(?:0\.0\.0\.0|127\.0\.0\.1|::1?)$/;
 const ASCII_ONLY = /^[\x00-\x7f]*$/;
-const VALID_DOMAIN = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/;
 // The leftmost $ that starts a well-formed option list. A $ with anything else after it isn't one.
 const OPTION_LIST = /\$(~?[\w-]+(?:=[^,]*)?(?:,~?[\w-]+(?:=[^,]*)?)*)$/;
 
@@ -241,7 +241,7 @@ export function normalizeRuleDomain(host) {
   const ascii = domainToASCII(lower);
   // The URL parser completes numeric hosts: 10.10.34. comes back as 10.10.0.34, another address.
   if (ASCII_ONLY.test(lower) && ascii !== lower) return null;
-  return VALID_DOMAIN.test(ascii) ? ascii : null;
+  return isRuleDomain(ascii) ? ascii : null;
 }
 
 // Rules with the same action and options become one group holding all their domains.

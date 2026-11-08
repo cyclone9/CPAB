@@ -22,8 +22,14 @@ const headerValue = (text, name) => text.match(new RegExp(`^! ${name}: *(.+)$`, 
 
 const sha256 = (text) => createHash('sha256').update(text).digest('hex');
 
+// On GitHub Actions the API allows few requests without a token, and several runners share an address.
+function withToken(url, headers) {
+  const token = process.env.GITHUB_TOKEN;
+  return token && new URL(url).hostname === 'api.github.com' ? { ...headers, authorization: `Bearer ${token}` } : headers;
+}
+
 async function download(url, headers = {}) {
-  const response = await fetch(url, { headers });
+  const response = await fetch(url, { headers: withToken(url, headers) });
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
   // Git stores line endings as LF here, so the recorded hash has to describe LF text.
   return (await response.text()).replace(/\r\n/g, '\n');

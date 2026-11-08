@@ -6,6 +6,16 @@ const SHOWN_VERSIONS = 3;
 
 export const CHANGELOG = Object.freeze([
   {
+    version: '0.3.2',
+    date: '2026-11-08',
+    en: [
+      'The lists CPAB uses are now converted every day and published on cpab.cyclone9.dev, with a signature that shows they came from CPAB. CPAB itself doesn\'t download them yet: your copy keeps the lists that came with this version.',
+    ],
+    fa: [
+      'فهرست‌هایی که تبلیغ‌شکن به کار می‌برد، حالا هر روز تبدیل و در cpab.cyclone9.dev منتشر می‌شوند، همراه با امضایی که نشان می‌دهد از تبلیغ‌شکن آمده‌اند. خود تبلیغ‌شکن هنوز آن‌ها را دانلود نمی‌کند و نسخهٔ شما همان فهرست‌هایی را نگه می‌دارد که با این نسخه آمده‌اند.',
+    ],
+  },
+  {
     version: '0.3.1',
     date: '2026-11-08',
     en: [
